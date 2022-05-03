@@ -1,12 +1,21 @@
 # Alpha-Omega
 
-Partnering with open source software project maintainers to systematically find new, as-yet-undiscovered vulnerabilities in open source code – and get them fixed – to improve global software supply chain security.
+Welcome!
 
-[Alpha-Omega Home Page](https://openssf.org/community/alpha-omega/)
+Through Alpha-Omega, we aim to meaningfully improve the security of the open source software
+projects that we all depend so deeply upon.
 
-## Alpha Engagements
+**Alpha** will work with the maintainers of the most critical open source projects to help them
+identify and fix security vulnerabilities, and improve their security posture.
 
-We have active engagements with the following projects. Click on a link for more information.
+**Omega** will identify at least 10,000 widely deployed OSS projects where it can apply automated
+security analysis, scoring, and remediation guidance to their open source maintainer communities.
+
+To learn more, view the [Alpha-Omega home page](https://openssf.org/community/alpha-omega/).
+
+## Alpha
+
+We have active engagements with the following projects.
 
 * [Node.js](/alpha/engagements/2022/node.js)
 
@@ -14,16 +23,18 @@ We have active engagements with the following projects. Click on a link for more
 
 TBD
 
-### Meeting times
+## Project Information
+
+#### Meeting times
 
 We meet on the first Wednesday of each month at 1:00pm PT. You can find the meeting
 invite link on the [OpenSSF Community Calendar](https://calendar.google.com/calendar?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ).
 
-### Governance
+#### Governance
 
 The [CHARTER.md](https://github.com/ossf/alpha-omega/blob/main/CHARTER.md) outlines the scope and governance of this project's activities.
 
-### Core Team
+#### Core Team
 
 The Alpha-Omega core team members include:
 
@@ -32,7 +43,7 @@ The Alpha-Omega core team members include:
 * [Michael Winser](https://www.linkedin.com/in/michaelw) (Google)
 * [David A. Wheeler](https://www.linkedin.com/in/david-a-wheeler-27798688/) (Linux Foundation)
 
-## Get Involved
+#### Get Involved
 
 You can get involved by engaging with us in various ways:
 
