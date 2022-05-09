@@ -1,64 +1,54 @@
-# **OSSF Project/WG Name**
+# Alpha-Omega
 
-[Brief description of the initiative]
+Welcome!
 
+Through Alpha-Omega, we aim to meaningfully improve the security of the open source software
+projects that we all depend so deeply upon.
 
-## 
-**Motivation**
+**Alpha** will work with the maintainers of the most critical open source projects to help them
+identify and fix security vulnerabilities, and improve their security posture.
 
-[Background / use cases of the problem to be solved]
+**Omega** will identify at least 10,000 widely deployed OSS projects where it can apply automated
+security analysis, scoring, and remediation guidance to their open source maintainer communities.
 
+To learn more, view the [Alpha-Omega home page](https://openssf.org/community/alpha-omega/).
 
-## 
-**Objective**
+## Alpha
 
-[What is to be achieved with this initiative]
+We have active engagements with the following projects.
 
-[OKRs - OPTIONAL]
+* [Node.js](/alpha/engagements/2022/node.js)
 
+## Omega
 
-## 
-**Scope**
+TBD
 
-[What is in and out of scope]
+## Project Information
 
+#### Meeting times
 
-## 
-**Prior Work**
+We meet on the first Wednesday of each month at 1:00pm PT. You can find the meeting
+invite link on the [OpenSSF Community Calendar](https://calendar.google.com/calendar?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ).
 
+#### Governance
 
+The [CHARTER.md](https://github.com/ossf/alpha-omega/blob/main/CHARTER.md) outlines the scope and governance of this project's activities.
 
-*   List of prior and/or related projects
+#### Core Team
 
-# 
-**Get Involved**
+The Alpha-Omega core team members include:
 
-*   Official communications occur on the [ADD LINK TO YOUR WG MAILING LIST] (ex: https://lists.openssf.org/g/openssf-tac/topics).  \
-[Manage your subscriptions to Open SSF mailing lists](https://lists.openssf.org/g/main/subgroups).
-*   [Add Slack information if availabable]
+* [Brian Behlendorf](https://www.linkedin.com/in/brianbehlendorf) (OpenSSF)
+* [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
+* [Michael Winser](https://www.linkedin.com/in/michaelw) (Google)
+* [David A. Wheeler](https://www.linkedin.com/in/david-a-wheeler-27798688/) (Linux Foundation)
 
-### 
-Quick Start
+#### Get Involved
 
-*   Areas that need contributions
-*   Build information if applicable
-*   Where to file issues
-*   Etc.
+You can get involved by engaging with us in various ways:
 
-## 
-**Meeting times**
+* **Slack:** We watch the [#alpha_omega](https://openssf.slack.com/archives/C02LUUWQZNK) Slack channel.
+* **Monthly Meeting:** Come and talk to us directly.
+* **Mailing List:** Join the [alpha-omega-announcements](https://lists.openssf.org/g/alpha-omega-announcements) mailing list to be notified of upcoming developments.
+* **Contact Us:** [Let us know](https://docs.google.com/forms/d/e/1FAIpQLSdIxDf1onzE66a5yrSedNkxWu_wr7xmZEsQl9lpHnSbzQBvJw/viewform) you'd like to get involved.
 
-[TODO: Update with your WG meeting details]
-*   Every other Tuesday @ 10:00am PST (Link to calendar invite)
-*   [Meeting Minutes](https://docs.google.com/document/d/1uXQI1vI5_HyOvxHMexrnTY_ruBrynbPl5yOd1UM4g3A/edit#heading=h.yworp6sxzb6g)
-
-# 
-**Governance**
-
-[TODO: Update this link to your specific CHARTER.md file]
-The [CHARTER.md](https://github.com/ossf/project-template/blob/main/CHARTER.md) outlines the scope and governance of our group activities.
-
-
-[OPTIONAL]
-*   Lead name 
-*   Co-Lead name

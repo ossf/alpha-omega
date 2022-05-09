@@ -1,0 +1,25 @@
+header:
+  schema-version: '1.0.0'
+  expiration-date: '2022-12-31T00:00:00.000Z'
+  last-updated: '2022-05-03'
+  last-reviewed: '2022-05-03'
+  commit-hash: 9c1924a9ee421f9c7959df2a1538c86f7d410de6
+  project-url: https://github.com/ossf/alpha-omega
+project-lifecycle:
+  stage: active
+  bug-fixes-only: false
+  core-maintainers:
+  - https://github.com/scovetta
+  - https://github.com/michaelwinser
+contribution-policy:
+  accepts-pull-requests: true
+security-artifacts:
+  threat-model:
+    threat-model-created: false
+security-contacts:
+- type: email
+  value: alpha-omega@openssf.org
+vulnerability-reporting:
+  accepts-vulnerability-reports: true
+dependencies:
+  third-party-packages: true
