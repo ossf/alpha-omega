@@ -37,4 +37,4 @@ and installs other tools that are provided under separate licenses; for example:
   [LGPLv3 license](https://rada.re/r/license.html).
 
 Please refer to the [Dockerfile](Dockerfile) for more information about the varying licenses
-of the included applications.
+of the included tools.

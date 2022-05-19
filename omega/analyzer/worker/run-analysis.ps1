@@ -29,6 +29,19 @@ if (Test-Path $OutputDirectoryName)
 New-Item -ItemType Directory -Force -Path $OutputDirectoryName | Out-Null
 $OutputDirectoryName = (Resolve-Path $OutputDirectoryName).Path
 
+# Ensure we have a version
+if (!$PackageUrl.Contains("@")) {
+    $parts = $PackageUrl -split "/"
+    $Name = $parts[1]
+    $Type = ($parts[0] -split ":")[1]
+    $res = Invoke-WebRequest -UseBasicParsing -Uri "http://deps.dev/_/s/$Type/p/$Name"
+    $data = $res.Content | ConvertFrom-Json
+    $version = $data.version.version
+    $PackageUrl = "pkg:$Type/$Name@$version"
+    Write-Host "Normalized PackageUrl to $PackageUrl"
+}
+
+
 if ($LibrariesIOAPIKey -ne $null)
 {
     docker run --rm -it -e "LIBRARIES_IO_API_KEY=$LibrariesIOAPIKey" --mount type=bind,source=$OutputDirectoryName,target=/opt/export openssf/omega-toolshed:$IMAGE_TAG $PackageUrl $PreviousVersion
@@ -43,6 +56,6 @@ Write-Output "Package successfully analyzed, results in $OutputDirectoryName"
 Write-Output "Creating security review..."
 cd tools
 New-Item -ItemType Directory -Force -Path security-reviews | Out-Null
-python create-review.py -i $OutputDirectoryName -o security-reviews
+python create-review.py -i $OutputDirectoryName -p $PackageUrl -r security-reviews
 cd ..
 Write-Output "Security review created."

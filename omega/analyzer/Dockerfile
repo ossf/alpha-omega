@@ -20,17 +20,16 @@ ARG NODE_VERSION="16.x"
 ARG DEVSKIM_VERSION="0.6.9"
 ARG RADARE2_VERSION="5.6.6"
 ARG CODEQL_VERSION="2.9.0"
+
+# Initialize some things
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Los_Angeles
-
-# set work directory
-WORKDIR /usr/src/app
-
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
 SHELL ["/bin/bash", "-c"]
+
+# Set work directory
+WORKDIR /usr/src/app
 
 # Choose the fastest mirror
 RUN sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal main restricted universe multiverse\n/' /etc/apt/sources.list && \
@@ -176,7 +175,6 @@ RUN chown -R root:root /opt/radare2
 # License: https://github.com/github/codeql-cli-binaries/blob/main/LICENSE.md
 # Additional License per agreement with GitHub for less-restricted OpenSSF internal usage only.
 # Install and pre-compile CodeQL queries
-ARG CODEQL_VERSION="v2.9.0"
 RUN cd /opt && \
     wget https://github.com/github/codeql-cli-binaries/releases/download/$CODEQL_VERSION/codeql-linux64.zip && \
     unzip codeql-linux64.zip && \

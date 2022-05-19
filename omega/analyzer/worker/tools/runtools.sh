@@ -343,9 +343,9 @@ event stop tool-secretscanner
 
 # Binary to Source Validation
 if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then 
-    printf "${RED}Validating reproducibility...${NC}\n"
+    printf "${RED}Validating reproducibility - tbv...${NC}\n"
     event start tool-tbv
-    tbv verify "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-tbv.txt 2>/opt/result/tool-tbv.error
+    timeout "$LONG_ANALYZER_TIMEOUT" tbv verify "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-tbv.txt 2>/opt/result/tool-tbv.error
     sed -i 's/\x1b\[[0-9;]*m//g' /opt/result/tool-tbv.error
     event stop tool-tbv
 fi    
