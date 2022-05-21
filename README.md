@@ -11,7 +11,10 @@ identify and fix security vulnerabilities, and improve their security posture.
 **Omega** will identify at least 10,000 widely deployed OSS projects where it can apply automated
 security analysis, scoring, and remediation guidance to their open source maintainer communities.
 
-To learn more, view the [Alpha-Omega home page](https://openssf.org/community/alpha-omega/).
+To learn more, view the [Alpha-Omega home page](https://openssf.org/community/alpha-omega/) or
+watch our kickoff webinar video below:
+
+[![Alpha-Omega Webinar Video](https://img.youtube.com/vi/dRrFDylU7kg/0.jpg)](https://www.youtube.com/watch?v=dRrFDylU7kg)
 
 ## Alpha
 
@@ -19,15 +22,18 @@ We have active engagements with the following projects.
 
 * [Node.js](/alpha/engagements/2022/node.js)
 
+For more information on Alpha, see [alpha/README.md](alpha/README.md).
+
 ## Omega
 
-TBD
+The Omega project is still getting started, stay tuned for more information, or learn more
+at [omega/README.md](omega/README.md).
 
 ## Project Information
 
 #### Meeting times
 
-We meet on the first Wednesday of each month at 1:00pm PT. You can find the meeting
+We usually meet on the first Wednesday of each month at 1:00pm PT. You can find the meeting
 invite link on the [OpenSSF Community Calendar](https://calendar.google.com/calendar?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ).
 
 #### Governance
