@@ -9,7 +9,7 @@ in key areas, including:
 * Implementing security features
 * Collaboration (OpenSSF, Node Security Working Group, community)
 
-Additional details are in [security-support-role.md](securiity-support-role.md).
+Additional details are in [security-support-role.md](security-support-role.md).
 
 ### Timeline
 
