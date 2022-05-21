@@ -1,7 +1,6 @@
 # Reporting Security Issues
 
-To report a security issue, please email
-[michael.scovetta@microsoft.com](mailto:michael.scovetta@microsoft.com)
+To report a security issue, please email [alpha-omega-reports@openssf.org](mailto:alpha-omega-reports@openssf.org)
 with a description of the issue, the steps you took to create the issue,
 affected versions, and, if known, mitigations for the issue.
 
