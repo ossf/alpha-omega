@@ -6,12 +6,12 @@
 # Analyzer: runtools.sh
 #
 # This script can be used to analyze a given package using a set of analyzers.
-# 
+#
 # Usage: runtool.sh PACKAGE_URL
 #
 # Output:
 #  Output is writted to /opt/export
-# 
+#
 # Copyright (c) Microsoft Corporation. Licensed under the Apache License.
 ###############################################################################
 tabs 4
@@ -54,7 +54,7 @@ function get_previous_version()
         if [ "$PREV_VERSION_BY_DATE" != "[" ]; then
             echo "$PREV_VERSION_BY_DATE"
         fi
-        if [ "$PREV_VERSION_BY_DATE" != "$PREV_VERSION_BY_NUMBER" ] && [ "$PREV_VERSION_BY_NUMBER" != "[" ] && [ "$PREV_VERSION_BY_NUMBER" != "$PACKAGE_PURL_VERSION" ]; then 
+        if [ "$PREV_VERSION_BY_DATE" != "$PREV_VERSION_BY_NUMBER" ] && [ "$PREV_VERSION_BY_NUMBER" != "[" ] && [ "$PREV_VERSION_BY_NUMBER" != "$PACKAGE_PURL_VERSION" ]; then
             echo "$PREV_VERSION_BY_NUMBER"
         fi
     fi
@@ -119,12 +119,12 @@ mkdir -p "$EXPORT_DIR"
 # Fix the OSSGadget Package URL when we have scoped namespaces
 PACKAGE_PURL_OSSGADGET="${PURL}"
 if [[ "$PACKAGE_PURL_NAMESPACE_NAME" == @* ]]; then
-    PACKAGE_PURL_OSSGADGET="pkg:${PACKAGE_PURL_TYPE}/${PACKAGE_PURL_NAMESPACE_NAME_ENCODED}@${PACKAGE_PURL_VERSION}"    
+    PACKAGE_PURL_OSSGADGET="pkg:${PACKAGE_PURL_TYPE}/${PACKAGE_PURL_NAMESPACE_NAME_ENCODED}@${PACKAGE_PURL_VERSION}"
 fi
 
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
-ANALYZER_VERSION="0.7.1"
+ANALYZER_VERSION="0.8.0"
 ANALYSIS_DATE=$(date)
 
 # ASCII Art generated using http://patorjk.com/software/taag/#p=display&h=0&v=0&c=echo&f=THIS&t=Toolshed
@@ -240,12 +240,12 @@ for PREVIOUS_VERSION in $PREVIOUS_VERSIONS; do
 done
 event stop tool-application-inspector
 
-# String Diff 
+# String Diff
 printf "${RED}Identifying new strings from previous version...${NC}\n"
 find "$CUR_ROOT" -type f | xargs -I{} grep -Eoa '\w+(\w\.)*\w+' {} | tr '[:upper:]' '[:lower:]' | sort | uniq >"/opt/result/tool-strings.$PACKAGE_PURL_VERSION.txt"
 for PREVIOUS_VERSION in $PREVIOUS_VERSIONS; do
     find "$TOP_ROOT/$PREVIOUS_VERSION/" -type f | xargs -I{} grep -Eoa '\w+(\w\.)*\w+' {} | tr '[:upper:]' '[:lower:]' | sort | uniq > "/opt/result/tool-strings.$PREVIOUS_VERSION.txt"
-    comm -23 "/opt/result/tool-strings.$PACKAGE_PURL_VERSION.txt" "/opt/result/tool-strings.$PREVIOUS_VERSION.txt" >"/opt/result/tool-strings-diff.$PACKAGE_PURL_VERSION-$PREVIOUS_VERSION.txt"    
+    comm -23 "/opt/result/tool-strings.$PACKAGE_PURL_VERSION.txt" "/opt/result/tool-strings.$PREVIOUS_VERSION.txt" >"/opt/result/tool-strings-diff.$PACKAGE_PURL_VERSION-$PREVIOUS_VERSION.txt"
 done
 
 # Binary Attributes - via Radare2
@@ -342,13 +342,13 @@ chmod -x /opt/result/tool-secretscanner.json
 event stop tool-secretscanner
 
 # Binary to Source Validation
-if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then 
+if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
     printf "${RED}Validating reproducibility - tbv...${NC}\n"
     event start tool-tbv
     timeout "$LONG_ANALYZER_TIMEOUT" tbv verify "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-tbv.txt 2>/opt/result/tool-tbv.error
     sed -i 's/\x1b\[[0-9;]*m//g' /opt/result/tool-tbv.error
     event stop tool-tbv
-fi    
+fi
 
 # Lizard (Code Complexity)
 cd "$CUR_ROOT/src"
@@ -401,13 +401,10 @@ LANGUAGES=()
 [[ "$FILE_TYPES" =~ ( )python( ) ]] && LANGUAGES+=("python")
 [[ "$FILE_TYPES" =~ ( )(c|h|hpp|c\+\+|cpp)( ) ]] && LANGUAGES+=("cpp")
 [[ "$FILE_TYPES" =~ ( )go( ) ]] && LANGUAGES+=("go")
+[[ "$FILE_TYPES" =~ ( )ruby( ) ]] && LANGUAGES+=("ruby")
 
 for LANGUAGE in "${LANGUAGES[@]}"; do
-    if [ "$LANGUAGE" = "go" ]; then
-        QUERY_ROOT="/opt/codeql-queries-go"
-    else
-        QUERY_ROOT="/opt/codeql-queries"
-    fi
+    QUERY_ROOT="/opt/codeql-queries"
     CODEQL_SUITES=("$QUERY_ROOT/$LANGUAGE/ql/src/codeql-suites/$LANGUAGE-security-extended.qls")
 
     if [ -f "$QUERY_ROOT/$LANGUAGE/ql/src/codeql-suites/solorigate.qls" ]; then
@@ -498,7 +495,7 @@ for LANGUAGE in "${LANGUAGES[@]}"; do
             CODEQL_CONTROLFLOW_QUERY="/opt/codeql-queries/$LANGUAGE/ql/src/controlflow-query.ql"
             mkdir -p $(dirname ${CODEQL_CONTROLFLOW_QUERY})
             sed "s|_SOURCE_|$PACKAGE_PURL_NAME|gi" /opt/toolshed/etc/codeql-controlflow-$LANGUAGE.template >"$CODEQL_CONTROLFLOW_QUERY"
-            
+
             # Write the qlpack.yml file
             echo "name: custom-controlflow-$LANGUAGE" >/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
             echo "version: 0.0.0" >>/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
@@ -516,13 +513,13 @@ for LANGUAGE in "${LANGUAGES[@]}"; do
         # Cut the sinks out of the CSV file (taking into account NPM scopes)
         if [ -f "/opt/result/tool-codeql-db-installed-codeflow.csv" ]; then
             csvtool col 3 /opt/result/tool-codeql-db-installed-codeflow.csv |
-                grep -Eo 'node_modules/([^/]+|@[^/]+\/[^/]+)/' | 
+                grep -Eo 'node_modules/([^/]+|@[^/]+\/[^/]+)/' |
                 sed 's/^node_modules\///' |
                 sed 's/\/$//' |
                 sed 's/@/%40/g' |
                 sed 's/\//%2F/g' |
                 sed 's/^/pkg:npm\//g' |
-                sort | 
+                sort |
                 uniq > /opt/result/tool-codeql-db-installed-codeflow-sinks.txt
         else
             echo "Unable to generate control flow graph." >/opt/result/tool-codeql-db-installed-codeflow.error
@@ -535,7 +532,7 @@ done
 printf "${RED}Checking syscalls during installation...${NC}\n"
 rm -rf "$CUR_ROOT/installed_syscall" && mkdir -p "$CUR_ROOT/installed_syscall" && cd "$CUR_ROOT/installed_syscall"
 event start tool-strace
-if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then 
+if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
     strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.javascript.txt npm i "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
 elif [ "$PACKAGE_PURL_TYPE" == "pypi" ]; then
     strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.python.txt pip3 install --no-compile --root /tmp/pip-build-temp "$PACKAGE_PURL_NAME==$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1

@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM mcr.microsoft.com/mirror/docker/library/ubuntu:22.04
 
 # Copyright (C) Microsoft Corporation, All rights reserved.
 
@@ -6,20 +6,20 @@ LABEL schema-version="1.0"
 LABEL name="toolshed"
 LABEL maintainer="Open Source Security Foundation - Omega"
 LABEL vendor="OpenSSF"
-LABEL build-date="2022-04-28T00:00:00.00Z"
-LABEL version="0.6.7"
+LABEL build-date="2022-07-01T00:00:00.00Z"
+LABEL version="0.8.0"
 
 # Overridable Arguments
 ARG DOTNET_VERSION="6.0"
-ARG APPLICATION_INSPECTOR_VERSION="1.4.29"
-ARG OSSGADGET_VERSION="0.1.335"
-ARG GO_VERSION="1.18.1"
-ARG BRAKEMAN_VERSION="v5.2.2"
+ARG APPLICATION_INSPECTOR_VERSION="1.5.13"
+ARG OSSGADGET_VERSION="0.1.336"
+ARG GO_VERSION="1.18.3"
+ARG BRAKEMAN_VERSION="v5.2.3"
 ARG SCC_VERSION="3.0.0"
-ARG NODE_VERSION="16.x"
+ARG NODE_VERSION="18.x"
 ARG DEVSKIM_VERSION="0.6.9"
-ARG RADARE2_VERSION="5.6.6"
-ARG CODEQL_VERSION="2.9.0"
+ARG RADARE2_VERSION="5.7.2"
+ARG CODEQL_VERSION="v2.10.0"
 
 # Initialize some things
 ARG DEBIAN_FRONTEND=noninteractive
@@ -32,11 +32,11 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /usr/src/app
 
 # Choose the fastest mirror
-RUN sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal main restricted universe multiverse\n/' /etc/apt/sources.list && \
-    sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal-updates main restricted universe multiverse\n/' /etc/apt/sources.list && \
-    sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal-backports main restricted universe multiverse\n/' /etc/apt/sources.list && \
-    sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal-security main restricted universe multiverse\n/' /etc/apt/sources.list && \
-    echo /etc/apt/sources.list
+#RUN sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal main restricted universe multiverse\n/' /etc/apt/sources.list && \
+#    sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal-updates main restricted universe multiverse\n/' /etc/apt/sources.list && \
+#    sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal-backports main restricted universe multiverse\n/' /etc/apt/sources.list && \
+#    sed -i '1s/^/deb mirror:\/\/mirrors.ubuntu.com\/mirrors.txt focal-security main restricted universe multiverse\n/' /etc/apt/sources.list && \
+#    echo /etc/apt/sources.list
 
 # Add source repositories
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
@@ -120,7 +120,7 @@ RUN cd /tmp && \
     apt-get update && \
     rm packages-microsoft-prod.deb && \
     apt-get install -y dotnet-sdk-${DOTNET_VERSION}
-    
+
     # Disabled for now because of https://github.com/PowerShell/PowerShell/issues/17125
     #&& \
     #apt-get install -y powershell
@@ -167,7 +167,7 @@ RUN cd /opt && \
     git checkout $RADARE2_VERSION && \
     sh ./sys/install.sh && \
     r2pm init && \
-    r2pm update 
+    r2pm update
 USER root
 RUN chown -R root:root /opt/radare2
 
@@ -183,17 +183,13 @@ RUN cd /opt && \
     cd codeql-queries && \
     git checkout "codeql-cli/$CODEQL_VERSION" && \
     cd .. && \
-    git clone https://github.com/github/codeql-go codeql-queries-go && \
-    cd codeql-queries-go && \
-    git checkout "codeql-cli/$CODEQL_VERSION" && \
-    cd .. && \
     PATH="/opt/codeql:$PATH" && \
     codeql query compile --threads=0 /opt/codeql-queries/javascript/ql/src/codeql-suites/javascript-security-and-quality.qls && \
     codeql query compile --threads=0 /opt/codeql-queries/java/ql/src/codeql-suites/java-security-and-quality.qls && \
     codeql query compile --threads=0 /opt/codeql-queries/csharp/ql/src/codeql-suites/csharp-security-and-quality.qls && \
     codeql query compile --threads=0 /opt/codeql-queries/python/ql/src/codeql-suites/python-security-and-quality.qls && \
     codeql query compile --threads=0 /opt/codeql-queries/cpp/ql/src/codeql-suites/cpp-security-and-quality.qls && \
-    codeql query compile --threads=0 --additional-packs=/opt/codeql-queries/misc /opt/codeql-queries-go/ql/src/codeql-suites/go-security-and-quality.qls && \
+    codeql query compile --threads=0 --additional-packs=/opt/codeql-queries/misc /opt/codeql-queries/go/ql/src/codeql-suites/go-security-and-quality.qls && \
     codeql query compile --threads=0 --additional-packs=/opt/codeql-queries/misc /opt/codeql-queries/ruby/ql/src/codeql-suites/ruby-security-and-quality.qls
 
 # Install Lizard (code complexity analyzer)
@@ -289,7 +285,7 @@ RUN pip3 --disable-pip-version-check install \
         detect-secrets \
         python-Levenshtein \
         jschema_to_python \
-        sarif_om 
+        sarif_om
 
 # R2C Semgrep (with many rules)
 # License: LGPLv2.1 - https://github.com/returntocorp/semgrep/blob/develop/LICENSE
@@ -367,7 +363,6 @@ RUN npm i -g tbv
 # ILSpy
 # License: MIT - https://github.com/icsharpcode/ILSpy/blob/master/doc/license.txt
 RUN cd /opt && \
-    apt-get install -y dotnet-runtime-3.1 && \
     dotnet tool install --global ilspycmd
 
 ########################
