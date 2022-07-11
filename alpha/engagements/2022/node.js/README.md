@@ -18,6 +18,7 @@ This engagement started in May 2022 and is expected to continue through at least
 ### Monthly Updates
 
 * [May 2022](update-2022-05.md)
+* [June 2022](update-2022-06.md)
 
 ### Primary Contacts
 
