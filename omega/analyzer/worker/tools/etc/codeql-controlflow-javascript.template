@@ -1,0 +1,25 @@
+/**
+ * @name Control Flow from _SOURCE_
+ * @description Control Flow from _SOURCE_
+ * @kind path-problem
+ * @problem.severity recommendation
+ * @precision medium
+ * @id js/controlflow-_SOURCE_
+ * @tags controlflow
+ */
+
+import javascript
+import semmle.javascript.explore.CallGraph
+import DataFlow
+
+from File startFile, File endFile
+where
+  startFile != endFile and 
+  startFile.getRelativePath().indexOf("/_SOURCE_/") != -1 and
+  exists(InvokeNode invoke, FunctionNode function |
+    invoke.getFile() = startFile and 
+    function.getFile() = endFile and
+    invoke.getFile().getRelativePath().toString().regexpCapture(".*node_modules/(.+?)/.*", 1) != function.getFile().getRelativePath().toString().regexpCapture(".*node_modules/(.+?)/.*", 1) and
+    callEdge*(invoke, function)
+  )
+select startFile, startFile, endFile, "ControlFlow"
