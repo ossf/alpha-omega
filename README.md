@@ -48,6 +48,7 @@ The Alpha-Omega core team members include:
 * [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
 * [Michael Winser](https://www.linkedin.com/in/michaelw) (Google)
 * [David A. Wheeler](https://www.linkedin.com/in/david-a-wheeler-27798688/) (Linux Foundation)
+* [Annapurna Veeramachaneni](https://www.linkedin.com/in/annapurna-veeramachaneni-2907a615b/) (Citi)
 
 #### Get Involved
 
