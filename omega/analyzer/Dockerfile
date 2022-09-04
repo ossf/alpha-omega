@@ -113,17 +113,19 @@ RUN apt-get update && \
 # Install .NET Core and PowerShell
 # License: https://github.com/dotnet/core/blob/main/LICENSE.TXT
 # License: https://github.com/PowerShell/PowerShell/blob/master/LICENSE.txt
+# Workaround with /etc/apt/preferences based on https://github.com/dotnet/core/issues/7699
 RUN cd /tmp && \
     wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
-    add-apt-repository universe && \
-    apt-get update && \
     rm packages-microsoft-prod.deb && \
-    apt-get install -y dotnet-sdk-${DOTNET_VERSION}
-
-    # Disabled for now because of https://github.com/PowerShell/PowerShell/issues/17125
-    #&& \
-    #apt-get install -y powershell
+    touch /etc/apt/preferences && \
+    echo "Package: *" >> /etc/apt/preferences && \
+    echo "Pin: origin \"packages.microsoft.com\"" >> /etc/apt/preferences && \
+    echo "Pin-Priority: 1001" >> /etc/apt/preferences && \
+    add-apt-repository universe && \
+    apt update && \
+    apt-get install -y dotnet-sdk-${DOTNET_VERSION} && \
+    apt-get install -y powershell
 
 # Install Go
 # License: https://github.com/golang/go/blob/master/LICENSE
@@ -131,10 +133,6 @@ RUN cd /opt && \
     wget https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz && \
     rm go$GO_VERSION.linux-amd64.tar.gz
-
-# Install DevSkim
-# License: https://github.com/microsoft/DevSkim/blob/main/LICENSE.txt
-RUN dotnet tool install --global Microsoft.CST.DevSkim.CLI
 
 # Install Node.js
 # License: https://github.com/nodejs/node/blob/master/LICENSE
@@ -375,6 +373,8 @@ ARG CACHEBUST=1
 # Set up the path
 RUN echo "export PATH=/root/go/bin:/opt/codeql:/opt/brakeman:/opt/OSSGadget:/opt/ApplicationInspector:/opt/DevSkim:/usr/local/go/bin:/opt/shhgit:/opt:/opt/graudit:/opt/manalyze/bin:/opt/toolshed:$PATH" >> /root/.bashrc
 ENV PATH="/root/go/bin:/opt/codeql:/opt/brakeman:/opt/OSSGadget:/opt/ApplicationInspector:/opt/DevSkim:/usr/local/go/bin:/opt/shhgit:/opt:/opt/graudit:/opt/manalyze/bin:/opt/toolshed:${PATH}"
+
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 ADD worker/tools/runtools.sh /opt/toolshed/
 ADD worker/tools/toolshed_sarif.py /opt/toolshed/
