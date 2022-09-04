@@ -345,9 +345,8 @@ RUN mkdir /opt/semgrep-rules && \
     wget -O findsecbugs.yml https://semgrep.dev/c/p/findsecbugs && \
     wget -O webappsecurityz.3zrr-rules.yml https://semgrep.dev/c/p/webappsecurityz.3zrr-rules && \
     wget -O traw.c.yml https://semgrep.dev/c/p/traw.c && \
-    wget -O tkisason.javascript-kitchensink.yml https://semgrep.dev/c/p/tkisason.javascript-kitchensink
-    # && \
-    #semgrep -f /opt/semgrep-rules --validate
+    wget -O tkisason.javascript-kitchensink.yml https://semgrep.dev/c/p/tkisason.javascript-kitchensink && \
+    semgrep -f /opt/semgrep-rules --validate --metrics=off
 
 # Yara Rules
 # License: GPL-2.0 - https://github.com/Yara-Rules/rules/blob/master/LICENSE
