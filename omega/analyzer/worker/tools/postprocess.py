@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Copyright (C) Microsoft Corporation, All rights reserved.
 
-import base64    
+import base64
 import datetime
 import os
 import json
@@ -24,7 +24,7 @@ class PostProcessor:
     summary = {}
     result_set = set()
     short_findings = {}
-    
+
     cache = {}
 
     def __init__(self, purl):
@@ -48,14 +48,13 @@ class PostProcessor:
             func_name = func_name.split('.')[0]
             func_name = func_name.replace('-', '_').strip().lower()
             func_name = f'process_{func_name}'
-            
+
             # Ignore certain files
             if func_name in ['process_codeql_db_basic', 'process_codeql_db_installed', 'process_codeql_db_installed_codeflow',
                              'process_codeql_db_installed_codeflow_sinks', 'process_strings', 'process_binwalk', 'process_radare2_rabin2']:
                 return
 
             if hasattr(self.__class__, func_name) and callable(getattr(self.__class__, func_name)):
-                #print(f"Processing: {func_name}")
                 func = getattr(self.__class__, func_name)
                 try:
                     func(self, filename)
@@ -63,7 +62,6 @@ class PostProcessor:
                     print(f"Error running {func_name}: {msg}")
                     traceback.print_exc(file=sys.stdout)
             else:
-                #pass
                 print(f"Can't find a function for {func_name}")
 
     def add_finding(self, check_name, message, filename, content):
@@ -116,20 +114,30 @@ class PostProcessor:
         if content:
             self.summary[key] = content
 
+    def strip_ossgadget_banner(self, text: str) -> str:
+        """
+        Removes the OSS Gadget banner from a string.
+        """
+        if not text:
+            return text
+        banner_regex = re.compile(r'^[\s_/\\\|,\)\(`]+OSS Gadget - oss-.* [0-9\.]+\+[0-9a-f]* - github\.com/Microsoft/OSSGadget\n*')
+        text = banner_regex.sub('', text)
+        return text
+
     def process_oss_find_source(self, filename):
         """
         Processes results created by OSS Find Source.
         """
         with open(filename) as f:
-            content = f.read()
-        
+            content = self.strip_ossgadget_banner(f.read()).strip()
+
         if not content:
             return
-        
+
         if filename.endswith('.stderr'):
             self.add_error_result('oss-find-source', content)
             return
-        
+
         if filename.endswith('.sarif'):
             source = []
             js = json.loads(content)
@@ -154,7 +162,7 @@ class PostProcessor:
         """
         with open(filename) as f:
             content = f.read()
-        
+
         if not content:
             return
 
@@ -179,13 +187,13 @@ class PostProcessor:
 
         if filename.endswith('.error'):
             pass   # Uninteresting
-        
+
         if filename.endswith('.json'):
             js = json.loads(content)
             for result in js.get('results', []):
                 if result.get('issue_severity') == "LOW" or result.get('issue_confidence') == "LOW":
                     continue    # Filter low-quality
-                
+
                 snippet = []
                 for line in result.get('code').splitlines():
                     matches = re.match(r'^\d+\s+(.*)', line)
@@ -214,7 +222,7 @@ class PostProcessor:
 
         if filename.endswith('.error'):
             self.add_error_result('checksec', content)
-        
+
         if filename.endswith('.json'):
             content = re.sub(r',\s*\]', ']', content)
             content = re.sub(r',\s*\}', '}', content)
@@ -252,7 +260,7 @@ class PostProcessor:
 
         lines = content.splitlines()
         if filename.endswith('.error') and content:
-            if (len(lines) == 4 and 
+            if (len(lines) == 4 and
                     lines[1].strip().startswith('LibClamAV Warning: ***  The virus database is older than')):
                 # This is OK, we periodically refresh ClamAV, but we don't need it to be completely up to date.
                 return
@@ -297,7 +305,7 @@ class PostProcessor:
 
     def process_codeql_installed(self, filename):
         self.process_sarif_generic(filename, 'codeql_installed')
-    
+
     def process_sarif_generic(self, filename, processor_name, filter_rules=True, ignore_error=False):
         with open(filename) as f:
             content = f.read()
@@ -311,12 +319,12 @@ class PostProcessor:
             elif not ignore_error and 'codeql' not in filename and content:
                 self.add_error_result(processor_name, content)
             return
-        
+
         if filename.endswith('.sarif'):
             js = json.loads(content)
-            
+
             target_rules = {}
-            
+
             for run in js.get('runs', []):
                 for rule in run.get('tool', {}).get('driver', {}).get('rules', []):
                     if filter_rules:
@@ -331,14 +339,14 @@ class PostProcessor:
                     rule_id = result.get('ruleId')
                     if rule_id not in target_rules:
                         continue
-                    
+
                     rule_name = target_rules[rule_id].get('name', rule_id)
                     rule_short_description = target_rules[rule_id].get('shortDescription', {}).get('text')
                     if not rule_short_description:
                         target_rules[rule_id].get('fullDescription', {}).get('text')
                     if not rule_short_description:
                         rule_short_description = rule_name
-                    
+
                     for location in result.get('locations', []):
                         physical_location = location.get('physicalLocation', {})
                         _filename = physical_location.get('artifactLocation', {}).get('uri')
@@ -449,14 +457,14 @@ class PostProcessor:
                 'purl': self.purl
             })
 
-        
+
     def process_application_inspector_diff(self, filename):
         with open(filename) as f:
             content = f.read()
-        
+
         if not filename.endswith('.json'):
             return
-            
+
         js = json.loads(content)
         tags = list(map(lambda s: s.get('tag'), js.get('tagDiffList', [])))
         if tags:
@@ -472,11 +480,11 @@ class PostProcessor:
                 'rule_short_description': "A new characteristic was found.",
                 'purl': self.purl
             })
-    
+
     def process_strings_diff(self, filename):
         with open(filename, 'r') as f:
             content = f.read()
-        
+
         if not content or not content.strip():
             return
 
@@ -571,14 +579,14 @@ class PostProcessor:
     def process_brakeman(self, filename):
         with open(filename) as f:
             content = f.read()
-        
+
         if not content:
             return
 
         if filename.endswith('.error'):
             self.add_error_result('brakeman', content)
             return
-        
+
         if filename.endswith('.json'):
             js = json.loads(content)
             for key in ['warnings', 'errors']:
@@ -658,7 +666,7 @@ class PostProcessor:
     def process_nodejsscan(self, filename):
         with open(filename) as f:
             content = f.read()
-        
+
         if not content:
             return
 
@@ -666,7 +674,7 @@ class PostProcessor:
             self.add_error_result('nodejsscan', content)
             return
 
-        if filename.endswith('.json'):            
+        if filename.endswith('.json'):
             js = json.loads(content)
             for _, vulns in js.get('sec_issues').items():
                 for vuln in vulns:
@@ -686,7 +694,7 @@ class PostProcessor:
     def process_oss_detect_backdoor(self, filename):
         with open(filename) as f:
             content = f.read()
-        
+
         if not content:
             return
 
@@ -694,7 +702,7 @@ class PostProcessor:
         #    self.add_error_result('oss-detect-backdoor', content)
         #    return
 
-        if filename.endswith('.json'):            
+        if filename.endswith('.json'):
             js = json.loads(content)
             matches = js.get('metaData', {}).get('detailedMatchList', [])
             for match in matches:
@@ -716,7 +724,7 @@ class PostProcessor:
     def process_oss_defog(self, filename):
         with open(filename) as f:
             content = f.read()
-        
+
         if not content:
             return
 
@@ -735,7 +743,7 @@ class PostProcessor:
                     line_queue.append(line)
             if line_queue:
                 findings.append('\\n'.join(line_queue))
-            
+
             for finding in findings:
                 parts = finding.split(':', 1)
                 filename = parts[0].split('/', 3)[-1]
@@ -756,11 +764,11 @@ class PostProcessor:
 
     def process_oss_detect_cryptography(self, filename):
         with open(filename) as f:
-            content = f.read().strip()
-        
+            content = self.strip_ossgadget_banner(f.read()).strip()
+
         if not content:
             return
-        
+
         nonblank_lines = len(list(map(lambda s: s, content.splitlines())))
 
         if filename.endswith('.error'):
@@ -791,13 +799,13 @@ class PostProcessor:
     def process_strace(self, filename):
         with open(filename) as f:
             content = f.read().strip()
-        
+
         if not content:
             return
-        
+
         if 'strace_network' not in self.cache:
             self.cache['strace_network'] = set()
-        
+
         if 'strace_filename' not in self.cache:
             self.cache['strace_filename'] = {}
 
@@ -811,7 +819,7 @@ class PostProcessor:
 
         if 'ignore_networks' not in self.cache:
             self.cache['ignore_networks'] = set(['8.8.8.8', '75.75.75.75', '168.63.129.16'])
-        
+
             try:
                 for hostname in ['files.pythonhosted.org', 'pypi.org', 'nuget.org', 'registry.npmjs.com', 'registry.npmjs.org',
                                 'dc.services.visualstudio.com', 'dc.applicationinsights.azure.com', 'dc.applicationinsights.microsoft.com',
@@ -819,7 +827,7 @@ class PostProcessor:
                     self.cache['ignore_networks'] |= set(socket.gethostbyname_ex(hostname)[2])
             except Exception:
                 pass
-        
+
         if filename.endswith('.error') or filename.endswith('.log'):
             return
 
@@ -852,7 +860,7 @@ class PostProcessor:
                     is_read = any([c in line for c in ['O_RDONLY', 'O_RDWR']])
                     is_write = any([c in line for c in ['O_WRONLY', 'O_RDWR']])
                     is_directory = 'O_DIRECTORY' in line
-                    
+
                     if is_directory:
                         continue   # Uninteresting
 
@@ -877,7 +885,7 @@ class PostProcessor:
                         continue   # Already seen
                     else:
                         self.cache['strace_filename'][target_filename][rw_string] = True
-                    
+
                     snippet = list(filter(lambda s: target_filename in s, lines))
                     self.add_result(**{
                             'tool_name': 'strace-file',
@@ -895,12 +903,12 @@ class PostProcessor:
     def process_tbv(self, filename):
         with open(filename) as f:
             content = f.read()
-        
+
         if not content:
             return
 
         result = None
-        
+
         if filename.endswith('.error'):
             if 'FAILED' in content:
                 result = 'Build could not be reproduced.'
@@ -934,7 +942,7 @@ class PostProcessor:
 
         if filename.endswith('.error'):
             pass   # Uninteresting
-        
+
         if filename.endswith('.txt'):
             self.add_result(**{
                 'tool_name': 'yara',
@@ -958,7 +966,7 @@ class PostProcessor:
 
         if filename.endswith('.error'):
             pass   # Uninteresting
-        
+
         if filename.endswith('.txt'):
             for line in content.splitlines():
                 if line.startswith('Total'):
@@ -1015,7 +1023,7 @@ class PostProcessor:
                 if fnmatch.fnmatch(target_filename, pattern):
                     ok_to_read = True
                     break
-    
+
         ok_to_write = False
         for pattern in write_cache.get('common', []):
             if fnmatch.fnmatch(target_filename, pattern):
@@ -1034,14 +1042,14 @@ class PostProcessor:
             return ok_to_write
         else:  # ??
             return False
-            
+
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print(f"Usage: postprocess.py purl directory")
         sys.exit(1)
-    
+
     p = PostProcessor(sys.argv[1])
-    
+
     runtools_path = os.path.join(os.path.dirname(__file__), 'runtools.sh')
     with open(runtools_path, 'r') as f:
         for line in f.readlines():
@@ -1061,7 +1069,7 @@ if __name__ == '__main__':
         # HTML, for the work item description
         with open('/opt/result/summary-description.html', 'w') as f:
             f.write(p.generate_description_html())
-        
+
         # Summary JSON (Metadata)
         with open('/opt/result/summary-metadata.json', 'w') as f:
             f.write(json.dumps(p.summary, indent=2))

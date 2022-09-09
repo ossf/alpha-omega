@@ -278,7 +278,7 @@ fi
 # Cryptography Detection
 printf "${RED}Detecting cryptography...${NC}\n"
 event start tool-oss-detect-cryptography
-oss-detect-cryptography "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-oss-detect-cryptography.txt 2>/opt/result/tool-oss-detect-cryptography.error
+NO_COLOR=1 oss-detect-cryptography "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-oss-detect-cryptography.txt 2>/opt/result/tool-oss-detect-cryptography.error
 event stop tool-oss-detect-cryptography
 
 # Backdoor Detection

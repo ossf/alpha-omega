@@ -6,20 +6,20 @@ LABEL schema-version="1.0"
 LABEL name="toolshed"
 LABEL maintainer="Open Source Security Foundation - Omega"
 LABEL vendor="OpenSSF"
-LABEL build-date="2022-07-01T00:00:00.00Z"
-LABEL version="0.8.0"
+LABEL build-date="2022-08-24T00:00:00.00Z"
+LABEL version="0.8.2"
 
 # Overridable Arguments
 ARG DOTNET_VERSION="6.0"
-ARG APPLICATION_INSPECTOR_VERSION="1.5.13"
-ARG OSSGADGET_VERSION="0.1.336"
-ARG GO_VERSION="1.18.3"
-ARG BRAKEMAN_VERSION="v5.2.3"
+ARG APPLICATION_INSPECTOR_VERSION="1.6.16-beta"
+ARG OSSGADGET_VERSION="0.1.342"
+ARG GO_VERSION="1.19"
+ARG BRAKEMAN_VERSION="v5.3.0"
 ARG SCC_VERSION="3.0.0"
 ARG NODE_VERSION="18.x"
-ARG DEVSKIM_VERSION="0.6.9"
-ARG RADARE2_VERSION="5.7.2"
-ARG CODEQL_VERSION="v2.10.0"
+ARG DEVSKIM_VERSION="0.7.4-alpha"
+ARG RADARE2_VERSION="5.7.6"
+ARG CODEQL_VERSION="v2.10.3"
 
 # Initialize some things
 ARG DEBIAN_FRONTEND=noninteractive
@@ -113,17 +113,19 @@ RUN apt-get update && \
 # Install .NET Core and PowerShell
 # License: https://github.com/dotnet/core/blob/main/LICENSE.TXT
 # License: https://github.com/PowerShell/PowerShell/blob/master/LICENSE.txt
+# Workaround with /etc/apt/preferences based on https://github.com/dotnet/core/issues/7699
 RUN cd /tmp && \
     wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
-    add-apt-repository universe && \
-    apt-get update && \
     rm packages-microsoft-prod.deb && \
-    apt-get install -y dotnet-sdk-${DOTNET_VERSION}
-
-    # Disabled for now because of https://github.com/PowerShell/PowerShell/issues/17125
-    #&& \
-    #apt-get install -y powershell
+    touch /etc/apt/preferences && \
+    echo "Package: *" >> /etc/apt/preferences && \
+    echo "Pin: origin \"packages.microsoft.com\"" >> /etc/apt/preferences && \
+    echo "Pin-Priority: 1001" >> /etc/apt/preferences && \
+    add-apt-repository universe && \
+    apt update && \
+    apt-get install -y dotnet-sdk-${DOTNET_VERSION} && \
+    apt-get install -y powershell
 
 # Install Go
 # License: https://github.com/golang/go/blob/master/LICENSE
@@ -131,10 +133,6 @@ RUN cd /opt && \
     wget https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz && \
     rm go$GO_VERSION.linux-amd64.tar.gz
-
-# Install DevSkim
-# License: https://github.com/microsoft/DevSkim/blob/main/LICENSE.txt
-RUN dotnet tool install --global Microsoft.CST.DevSkim.CLI
 
 # Install Node.js
 # License: https://github.com/nodejs/node/blob/master/LICENSE
@@ -347,9 +345,8 @@ RUN mkdir /opt/semgrep-rules && \
     wget -O findsecbugs.yml https://semgrep.dev/c/p/findsecbugs && \
     wget -O webappsecurityz.3zrr-rules.yml https://semgrep.dev/c/p/webappsecurityz.3zrr-rules && \
     wget -O traw.c.yml https://semgrep.dev/c/p/traw.c && \
-    wget -O tkisason.javascript-kitchensink.yml https://semgrep.dev/c/p/tkisason.javascript-kitchensink
-    # && \
-    #semgrep -f /opt/semgrep-rules --validate
+    wget -O tkisason.javascript-kitchensink.yml https://semgrep.dev/c/p/tkisason.javascript-kitchensink && \
+    semgrep -f /opt/semgrep-rules --validate --metrics=off
 
 # Yara Rules
 # License: GPL-2.0 - https://github.com/Yara-Rules/rules/blob/master/LICENSE
@@ -375,6 +372,8 @@ ARG CACHEBUST=1
 # Set up the path
 RUN echo "export PATH=/root/go/bin:/opt/codeql:/opt/brakeman:/opt/OSSGadget:/opt/ApplicationInspector:/opt/DevSkim:/usr/local/go/bin:/opt/shhgit:/opt:/opt/graudit:/opt/manalyze/bin:/opt/toolshed:$PATH" >> /root/.bashrc
 ENV PATH="/root/go/bin:/opt/codeql:/opt/brakeman:/opt/OSSGadget:/opt/ApplicationInspector:/opt/DevSkim:/usr/local/go/bin:/opt/shhgit:/opt:/opt/graudit:/opt/manalyze/bin:/opt/toolshed:${PATH}"
+
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 ADD worker/tools/runtools.sh /opt/toolshed/
 ADD worker/tools/toolshed_sarif.py /opt/toolshed/
