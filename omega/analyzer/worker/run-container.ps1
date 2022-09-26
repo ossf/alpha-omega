@@ -1,1 +1,0 @@
-docker run --rm -it --mount type=bind,source=$(pwd)\results,target=/opt/export --entrypoint /bin/bash openssf/omega-toolshed:latest
