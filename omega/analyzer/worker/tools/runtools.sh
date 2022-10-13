@@ -7,7 +7,7 @@
 #
 # This script can be used to analyze a given package using a set of analyzers.
 #
-# Usage: runtool.sh PACKAGE_URL
+# Usage: runtools.sh PACKAGE_URL
 #
 # Output:
 #  Output is writted to /opt/export
@@ -124,7 +124,7 @@ fi
 
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
-ANALYZER_VERSION="0.8.0"
+ANALYZER_VERSION="0.8.3"
 ANALYSIS_DATE=$(date)
 
 # ASCII Art generated using http://patorjk.com/software/taag/#p=display&h=0&v=0&c=echo&f=THIS&t=Toolshed
@@ -568,6 +568,20 @@ if [ -n "$(ls -A /opt/result/tool-manalyze.*.json 2>/dev/null)" ]; then
     rm /opt/result/tool-manalyze.*.json
 fi
 event stop tool-manalyze
+
+# Snyk Code - https://snyk.io
+if [ -z $SNYK_TOKEN ]; then
+    printf "${RED}Skipping Snyk Code (SNYK_TOKEN environment variable not defined)...${NC}\n"
+else
+    printf "${RED}Checking Snyk Code...${NC}\n"
+    event start tool-snyk-code
+    snyk code test --sarif-file-output=/opt/result/tool-snyk-code.sarif --severity-threshold=low "${CUR_ROOT}/src" >/opt/result/tool-snyk-code.log 2>&1
+    SNYK_ERR=$?
+    if [ $SNYK_ERR -eq 2 -o $SYNK_ERR -eq 3 ]; then
+        echo "Snyk Code failed to run, error code: $SNYK_ERR" >/opt/result/tool-snyk-code.error
+    fi
+    event stop tool-snyk-code
+fi
 
 printf "${BLUE}Post-processing...${NC}\n"
 event start post-process

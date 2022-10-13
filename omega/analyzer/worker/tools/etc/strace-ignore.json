@@ -6,48 +6,48 @@
             "/proc/self/*"
         ],
         "pypi": [
-            "/root/.cache/pip/*", 
+            "/root/.cache/pip/*",
             "/tmp/pip-req-tracker-*",
             "/tmp/pip-unpack-*/*",
             "/tmp/pip-build-temp",
             "/tmp/pip-*/*",
-            "/usr/local/lib/python*/*", 
+            "/usr/local/lib/python*/*",
             "/usr/share/python-wheels/*",
             "/root/.cache/pip"
         ],
         "npm": [
             "/root/.npm/*",
-            "/root/.config/configstore/update-notifier-npm.json*"            
+            "/root/.config/configstore/update-notifier-npm.json*"
         ],
         "nuget": [
-            "/root/.nuget/*", 
+            "/root/.nuget/*",
             "/tmp/nuget-build-temp/*",
-            "/root/.dotnet/*", 
+            "/root/.dotnet/*",
             "/root/.local/share/NuGet/*",
-            "/tmp/NuGetScratch/*", 		
-            "/tmp/CASESENSITIVETEST*", 
+            "/tmp/NuGetScratch/*",
+            "/tmp/CASESENSITIVETEST*",
             "/tmp/clr-debug*"
-        ]        
+        ]
     },
     "read": {
         "common": [
             "/dev/shm/*",
             "/dev/urandom",
-            "/etc/gai.conf", 
+            "/etc/gai.conf",
             "/etc/host.conf",
-            "/etc/hosts", 
-            "/etc/ld.so.cache", 
-            "/etc/nsswitch.conf", 
+            "/etc/hosts",
+            "/etc/ld.so.cache",
+            "/etc/nsswitch.conf",
             "/etc/os-release",
-            "/etc/resolv.conf", 
+            "/etc/resolv.conf",
             "/etc/ssl/openssl.cnf",
             "/etc/ssl/certs/ca-certificates.crt",
             "/lib/*",
             "/lib/tls/*",
             "/opt/src/",
-            "/proc/cpuinfo", 
-            "/proc/meminfo", 
-            "/proc/stat", 
+            "/proc/cpuinfo",
+            "/proc/meminfo",
+            "/proc/stat",
             "/proc/sys/net/*",
             "/proc/sys/vm/overcommit_memory",
             "/sys/fs/cgroup/cpu/cpu.cfs_quote_us",
@@ -68,7 +68,10 @@
         ],
         "pypi": [
             "/usr/bin/pip3",
-            "/usr/bin/pyvenv.cfg"
+            "/usr/bin/pyvenv.cfg",
+            "/tmp/pip-unpack-*",
+            "/usr/bin/python3",
+            "/usr/pyvenv.cfg"
         ]
     }
 }
