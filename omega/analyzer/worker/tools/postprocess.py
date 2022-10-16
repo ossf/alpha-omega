@@ -350,7 +350,7 @@ class PostProcessor:
                     rule_name = target_rules[rule_id].get('name', rule_id)
                     rule_short_description = target_rules[rule_id].get('shortDescription', {}).get('text')
                     if not rule_short_description:
-                        target_rules[rule_id].get('fullDescription', {}).get('text')
+                        rule_short_description = target_rules[rule_id].get('fullDescription', {}).get('text')
                     if not rule_short_description:
                         rule_short_description = rule_name
 
