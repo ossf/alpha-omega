@@ -1,2 +1,5 @@
 /.vs
 *.env
+*.pyc
+omega/analyzer/worker/results
+venv/*
