@@ -13,6 +13,7 @@ try
     } else {
         docker build --cpuset-cpus 0-1 -t openssf/omega-toolshed:$version . -f Dockerfile
     }
+    docker tag openssf/omega-toolshed:$version openssf/omega-toolshed:latest
 }
 catch
 {

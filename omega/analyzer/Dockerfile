@@ -6,20 +6,20 @@ LABEL schema-version="1.0"
 LABEL name="toolshed"
 LABEL maintainer="Open Source Security Foundation - Omega"
 LABEL vendor="OpenSSF"
-LABEL build-date="2022-08-24T00:00:00.00Z"
-LABEL version="0.8.2"
+LABEL build-date="2022-10-09T00:00:00.00Z"
+LABEL version="0.8.3"
 
 # Overridable Arguments
 ARG DOTNET_VERSION="6.0"
 ARG APPLICATION_INSPECTOR_VERSION="1.6.16-beta"
-ARG OSSGADGET_VERSION="0.1.342"
-ARG GO_VERSION="1.19"
+ARG OSSGADGET_VERSION="0.1.348"
+ARG GO_VERSION="1.19.2"
 ARG BRAKEMAN_VERSION="v5.3.0"
 ARG SCC_VERSION="3.0.0"
 ARG NODE_VERSION="18.x"
-ARG DEVSKIM_VERSION="0.7.4-alpha"
-ARG RADARE2_VERSION="5.7.6"
-ARG CODEQL_VERSION="v2.10.3"
+ARG DEVSKIM_VERSION="0.7.6-alpha"
+ARG RADARE2_VERSION="5.7.8"
+ARG CODEQL_VERSION="v2.11.0"
 
 # Initialize some things
 ARG DEBIAN_FRONTEND=noninteractive
@@ -290,9 +290,11 @@ RUN pip3 --disable-pip-version-check install \
 RUN mkdir /opt/semgrep-rules && \
     cd /opt/semgrep-rules && \
     wget -O auto.yml https://semgrep.dev/c/p/auto && \
+    wget -O brakeman.yml https://semgrep.dev/c/p/brakeman && \
     wget -O ci.yml https://semgrep.dev/c/p/ci && \
     wget -O clientside-js.yml https://semgrep.dev/c/p/clientside-js && \
     wget -O command-injection.yml https://semgrep.dev/c/p/command-injection && \
+    wget -O default.yml https://semgrep.dev/c/p/default && \
     wget -O django.yml https://semgrep.dev/c/p/django && \
     wget -O docker-compose.yml https://semgrep.dev/c/p/docker-compose && \
     wget -O docker.yml https://semgrep.dev/c/p/docker && \
@@ -361,6 +363,12 @@ RUN npm i -g tbv
 # License: MIT - https://github.com/icsharpcode/ILSpy/blob/master/doc/license.txt
 RUN cd /opt && \
     dotnet tool install --global ilspycmd
+
+# Snyk Code
+# License: Apache - https://github.com/snyk/cli/blob/master/LICENSE
+# API License Terms of Service: https://snyk.io/policies/terms-of-service/
+# Requires an API Key (not distributed) in order to use this tool.
+RUN npm i -g snyk
 
 ########################
 ####### Finalize #######

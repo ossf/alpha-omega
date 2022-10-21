@@ -26,5 +26,6 @@ We use the following tools within the Omega Analyzer (in no particular order):
 * [strace](https://man7.org/linux/man-pages/man1/strace.1.html)
 * [OSS Gadget](https://github.com/Microsoft/OSSGadget) (oss-download, oss-detect-cryptography, oss-detect-backdoor, oss-defog, oss-find-source)
 * [npm audit](https://docs.npmjs.com/cli/v8/commands/npm-audit)
+* [Snyk Code](https://snyk.io)
 
 You can view these tools within the Dockerfile and/or the [runtools.sh](worker/tools/runtools.sh) script.
