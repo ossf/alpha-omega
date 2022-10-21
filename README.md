@@ -21,6 +21,9 @@ watch our kickoff webinar video below:
 We have active engagements with the following projects.
 
 * [Node.js](/alpha/engagements/2022/node.js)
+* [Eclipse Foundation](/alpha/engagements/2022/eclipse)
+* Python Software Foundation
+* Rust Foundation
 
 For more information on Alpha, see [alpha/README.md](alpha/README.md).
 
