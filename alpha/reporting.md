@@ -21,7 +21,7 @@ and details.
 
 ### Timeline
 
-We'd like to see updates monthly, preferably around the first of the month, but we're flexible here.
+Please provide updates monthly, around the first of each month.
 
 ### Process
 
