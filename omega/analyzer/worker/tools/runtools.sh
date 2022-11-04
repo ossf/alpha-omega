@@ -611,4 +611,7 @@ event stop runtools
 
 cp /tmp/events.txt "$EXPORT_DIR/summary-telemetry-events.txt"
 
+# Fix permissions to match the export directory
+chown -R nonroot:1000 $EXPORT_DIR
+
 exit 0

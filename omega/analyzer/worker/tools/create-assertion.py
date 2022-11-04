@@ -88,7 +88,8 @@ if __name__ == "__main__":
                 args = parser.parse_args()
                 assertion = cls(vars(args))
                 findings = assertion.emit()
-
+                findings = BaseAssertion.finalize_assertion(findings)
+                
                 if args.private_key:
                     key = load_signing_key(args.private_key)
                     signed = sign_assertion(key, findings)
