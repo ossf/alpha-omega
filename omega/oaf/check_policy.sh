@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 # Example:
 # python create-assertion.py --private-key private-key.pem -p pkg:npm/left-pad@1.3.0 --assertion ActivelyMaintained --repository https://github.com/madler/zlib > t1
