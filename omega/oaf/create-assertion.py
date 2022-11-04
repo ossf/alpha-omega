@@ -1,4 +1,4 @@
-# Copyright (C) Microsoft Corporation, All rights reserved.
+# Copyright (C) Open Source Security Foundation
 
 """
 The purpose of this script is to create assertions based on the Omega Analysis Toolchain output.
@@ -21,7 +21,7 @@ from assertions.base import BaseAssertion
 
 logging.basicConfig(level=logging.INFO)
 
-# Code courtest of https://stackoverflow.com/a/3862957
+# Code courtesy of https://stackoverflow.com/a/3862957
 def all_subclasses(cls):
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)]
