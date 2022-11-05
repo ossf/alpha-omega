@@ -9,10 +9,16 @@ DATA="$1"
 POLICY="$2"
 
 # Check for errors
+grep -qrE "package.+\.${POLICY}" assertions/policies
+if [ $? -ne 0 ]; then
+    echo "ERROR: Policy not found"
+    exit 1
+fi
+
 RESULT=$(opa eval -i "${DATA}" -b assertions/policies "data.openssf.omega.policy.${POLICY}" --format json)
 ERRORS=$(echo "${RESULT}" | jq '.errors')
 if [[ "${ERRORS}" != "null" ]]; then
-    echo "An error occurred while processing the policies. Unable to continue."
+    echo "ERROR: An error occurred while processing the policies. Unable to continue."
     echo "${ERRORS}"
     exit 1
 fi

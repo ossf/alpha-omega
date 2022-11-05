@@ -1,3 +1,5 @@
+import subprocess
+
 # From https://github.com/python/cpython/blob/main/Lib/distutils/util.py
 # This will be removed in Python 3.12, so we'll keep a copy of it.
 def strtobool(val):
@@ -13,3 +15,12 @@ def strtobool(val):
         return 0
     else:
         raise ValueError("invalid truth value %r" % (val,))
+
+def is_command_available(args):
+    """Checks to see if a particular command is available."""
+    try:
+        subprocess.run(args, capture_output=True, timeout=10, check=False)
+        return True
+    except FileNotFoundError:
+        return False
+        
