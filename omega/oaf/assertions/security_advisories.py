@@ -2,11 +2,12 @@
 Asserts the presence of security advisories for a given package.
 """
 import logging
-
+import time
 import requests
 from packageurl import PackageURL
 
 from .base import BaseAssertion
+from . import get_package_url_with_version
 
 
 class SecurityAdvisories(BaseAssertion):
@@ -29,6 +30,11 @@ class SecurityAdvisories(BaseAssertion):
         logging.info("Checking deps.dev for public vulnerabilities...")
         package_url = PackageURL.from_string(self.args.get("package_url"))
 
+        if package_url.version is None:
+            package_url = get_package_url_with_version(package_url)
+            if not package_url:
+                raise ValueError("Unable to determine package version")
+
         if package_url.namespace:
             res = requests.get(
                 f"https://deps.dev/_/s/{package_url.type}/p/{package_url.namespace}/{package_url.name}/v/{package_url.version}",
@@ -42,6 +48,7 @@ class SecurityAdvisories(BaseAssertion):
 
         if res.status_code == 200:
             deps_metadata = res.json()
+
             advisories = deps_metadata.get("version", {}).get("advisories", [])
             severity_map = {}
             latest_observation_date = 0
@@ -54,8 +61,24 @@ class SecurityAdvisories(BaseAssertion):
                 severity_key = advisory.get("severity", "").lower()
                 severity_map[severity_key] = severity_map.get(severity_key, 0) + 1
 
+            if latest_observation_date == 0:
+                latest_observation_date = int(time.time())
+
             assertion = self.base_assertion(timestamp=latest_observation_date)
-            assertion["predicate"]["security_advisories"] = severity_map
+            assertion["predicate"].update(
+                {
+                    "content": {
+                        "security_advisories": severity_map,
+                    },
+                    "evidence": {
+                        "_type": "https://github.com/ossf/alpha-omega/types/evidence/v0.1",
+                        "reproducibility": "temporal",
+                        "source-type": "url",
+                        "source": f"https://deps.dev/_/s/{package_url.type}/p/{package_url.name}/v/{package_url.version}",
+                        "content": advisories,
+                    },
+                }
+            )
             return assertion
         else:
             logging.warning(

@@ -53,8 +53,8 @@ class ActivelyMaintained(BaseAssertion):
         js = response.json()
 
         assertion = self.base_assertion()
-        assertion["predicate"] = {
+        assertion["predicate"].update({
             "updated_at": js.get("updated_at"),
             "pushed_at": js.get("pushed_at"),
-        }
+        })
         return assertion

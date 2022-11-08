@@ -37,13 +37,21 @@ class Reproducible(BaseAssertion):
             tempfile.gettempdir(), str(uuid.uuid4()) + ".json"
         )
         try:
+            env = os.environ.copy()
+            env["NO_COLOR"] = "1"
+            cmd = [
+                "oss-reproducible",
+                "-o",
+                output_filename,
+                self.args.get("package_url"),
+            ]
+            cmd_safe = cmd
+
             res = subprocess.run(
-                [
-                    "oss-reproducible",
-                    "-o",
-                    output_filename,
-                    self.args.get("package_url"),
-                ],
+                args=cmd,
+                env=env,
+                capture_output=True,
+                encoding="utf-8",
                 timeout=900,
                 check=False
             )
@@ -52,6 +60,8 @@ class Reproducible(BaseAssertion):
                     data = json.load(f)
                     if len(data) > 0 and data[0].get("IsReproducible") is True:
                         result = True
+                stdout = res.stdout.splitlines()
+                stderr = res.stderr.splitlines()
         except Exception as msg:
             logging.warning("Error running oss-reproducible: %s", msg, exc_info=True)
             is_error = True
@@ -63,9 +73,21 @@ class Reproducible(BaseAssertion):
 
         if not is_error:
             assertion = self.base_assertion()
-            assertion["predicate"] = {
-                "is_reproducible": result
-            }
+            assertion["predicate"].update({
+                "content": {
+                    "reproducible": result,
+                },
+                "evidence" : {
+                    "_type": "https://github.com/ossf/alpha-omega/types/evidence/v0.1",
+                    "reproducibility": "high",
+                    "source-type": "command",
+                    "source": cmd_safe,
+                    "content": {
+                        "output": stdout,
+                        "error": stderr
+                    },
+                }
+            })
             return assertion
         else:
             logging.warning("oss-reproducible was not run successfully.")

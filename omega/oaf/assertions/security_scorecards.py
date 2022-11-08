@@ -9,6 +9,8 @@ import json
 import logging
 import re
 import subprocess
+from packageurl import PackageURL
+
 
 from .base import BaseAssertion
 from . import is_command_available
@@ -25,12 +27,13 @@ class SecurityScorecards(BaseAssertion):
         name = "openssf.omega.security_scorecards"
         version = "0.1.0"
 
-    required_args = ["repository", "github_auth_token"]
+    required_args = ["github_auth_token"]
+
 
     def __init__(self, kwargs):
         super().__init__(kwargs)
-        self.repository = kwargs.get("repository")
         self.github_auth_token = kwargs.get("github_auth_token")
+        self.package_url = self.args.get("package_url")
 
         if not is_command_available(["docker", "-v"]):
             raise EnvironmentError("SecurityScorecards requires Docker.")
@@ -39,19 +42,22 @@ class SecurityScorecards(BaseAssertion):
         """Checks to see if the project is actively maintained."""
         logging.info("Running the Scorecard checks...")
 
-        if not self.repository:
-            raise NotImplementedError(
-                "SecurityScorecards assertion only supports source repositories."
-            )
-
-        if not self.repository.startswith("https://github.com/"):
-            raise NotImplementedError(
-                "SecurityScorecards assertion only implemented for GitHub."
-            )
-
-        matches = re.search("^https://github.com/([^/]+)/([^/]+)", self.repository)
-        if not matches:
-            raise ValueError("Unable to parse GitHub URL.")
+        purl = PackageURL.from_string(self.package_url)
+        if purl:
+            if purl.type == 'npm':
+                if purl.namespace:
+                    target = ["--npm", f"{purl.namespace}/{purl.name}"]
+                else:
+                    target = ["--npm", f"{purl.name}"]
+            elif purl.type == 'pypi':
+                target = ["--pypi", f"{purl.name}"]
+            elif purl.type == 'gem':
+                target = ["--rubygems", f"{purl.name}"]
+            elif purl.type == 'github':
+                repository = self.get_repository()
+                if not repository:
+                    raise ValueError("Unable to retrieve repository information from GitHub.")
+                target = ['--repo', repository]
 
         cmd = [
             "docker",
@@ -59,14 +65,20 @@ class SecurityScorecards(BaseAssertion):
             "-e",
             f"GITHUB_AUTH_TOKEN={self.github_auth_token}",
             "gcr.io/openssf/scorecard:stable",
-            f"--repo={self.repository}",
             "--format",
-            "json",
-        ]
+            "json"
+        ] + target
+
+        # For logging, we don't want to log the auth token.
+        cmd_safe = cmd[0:3] + ["GITHUB_AUTH_TOKEN=***"] + cmd[4:]
 
         # Run the command
         res = subprocess.run(cmd, check=False, capture_output=True, encoding="utf-8")
         logging.debug("Security Scorecards completed, exit code: %d", res.returncode)
+        if res.returncode != 0 and res.stderr:
+            logging.warning(
+                "Error running Security Scorecards: %d: %s", res.returncode, res.stderr
+            )
 
         try:
             data = json.loads(res.stdout)
@@ -74,20 +86,26 @@ class SecurityScorecards(BaseAssertion):
             logging.error("Unable to parse Security Scorecards output.")
             return
 
-        error = res.stderr
-        if res.returncode != 0 and error:
-            logging.warning(
-                "Error running Security Scorecards: %d: %s", res.returncode, error
-            )
-
         assertion = self.base_assertion(timestamp=datetime.datetime.now())
-        assertion["predicate"] = {"_raw": data}
+        assertion["predicate"].update({
+            "content": {
+                "scorecard_data": {}
+            },
+            "evidence" : {
+                "_type": "https://github.com/ossf/alpha-omega/types/evidence/v0.1",
+                "reproducibility": "temporal",
+                "source_type": "command",
+                "source": cmd_safe,
+                "content": data,
+            }
+        })
+
         for check in data.get("checks"):
             key = check.get("name")
             if not key:
                 continue
             key = key.lower().strip().replace("-", "_")
             score = check.get("score")
-            assertion["predicate"][key] = score
+            assertion["predicate"]["content"]["scorecard_data"][key] = score
 
         return assertion

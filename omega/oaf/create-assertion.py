@@ -59,6 +59,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--assertion", type=str, required=True, help="Assertion type to create"
     )
+    parser.add_argument(
+        "--subject_file", type=str, required=False, help="Subject file to reference"
+    )
     args, _ = parser.parse_known_args()
 
     if args.private_key and not os.path.isfile(args.private_key):
@@ -68,7 +71,7 @@ if __name__ == "__main__":
         # Import each of the modules within the assertions directory
         for filename in glob.glob("assertions/*.py"):
             try:
-                with open(filename, "r") as f:
+                with open(filename, "r", encoding='utf-8') as f:
                     content = f.read()
                 if re.search(r"class\s+.+\s*\(Base.+\)", content):
                     module_name = os.path.basename(filename).replace(".py", "")
@@ -89,7 +92,7 @@ if __name__ == "__main__":
                 assertion = cls(vars(args))
                 findings = assertion.emit()
                 findings = BaseAssertion.finalize_assertion(findings)
-                
+
                 if args.private_key:
                     key = load_signing_key(args.private_key)
                     signed = sign_assertion(key, findings)
