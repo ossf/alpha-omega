@@ -18,12 +18,10 @@ class Reproducible(BaseAssertion):
     Uses OSS Reproducible to perform this check, which means you need to have
     both oss-reproducible and docker installed and on your path.
     """
-    class Meta:
-        """
-        Metadata for the assertion.
-        """
-        name = "openssf.omega.reproducible"
-        version = "0.1.0"
+    metadata = {
+        "name": "openssf.omega.reproducible",
+        "version": "0.1.0"
+    }
 
     required_args = ["package_url"]
 
@@ -69,7 +67,7 @@ class Reproducible(BaseAssertion):
         try:
             os.remove(output_filename)
         except IOError:
-            logging.debug("Unable to remove temporary file %s", output_filename)
+            logging.debug("Unable to remove temporary file: %s", output_filename)
 
         if not is_error:
             assertion = self.base_assertion()

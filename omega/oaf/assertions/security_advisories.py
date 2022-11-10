@@ -3,11 +3,12 @@ Asserts the presence of security advisories for a given package.
 """
 import logging
 import time
+
 import requests
 from packageurl import PackageURL
 
-from .base import BaseAssertion
 from . import get_package_url_with_version
+from .base import BaseAssertion
 
 
 class SecurityAdvisories(BaseAssertion):
@@ -17,13 +18,10 @@ class SecurityAdvisories(BaseAssertion):
     This class uses the deps.dev API based on the package URL.
     """
 
-    class Meta:
-        """
-        Metadata for the assertion.
-        """
-
-        name = "openssf.omega.security_advisories[deps.dev]"
-        version = "0.1.0"
+    metadata = {
+        "name": "openssf.omega.security_advisories[deps.dev]",
+        "version": "0.1.0",
+    }
 
     def emit(self):
         """Emits a security advisory assertion for the targeted package."""
@@ -61,8 +59,11 @@ class SecurityAdvisories(BaseAssertion):
                 severity_key = advisory.get("severity", "").lower()
                 severity_map[severity_key] = severity_map.get(severity_key, 0) + 1
 
+            # If no advisories, try to get the version's refresedAt date, or fall back to the current time.
             if latest_observation_date == 0:
-                latest_observation_date = int(time.time())
+                latest_observation_date = deps_metadata.get('version', {}).get('refreshedAt', 0)
+                if latest_observation_date == 0:
+                    latest_observation_date = int(time.time())
 
             assertion = self.base_assertion(timestamp=latest_observation_date)
             assertion["predicate"].update(
@@ -84,4 +85,4 @@ class SecurityAdvisories(BaseAssertion):
             logging.warning(
                 "deps.dev returned a non-200 status code. Skipping public vulnerability check."
             )
-        return None
+            return None

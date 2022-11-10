@@ -1,4 +1,8 @@
 import subprocess
+import logging
+from typing import Union
+from packageurl import PackageURL
+import requests
 
 # From https://github.com/python/cpython/blob/main/Lib/distutils/util.py
 # This will be removed in Python 3.12, so we'll keep a copy of it.
@@ -23,4 +27,36 @@ def is_command_available(args):
         return True
     except FileNotFoundError:
         return False
-        
+
+def get_package_url_with_version(package_url: Union[PackageURL, str]) -> str:
+    """Adds the latest version to a versionless PackageURL."""
+    logging.debug('Getting latest version for "%s"', str(package_url))
+    if isinstance(package_url, str):
+        purl = PackageURL.from_string(package_url)
+    elif isinstance(package_url, PackageURL):
+        purl = package_url
+    else:
+        raise TypeError("package_url must be a string or PackageURL")
+
+    if purl.version:
+        return purl
+
+    if purl.namespace:
+        res = requests.get(
+            f"https://deps.dev/_/s/{purl.type}/p/{purl.namespace}/{purl.name}",
+            timeout=30,
+        )
+    else:
+        res = requests.get(
+            f"https://deps.dev/_/s/{purl.type}/p/{purl.name}", timeout=30
+        )
+
+    if res.status_code == 200:
+        version = res.json().get("version", {}).get("version")
+        if version:
+            new_purl = purl.to_dict()
+            new_purl["version"] = version
+            logging.debug("Latest version is %s", version)
+            purl = PackageURL(**new_purl)
+            return purl
+    raise ValueError("Could not get latest version")

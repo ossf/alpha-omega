@@ -50,11 +50,11 @@ class BaseAssertion:
     @classmethod
     def finalize_assertion(cls, assertion: dict) -> dict:
         """Finalize the assertion with any additional summary information."""
-        print(assertion)
         assertion["predicate"]["operational"]["execution_stop"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
         return assertion
 
     def base_assertion(self, **kwargs):
+        """Create a base assertion (empty predicate)."""
         if self.__class__ == BaseAssertion:
             raise NotImplementedError("base_assertion must be called on subclasses")
 
@@ -63,7 +63,8 @@ class BaseAssertion:
             "subject": [],
             "predicateType": "https://github.com/ossf/alpha-omega/v0.1",
             "predicate": {
-                "generator": {"name": self.Meta.name, "version": self.Meta.version},
+                "generator": {"name": self.metadata.get('name'),
+                "version": self.metadata.get('version')},
                 "operational": {
                     "execution_start": datetime.datetime.strftime(
                         datetime.datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"

@@ -10,7 +10,7 @@ default applies = false
 
 # Identify whether this policy applies to a given data object
 applies := true {
-    input.predicateGenerator.name == "openssf.omega.reproducible"
+    input.predicate.generator.name == "openssf.omega.reproducible"
     input.predicateType == "https://github.com/ossf/alpha-omega/v0.1"
 }
 

@@ -12,6 +12,11 @@ class ManualAssertion(BaseAssertion):
     required_args = ["assertion_pass", "predicate_json"]
     version = "0.1.0"
 
+    metadata = {
+        "name": "openssf.omega.manual",
+        "version": "0.1.0"
+    }
+
     def emit(self):
         data = json.loads(self.args["predicate_json"])
         is_pass = strtobool(self.args["assertion_pass"])

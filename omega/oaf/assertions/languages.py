@@ -13,14 +13,10 @@ class ProgrammingLanguage(BaseAssertion):
     """
 
     required_args = ["input_file"]
-
-    class Meta:
-        """
-        Metadata for the assertion.
-        """
-
-        name = "openssf.omega.programming_languages"
-        version = "0.1.0"
+    metadata = {
+        "name": "openssf.omega.programming_languages",
+        "version": "0.1.0"
+    }
 
     def emit(self):
         """Emits a security advisory assertion for the targeted package."""
@@ -53,7 +49,7 @@ class ProgrammingLanguage(BaseAssertion):
                 "_type": "https://github.com/ossf/alpha-omega/types/evidence/v0.1",
                 "reproducibility": "high",
                 "source-type": "command",
-                "source": None,
+                "source": self.args.get("additional_args"),
                 "content": {
                     "output": data
                 }

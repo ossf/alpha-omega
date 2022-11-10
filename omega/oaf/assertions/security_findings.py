@@ -6,15 +6,12 @@ from .base import BaseSARIFAssertion
 class SecurityFindingsByTool(BaseSARIFAssertion):
     """Identifies whether a given package has security findings."""
 
+    metadata = {
+        "name": "openssf.omega.tool_security_findings",
+        "version": "0.1.0",
+    }
+
     required_args = ["input_file"]
-
-    class Meta:
-        """
-        Metadata for the assertion.
-        """
-
-        name = "openssf.omega.tool_security_findings"
-        version = "0.1.0"
 
     @staticmethod
     def filter_lambda(finding):

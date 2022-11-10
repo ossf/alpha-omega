@@ -13,13 +13,10 @@ class ManualSecurityReview(BaseAssertion):
     """
     required_args = ["review_text", "assertion_pass"]
 
-    class Meta:
-        """
-        Metadata for the assertion.
-        """
-
-        name = "openssf.omega.manual_security_review"
-        version = "0.1.0"
+    metadata = {
+        "name": "openssf.omega.manual_security_review",
+        "version": "0.1.0"
+    }
 
     def emit(self):
         """Emits a manual security review assertion for the targeted package."""

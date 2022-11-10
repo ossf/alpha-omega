@@ -19,7 +19,7 @@ from dateutil.parser import parse as date_parse
 
 from assertions.base import BaseAssertion
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Code courtesy of https://stackoverflow.com/a/3862957
 def all_subclasses(cls):
@@ -38,10 +38,20 @@ def load_signing_key(filename: str) -> ec.EllipticCurvePrivateKey:
 
 
 def sign_assertion(private_key, assertion):
+    assertion_data = json.dumps(assertion, indent=2, sort_keys=True).encode("ascii")
+
     signature = private_key.sign(
-        base64.b64encode(str(assertion).replace(" ", "").encode("ascii")),
+        assertion_data,
         ec.ECDSA(hashes.SHA256()),
     )
+    # Checking signature
+    public_key = private_key.public_key()
+    public_key.verify(
+        signature,
+        assertion_data,
+        ec.ECDSA(hashes.SHA256()),
+    )
+
     return signature
 
 
@@ -61,6 +71,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--subject_file", type=str, required=False, help="Subject file to reference"
+    )
+    parser.add_argument(
+        "--additional_args", type=str, required=False, help="Additional arguments to pass to assertion"
     )
     args, _ = parser.parse_known_args()
 
@@ -88,9 +101,13 @@ if __name__ == "__main__":
                         help=f"{arg} argument for assertion",
                         type=str,
                     )
-                args = parser.parse_args()
+                args, _ = parser.parse_known_args()
                 assertion = cls(vars(args))
                 findings = assertion.emit()
+                if not findings:
+                    logging.error("Error emitting assertion")
+                    sys.exit(1)
+
                 findings = BaseAssertion.finalize_assertion(findings)
 
                 if args.private_key:
@@ -98,7 +115,7 @@ if __name__ == "__main__":
                     signed = sign_assertion(key, findings)
                     findings["signature"] = base64.b64encode(signed).decode("ascii")
 
-                print(json.dumps(findings, indent=2))
+                print(json.dumps(findings, indent=2, sort_keys=True))
                 sys.exit(0)
         else:
             print("Could not find assertion type: %s" % args.assertion)

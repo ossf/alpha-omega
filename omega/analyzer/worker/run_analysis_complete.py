@@ -3,18 +3,21 @@
 Executes analysis and creates assertions.
 """
 import argparse
+import datetime
 import json
+import logging
 import os
+import shlex
+import sqlite3
 import subprocess
 import tempfile
-import logging
 from typing import List
 
 import requests
 from dotenv import dotenv_values
 from packageurl import PackageURL
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 
 class AnalysisRunner:
@@ -32,6 +35,8 @@ class AnalysisRunner:
             ["oss-find-source", "--help"],
         ]
 
+        self.docker_cmdline = None
+
         for command in required_commands:
             if not self.is_command_available(command):
                 raise EnvironmentError(f"Required command {command} is not available.")
@@ -42,7 +47,9 @@ class AnalysisRunner:
 
         self.docker_container = docker_container
         self.package_url = self.get_package_url_with_version(package_url)
-        self.output_directory = tempfile.TemporaryDirectory(prefix="omega-")
+        self.output_directory = tempfile.TemporaryDirectory(
+            prefix="omega-", ignore_cleanup_errors=True
+        )
         logging.debug("Output directory: %s", self.output_directory.name)
 
         os.makedirs(
@@ -99,6 +106,7 @@ class AnalysisRunner:
 
     def execute_docker_container(self):
         """Runs the Omega docker container with specific arguments."""
+        logging.info("Running Omega analysis toolchain")
         cmd = [
             "docker",
             "run",
@@ -111,21 +119,33 @@ class AnalysisRunner:
             self.docker_container,
             self.package_url,
         ]
-        logging.debug("Running command: %s", " ".join(cmd))
+        # Write the command to a file so we can capture it later
+        self.docker_cmdline = shlex.join(cmd)
+        with open(
+            f"{self.output_directory.name}/top-execute-cmd.txt", "w", encoding="utf-8"
+        ) as f:
+            f.write(self.docker_cmdline)
+
+        logging.debug("Running command: %s", cmd)
         res = subprocess.run(
             cmd,
             capture_output=True,
             check=False,
             timeout=3600,
             close_fds=True,
-            encoding="utf-8"
+            encoding="utf-8",
         )
         if res.returncode != 0:
             raise RuntimeError(f"Error running docker container: {res.stderr}")
 
     def _execute_assertion(self, **kwargs):
         """Executes a single assertion."""
+        logging.info("Running assertion %s", kwargs.get("assertion"))
+
         cmd = ["python", "create-assertion.py", "-p", self.package_url]
+
+        if "additional_args" in kwargs:
+            cmd.extend(["--args", kwargs["additional_args"]])
 
         if os.path.isfile("private-key.pem"):
             cmd.extend(["--private-key", "private-key.pem"])
@@ -144,7 +164,11 @@ class AnalysisRunner:
         res = subprocess.run(
             cmd, check=True, capture_output=True, encoding="utf-8", cwd="../../oaf"
         )
-        output = json.loads(res.stdout)
+        try:
+            output = json.loads(res.stdout)
+        except json.JSONDecodeError:
+            logging.warning("Unable to parse assertion output: %s", res.stdout)
+            return None
 
         assertion_directory = os.path.join(self.output_directory.name, "assertions")
         os.makedirs(assertion_directory, exist_ok=True)
@@ -156,13 +180,18 @@ class AnalysisRunner:
 
         return output
 
+    def find_output_file(self, filename: str) -> str:
+        """Finds a file in the output directory."""
+        for root, _, files in os.walk(self.output_directory.name):
+            if filename in files:
+                return os.path.join(root, filename)
+        return None
+
     def execute_assertions(self):
         """Execute all assertions."""
 
         # Scorecards
-        self._execute_assertion(
-            assertion="SecurityScorecards"
-        )
+        self._execute_assertion(assertion="SecurityScorecards")
 
         # Security Advisories
         self._execute_assertion(assertion="SecurityAdvisories")
@@ -171,7 +200,59 @@ class AnalysisRunner:
         self._execute_assertion(assertion="Reproducible")
 
         # Programming Language
-        self._execute_assertion(assertion="ProgrammingLanguage")
+        self._execute_assertion(
+            assertion="ProgrammingLanguage",
+            additional_args=self.docker_cmdline,
+            input_file=self.find_output_file("tool-application-inspector.json"),
+        )
+
+    def store_assertions(self):
+        """Stores generated assertions in a SQLite database."""
+        sqlite_conn = sqlite3.connect("assertions.db", timeout=5)
+        cur = sqlite_conn.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS assertions
+            ( id PRIMARY KEY,
+              package TEXT,
+              assertion TEXT NOT NULL,
+              effective_date REAL DEFAULT (datetime('now')) NOT NULL
+            )"""
+        )
+        cur.execute("CREATE INDEX IF NOT EXISTS assertion_idx1 ON assertions (package)")
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS assertion_idx2 ON assertions (package, effective_date)"
+        )
+
+        for root, _, files in os.walk(
+            os.path.join(self.output_directory.name, "assertions")
+        ):
+            for filename in files:
+                if not filename.endswith(".json"):
+                    continue
+                with open(os.path.join(root, filename), "r", encoding="utf-8") as f:
+                    try:
+                        assertion = json.load(f)
+                    except json.JSONDecodeError:
+                        logging.warning("Unable to parse assertion: %s", filename)
+                        continue
+                effective_date = assertion.get("operational", {}).get("timestamp")
+                if not effective_date:
+                    effective_date = datetime.datetime.now()
+
+                cur.execute(
+                    """INSERT INTO assertions
+                                (package, assertion, effective_date)
+                                VALUES
+                                (?, ?, ?)""",
+                    (
+                        self.package_url,
+                        json.dumps(assertion, indent=2),
+                        effective_date,
+                    ),
+                )
+        sqlite_conn.commit()
+        sqlite_conn.close()
 
 
 if __name__ == "__main__":
@@ -186,3 +267,4 @@ if __name__ == "__main__":
     runner = AnalysisRunner(args.package_url, args.toolchain_container)
     runner.execute_docker_container()
     runner.execute_assertions()
+    runner.store_assertions()

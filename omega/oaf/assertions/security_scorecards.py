@@ -1,34 +1,31 @@
 """
 Calculates the project's security scorecards data.
 
-Uses the securityscorecards.dev (OpenSSF) Docker container to perform
+Uses the OpenSSF Scorecards Docker container to perform
 the calculations.
 """
 import datetime
 import json
 import logging
-import re
 import subprocess
+
 from packageurl import PackageURL
 
-
-from .base import BaseAssertion
 from . import is_command_available
+from .base import BaseAssertion
 
 
 class SecurityScorecards(BaseAssertion):
     """
-    Calculates the project's security scorecards data.
+    Calculates the project's security scorecards metrics.
     """
+    metadata = {
+        "name": "openssf.omega.security_scorecards",
+        "version": "0.1.0"
+    }
 
-    class Meta:
-        """Metadata about the assertion."""
-
-        name = "openssf.omega.security_scorecards"
-        version = "0.1.0"
-
+    # Additional arguments that must be provided in order to generate the assertion.
     required_args = ["github_auth_token"]
-
 
     def __init__(self, kwargs):
         super().__init__(kwargs)
