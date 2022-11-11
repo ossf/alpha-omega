@@ -2,6 +2,7 @@
 """
 Executes analysis and creates assertions.
 """
+import uuid
 import argparse
 import datetime
 import json
@@ -47,13 +48,14 @@ class AnalysisRunner:
 
         self.docker_container = docker_container
         self.package_url = self.get_package_url_with_version(package_url)
-        self.output_directory = tempfile.TemporaryDirectory(
-            prefix="omega-", ignore_cleanup_errors=True
-        )
-        logging.debug("Output directory: %s", self.output_directory.name)
+        self.output_directory = os.path.join('/tmp', f'omega-{str(uuid.uuid4())}')
+        #self.output_directory = tempfile.TemporaryDirectory(
+        #    prefix="omega-", ignore_cleanup_errors=True
+        #)
+        logging.debug("Output directory: %s", self.output_directory)
 
         os.makedirs(
-            os.path.join(self.output_directory.name, "assertions"), exist_ok=True
+            os.path.join(self.output_directory, "assertions"), exist_ok=True
         )
 
     def __enter__(self):
@@ -61,7 +63,7 @@ class AnalysisRunner:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Cleans up after ourselves."""
-        self.output_directory.cleanup()
+        pass
 
     @staticmethod
     def is_command_available(cmd: List[str]) -> bool:
@@ -112,8 +114,10 @@ class AnalysisRunner:
             "run",
             "--rm",
             "-t",
+            #"--user",
+            #f"{os.getuid()}:{os.getgid()}",
             "-v",
-            f"{self.output_directory.name}:/opt/export",
+            f"{self.output_directory}:/opt/export",
             "--env-file",
             ".env",
             self.docker_container,
@@ -122,7 +126,7 @@ class AnalysisRunner:
         # Write the command to a file so we can capture it later
         self.docker_cmdline = shlex.join(cmd)
         with open(
-            f"{self.output_directory.name}/top-execute-cmd.txt", "w", encoding="utf-8"
+            f"{self.output_directory}/top-execute-cmd.txt", "w", encoding="utf-8"
         ) as f:
             f.write(self.docker_cmdline)
 
@@ -170,7 +174,7 @@ class AnalysisRunner:
             logging.warning("Unable to parse assertion output: %s", res.stdout)
             return None
 
-        assertion_directory = os.path.join(self.output_directory.name, "assertions")
+        assertion_directory = os.path.join(self.output_directory, "assertions")
         os.makedirs(assertion_directory, exist_ok=True)
         assertion_filename = kwargs.get("assertion") + ".json"
         assertion_output = os.path.join(assertion_directory, assertion_filename)
@@ -182,7 +186,7 @@ class AnalysisRunner:
 
     def find_output_file(self, filename: str) -> str:
         """Finds a file in the output directory."""
-        for root, _, files in os.walk(self.output_directory.name):
+        for root, _, files in os.walk(self.output_directory):
             if filename in files:
                 return os.path.join(root, filename)
         return None
@@ -204,6 +208,7 @@ class AnalysisRunner:
             assertion="ProgrammingLanguage",
             additional_args=self.docker_cmdline,
             input_file=self.find_output_file("tool-application-inspector.json"),
+            subject_hash_file=self.find_output_file("admin-file-checksums.txt")
         )
 
     def store_assertions(self):
@@ -225,7 +230,7 @@ class AnalysisRunner:
         )
 
         for root, _, files in os.walk(
-            os.path.join(self.output_directory.name, "assertions")
+            os.path.join(self.output_directory, "assertions")
         ):
             for filename in files:
                 if not filename.endswith(".json"):

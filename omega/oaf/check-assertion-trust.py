@@ -65,7 +65,7 @@ if __name__ == '__main__':
     key_files = args.trusted_keys.split(',')
     for kf in key_files:
         if verify_assertion(kf, assertion_content):
-            print("OK")
+            #print("OK")
             sys.exit(0)
 
     print("FAIL")
