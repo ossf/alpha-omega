@@ -1,4 +1,4 @@
-package openssf.omega.policy.actively_maintained__sc
+package openssf.omega.policy.actively_maintained
 
 # This policy is used to determine if a project is actively maintained.
 # The logic is as follows:
@@ -19,5 +19,5 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.content.scorecard_data.maintained > 7
+    to_number(input.predicate.content.scorecard_data.maintained) > 7
 }
