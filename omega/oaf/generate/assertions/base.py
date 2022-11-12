@@ -60,7 +60,10 @@ class BaseAssertion:
 
         assertion = {
             "_type": "https://in-toto.io/Statement/v0.1",
-            "subject": [],
+            "subject": {
+                "type": "https://github.com/ossf/alpha-omega/omega-analysis-toolchain/Types/PackageURL/v0.1",
+                "purl": str(self.args["package_url"]),
+            },
             "predicateType": "https://github.com/ossf/alpha-omega/v0.1",
             "predicate": {
                 "generator": {"name": self.metadata.get('name'),
@@ -100,34 +103,24 @@ class BaseAssertion:
         except Exception as msg:
             logging.warning("Error processing timestamp: %s", msg)
 
-        if "subject_file" in self.args:
-            subject = {
-                "type": "https://github.com/ossf/alpha-omega/omega-analysis-toolchain/Types/PackageURL/v0.1",
-                "purl": str(self.args["package_url"]),
-            }
-            binary = self.args.get("subject_file")
-            if binary:
+        if "subject_hash_file" in self.args:
+            if not os.path.isfile(self.args["subject_hash_file"]):
+                logging.warning("Subject hash file does not exist: %s", self.args["subject_hash_file"])
+            else:
+                assertion["subject"]["hashes"] = []
                 try:
-                    with open(binary, "rb") as f:
-                        subject["digest"] = {
-                            "alg": "sha256",
-                            "value": base64.b64encode(
-                                hashlib.sha256(f.read()).digest()
-                            ).decode("ascii"),
-                        }
-                    subject["filename"] = os.path.basename(binary)
-                    subject["filesize"] = os.path.getsize(binary)
+                    with open(self.args["subject_hash_file"], "r", encoding="utf-8") as f:
+                        for line in f.readlines():
+                            parts = line.split(maxsplit=1)
+                            if len(parts) != 2:
+                                continue
+                            assertion["subject"]["hashes"].append(
+                                {"filename": parts[1],
+                                "alg": "sha256",
+                                "digest": parts[0]})
                 except Exception as msg:
-                    logging.warning("Error calculating digest for %s: %s", binary, msg)
-            assertion["subject"].append(subject)
+                    logging.warning("Error processing subject hash: %s", msg)
 
-        else:
-            assertion["subject"].append(
-                {
-                    "type": "https://github.com/ossf/alpha-omega/omega-analysis-toolchain/Types/PackageURL/v0.1",
-                    "purl": str(self.args["package_url"]),
-                }
-            )
         return assertion
 
     def get_repository(self) -> Optional[str]:

@@ -59,7 +59,7 @@ if __name__ == '__main__':
         with open(args.assertion, 'r', encoding='utf-8') as f:
             assertion_content = json.load(f)
     except IOError:
-        logging.warn(f"Assertion file not found: {args.assertion}")
+        logging.warning(f"Assertion file not found: {args.assertion}")
         sys.exit(1)
 
     key_files = args.trusted_keys.split(',')

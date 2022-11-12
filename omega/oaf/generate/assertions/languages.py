@@ -12,7 +12,7 @@ class ProgrammingLanguage(BaseAssertion):
     Asserts the presence of specific programming languages.
     """
 
-    required_args = ["input_file"]
+    required_args = ["input_file", "subject_hash_file"]
     metadata = {
         "name": "openssf.omega.programming_languages",
         "version": "0.1.0"

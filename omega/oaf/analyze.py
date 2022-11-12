@@ -63,7 +63,7 @@ class AnalysisRunner:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Cleans up after ourselves."""
-        pass
+        logging.warning("We did not clean up the directory: %s", self.output_directory)
 
     @staticmethod
     def is_command_available(cmd: List[str]) -> bool:
@@ -152,7 +152,8 @@ class AnalysisRunner:
             cmd.extend(["--args", kwargs["additional_args"]])
 
         if os.path.isfile("private-key.pem"):
-            cmd.extend(["--private-key", "private-key.pem"])
+            direct_key_file = os.path.abspath("private-key.pem")
+            cmd.extend(["--private-key", direct_key_file])
 
         if "GITHUB_TOKEN" in self.env:
             cmd.extend(["--github_auth_token", self.env.get("GITHUB_TOKEN")])
@@ -166,7 +167,7 @@ class AnalysisRunner:
 
         logging.debug("Running command: %s", cmd)
         res = subprocess.run(
-            cmd, check=True, capture_output=True, encoding="utf-8", cwd="../../oaf"
+            cmd, check=True, capture_output=True, encoding="utf-8", cwd="./generate"
         )
         try:
             output = json.loads(res.stdout)

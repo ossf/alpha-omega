@@ -23,7 +23,7 @@ if __name__ == '__main__':
             FILENAME = str(uuid.uuid4()) + '.json'
             with open(os.path.join(args.directory, FILENAME), 'w', encoding='utf-8') as f:
                 f.write(row[0])
-        print(f"Wrote {len(rows)} assertions for package: {args.package_url}")
+        #print(f"Wrote {len(rows)} assertions for package: {args.package_url}")
     else:
         print(f"No assertions found for package: {args.package_url}")
 

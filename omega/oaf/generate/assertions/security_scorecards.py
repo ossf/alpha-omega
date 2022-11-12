@@ -19,9 +19,10 @@ class SecurityScorecards(BaseAssertion):
     """
     Calculates the project's security scorecards metrics.
     """
+
     metadata = {
         "name": "openssf.omega.security_scorecards",
-        "version": "0.1.0"
+        "version": "0.1.0",
     }
 
     # Additional arguments that must be provided in order to generate the assertion.
@@ -41,20 +42,22 @@ class SecurityScorecards(BaseAssertion):
 
         purl = PackageURL.from_string(self.package_url)
         if purl:
-            if purl.type == 'npm':
+            if purl.type == "npm":
                 if purl.namespace:
                     target = ["--npm", f"{purl.namespace}/{purl.name}"]
                 else:
                     target = ["--npm", f"{purl.name}"]
-            elif purl.type == 'pypi':
+            elif purl.type == "pypi":
                 target = ["--pypi", f"{purl.name}"]
-            elif purl.type == 'gem':
+            elif purl.type == "gem":
                 target = ["--rubygems", f"{purl.name}"]
-            elif purl.type == 'github':
+            elif purl.type == "github":
                 repository = self.get_repository()
                 if not repository:
-                    raise ValueError("Unable to retrieve repository information from GitHub.")
-                target = ['--repo', repository]
+                    raise ValueError(
+                        "Unable to retrieve repository information from GitHub."
+                    )
+                target = ["--repo", repository]
 
         cmd = [
             "docker",
@@ -63,7 +66,7 @@ class SecurityScorecards(BaseAssertion):
             f"GITHUB_AUTH_TOKEN={self.github_auth_token}",
             "gcr.io/openssf/scorecard:stable",
             "--format",
-            "json"
+            "json",
         ] + target
 
         # For logging, we don't want to log the auth token.
@@ -84,18 +87,18 @@ class SecurityScorecards(BaseAssertion):
             return
 
         assertion = self.base_assertion(timestamp=datetime.datetime.now())
-        assertion["predicate"].update({
-            "content": {
-                "scorecard_data": {}
-            },
-            "evidence" : {
-                "_type": "https://github.com/ossf/alpha-omega/types/evidence/v0.1",
-                "reproducibility": "temporal",
-                "source_type": "command",
-                "source": cmd_safe,
-                "content": data,
+        assertion["predicate"].update(
+            {
+                "content": {"scorecard_data": {}},
+                "evidence": {
+                    "_type": "https://github.com/ossf/alpha-omega/types/evidence/v0.1",
+                    "reproducibility": "temporal",
+                    "source_type": "command",
+                    "source": cmd_safe,
+                    "content": data,
+                },
             }
-        })
+        )
 
         for check in data.get("checks"):
             key = check.get("name")

@@ -15,5 +15,5 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.is_reproducible == true
+    input.predicate.content.reproducible == true
 }
