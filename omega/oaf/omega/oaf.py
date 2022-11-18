@@ -235,6 +235,7 @@ class OAF:
             from assertion.assertion.manual import Manual
             from assertion.assertion.securityreview import SecurityReview
             from assertion.assertion.metadata import Metadata
+            from assertion.assertion.securitytoolfindings import SecurityToolFindings
 
             for cls in get_subclasses_recursive(BaseAssertion):
                 logging.debug("Checking assertion class: %s", cls.__name__)

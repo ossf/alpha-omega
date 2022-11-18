@@ -1,5 +1,8 @@
 /.vs
 *.env
 *.pyc
-omega/analyzer/worker/results
-venv/*
+**/.mypy_cache
+**/venv/
+*.db
+oss-gadget.log
+*.pem
