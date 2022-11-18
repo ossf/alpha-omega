@@ -125,6 +125,7 @@ class OAF:
                 logging.error("Error generating assertion")
                 sys.exit(1)
 
+            assertion.finalize()
             assertion.emit()
 
             if args.signer:
@@ -138,10 +139,14 @@ class OAF:
                 repository = BaseRepository.create_repository(args.repository)
                 repository.add_assertion(assertion)
                 print("Assertion added to repository.")
+                logging.debug(assertion.serialize("json-pretty"))
             else:
                 print(assertion.serialize("json-pretty"))
 
             sys.exit(0)
+        else:
+            print("An assertion and a subject must be specified.")
+            sys.exit(1)
 
     def parse_args_consume(self, args):
         """Parses arguments for the 'consume' command."""
@@ -199,7 +204,11 @@ class OAF:
 
         results = rego.execute(assertions, None)
         for policy, result in results.items():
-            print(f"[{'PASS' if result.passed else 'FAIL'}]: {policy}: {result.message}")
+            metadata = RegoPolicy.get_policy_metadata(policy)
+            if metadata:
+                print(f"[{result.state}]\t[{metadata.get('title', policy)}]\t{result.message}")
+            else:
+                print(f"[{result.state}]\t[{policy}]\t{result.message}")
 
     class Generate:
         """Helper class for the 'generate' subcommand."""

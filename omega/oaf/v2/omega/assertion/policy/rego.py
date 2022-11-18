@@ -3,11 +3,12 @@ import logging
 import os
 import subprocess  # nosec - B404:import_subprocess
 from tempfile import TemporaryDirectory
+import yaml
 
 from ..assertion.base import BaseAssertion
 from ..utils import is_command_available
 from .base import BasePolicy
-from .result import ExecutionResult
+from .result import ExecutionResult, ResultState
 from ..signing.base import BaseSigner
 
 
@@ -138,16 +139,23 @@ class RegoPolicy(BasePolicy):
                     if res.stdout is not None:
                         used_policies.discard(policy_file)
                         if res.stdout.strip().lower() == "true":
-                            results[policy_file] = ExecutionResult(True, "Policy passed.")
+                            results[policy_file] = ExecutionResult(
+                                state=ResultState.PASS,
+                                message="Policy passed."
+                            )
                         else:
                             logging.debug("Policy [%s] did not pass the assertion.", policy_name)
-                            results[policy_file] = ExecutionResult(False, "Policy failed.")
+                            results[policy_file] = ExecutionResult(
+                                state=ResultState.FAIL,
+                                message="Policy failed."
+                            )
                     else:
                         raise ValueError("Rego policy failed to execute (no output).")
 
         for policy_file in used_policies:
             results[policy_file] = ExecutionResult(
-                False, "No assertions were found that apply to this policy."
+                state=ResultState.NOT_APPLICABLE,
+                message="No assertions were found that apply to this policy."
             )
 
         return results
@@ -158,4 +166,31 @@ class RegoPolicy(BasePolicy):
             for line in f:
                 if line.startswith("package "):
                     return line.replace("package openssf.omega.policy.", "").strip()
+        return None
+
+    @staticmethod
+    def get_policy_metadata(policy_file: str) -> dict | None:
+        """Returns the metadata from a policy file."""
+        with open(policy_file, "r", encoding="utf-8") as f:
+            state = "start"
+            yaml_lines = []
+            for _line in f:
+                line = _line.strip()
+
+                if not line.startswith("#"):
+                    continue
+                if state == "start" and line == "# ---":
+                    state = "metadata"
+                elif state == "metadata" and line == "# ---":
+                    state = "end"
+                    break
+                elif state == "metadata":
+                    yaml_lines.append(line[2:])
+
+            if yaml_lines:
+                try:
+                    return yaml.safe_load("\n".join(yaml_lines))
+                except Exception as msg:
+                    logging.debug("Failed to parse metadata: %s", msg)
+                    return None
         return None

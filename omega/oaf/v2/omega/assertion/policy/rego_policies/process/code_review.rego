@@ -1,10 +1,17 @@
 package openssf.omega.policy.process.code_review
 
-# This policy is used to determine if a project uses a code review process.
-# Logic is delegated to the OpenSSF Security Scorecards project.
-#
-# VERSION 0.1.0
-# LAST UPDATED 2022-11-12 Michael Scovetta
+# Metadata (YAML)
+# ---
+# title: Code review usually takes place.
+# methodology: >
+#   This policy is used to determine if code review usually takes place, based on
+#   the uses the openssf.omega.security_scorecards assertion, which itself is based on
+#   the OpenSSF Security Scorecards project.
+# version: 0.1.0
+# last_updated:
+#   date: 2022-11-11
+#   author: Michael Scovetta <michael.scovetta@gmail.com>
+# ---
 
 default pass = false
 default applies = false

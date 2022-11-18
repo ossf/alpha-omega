@@ -20,12 +20,24 @@ class BaseSubject:
         if isinstance(subject, PackageURL):
             return PackageUrlSubject(subject)
         if isinstance(subject, str):
+            if subject == "-":
+                return EmptySubject()
             if subject.startswith('pkg:'):
                 return PackageUrlSubject(subject)
             if subject.startswith('https://github.com'):
                 return GitHubRepositorySubject(subject)
 
         raise ValueError(f"Unknown subject type: {subject}")
+
+class EmptySubject(BaseSubject):
+    """Empty subject."""
+
+    def __str__(self):
+        return "Empty Subject"
+
+    def to_dict(self):
+        """Convert the subject to a dictionary."""
+        return {}
 
 class PackageUrlSubject(BaseSubject):
     """A subject represented by a PackageURL."""

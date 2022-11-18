@@ -1,13 +1,16 @@
 package openssf.omega.policy.process.actively_maintained
 
-# This policy is used to determine if a project is actively maintained.
-# The logic is as follows:
-# 1. If the project has any change in the last 6 months, it is actively maintained.
-# 2. Else if the project has any code change in the last 12 months, it is actively maintained.
-# 3. Else it is not actively maintained.
-#
-# VERSION 0.1.1
-# LAST UPDATED 2022-11-08 Michael Scovetta
+# Metadata (YAML)
+# ---
+# title: Subject is marked as deprecated.
+# methodology: >
+#   This policy is used to determine if a project is deprecated, based on
+#   the openssf.omega.metadata assertion.
+# version: 0.1.0
+# last_updated:
+#   date: 2022-11-16
+#   author: Michael Scovetta <michael.scovetta@gmail.com>
+# ---
 
 default pass = false
 default applies = false

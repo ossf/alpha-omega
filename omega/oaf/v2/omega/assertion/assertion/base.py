@@ -42,10 +42,10 @@ class BaseAssertion:
         )
         self.error = False
         self.evidence = None
+        self.is_finalized = False
 
         self.assertion = {
             "_type": "https://in-toto.io/Statement/v0.1",
-            "subject": self.subject.to_dict(),
             "predicateType": "https://github.com/ossf/alpha-omega/v0.1",
             "predicate": {
                 "operational": {
@@ -54,7 +54,6 @@ class BaseAssertion:
                     ),
                     "execution_stop": None,
                     "environment": {
-                        "operator": os.environ.get("OPERATOR"),
                         "hostname": platform.node(),
                         "machine_identifier": str(uuid.UUID(int=uuid.getnode())),
                     },
@@ -101,10 +100,13 @@ class BaseAssertion:
 
     def serialize(self, scheme: str) -> any:
         """Serialize the assertion."""
+        if not self.is_finalized:
+            raise ValueError("Assertion must be finalized before serialization")
+
         return BaseAssertion.serialize_bare(scheme, self.assertion)
 
-    @staticmethod
-    def serialize_bare(scheme: str, assertion: dict) -> any:
+    @classmethod
+    def serialize_bare(cls, scheme: str, assertion: dict) -> any:
         """Serialize the assertion."""
         if scheme == 'json':
             output = json.dumps(assertion, indent=0, sort_keys=True, default=str)
@@ -117,11 +119,11 @@ class BaseAssertion:
 
         return output
 
-    @classmethod
-    def finalize_assertion(cls, assertion: dict) -> dict:
+    def finalize(self):
         """Finalize the assertion with any additional summary information."""
-        assertion["predicate"]["operational"]["execution_stop"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
-        return assertion
+        self.assertion["subject"] = self.subject.to_dict()
+        self.assertion["predicate"]["operational"]["execution_stop"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
+        self.is_finalized = True
 
     def base_assertion(self, **kwargs):
         """Create a base assertion (empty predicate)."""

@@ -1,9 +1,16 @@
 package openssf.omega.policy.recent_security_review
 
-# This policy is used to determine if a project has had a recent security review.
-#
-# VERSION 0.1.0
-# LAST UPDATED 2022-11-03 Michael Scovetta
+# Metadata (YAML)
+# ---
+# title: Subject is marked as deprecated.
+# methodology: >
+#   This policy is used to determine if a project is deprecated, based on
+#   the openssf.omega.metadata assertion.
+# version: 0.1.0
+# last_updated:
+#   date: 2022-11-16
+#   author: Michael Scovetta <michael.scovetta@gmail.com>
+# ---
 
 default pass = false
 
@@ -14,7 +21,7 @@ applies := true {
 }
 
 pass := true {
-	ns := time.parse_rfc3339_ns(input.timestamp) 
+	ns := time.parse_rfc3339_ns(input.timestamp)
 	d := time.now_ns() - ns
     d < (1000000000 * 60 * 60 * 24 * 720)
 
