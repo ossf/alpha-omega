@@ -2,7 +2,6 @@
 from ..utils import get_subclasses_recursive
 from .result import ExecutionResult
 
-
 class BasePolicy:
     """Base class for a Policy object."""
     def execute(self, assertions: list[str], policy_file: str | None) -> dict[str, ExecutionResult]:

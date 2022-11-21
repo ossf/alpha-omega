@@ -1,8 +1,12 @@
-from .base import BaseEvidence, Reproducibility
+"""Evidence that is sensitive and is not to be included."""
+import typing
+
+from . import BaseEvidence, Reproducibility
+
 
 class RedactedEvidence(BaseEvidence):
     """Evidence that has been redacted and not available.."""
-    def __init__(self, details: any, reproducibility: Reproducibility):
+    def __init__(self, details: typing.Any, reproducibility: Reproducibility):
         self._type = 'https://github.com/ossf/alpha-omega/types/evidence/redacted/v0.1'
         self.reproducibility = reproducibility
         self.details = details

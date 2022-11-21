@@ -1,12 +1,12 @@
+"""
+Main entrypoint for the Omega Assertion Framework CLI.
+"""
 import argparse
-import json
 import logging
 import sys
 
 from assertion.assertion.base import BaseAssertion
-from assertion.policy.base import BasePolicy
-from assertion.policy.rego import RegoPolicy
-from assertion.policy.result import ExecutionResult
+from assertion.policy import BasePolicy, RegoPolicy
 from assertion.repository.base import BaseRepository
 from assertion.signing.base import BaseSigner
 from assertion.subject import BaseSubject
@@ -14,18 +14,17 @@ from assertion.utils import get_subclasses_recursive
 
 
 class OAF:
-    """Entrypoint into the Omege Assertion Framework CLI."""
+    """Entrypoint into the Omega Assertion Framework CLI."""
 
-    version = "0.1.0"
+    VERSION = "0.1.0"
 
     def __init__(self):
         self.parser = argparse.ArgumentParser(
-            prog="Omega Assertion Framework",
-            description="Assurance assertions made easy.",
+            prog="Omega Assertion Framework", description="Assurance assertions made easy."
         )
 
         # Global Options
-        self.parser.add_argument("--version", action="version", version="%(prog)s " + self.version)
+        self.parser.add_argument("--version", action="version", version="%(prog)s " + self.VERSION)
         self.parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
         subparsers = self.parser.add_subparsers(dest="command")
@@ -47,9 +46,19 @@ class OAF:
             help="Subject of assertion (PackageURL or GitHub repository)",
             type=str,
         )
-        p_generate.add_argument('--input-file', help='Input file', type=str, required=False)
-        p_generate.add_argument('--content', help='Content of assertion (for Manual assertions only)', type=str, required=False)
-        p_generate.add_argument('--evidence', help='Evidence of assertion (for Manual assertions only)', type=str, required=False)
+        p_generate.add_argument("--input-file", help="Input file", type=str, required=False)
+        p_generate.add_argument(
+            "--content",
+            help="Content of assertion (for Manual assertions only)",
+            type=str,
+            required=False,
+        )
+        p_generate.add_argument(
+            "--evidence",
+            help="Evidence of assertion (for Manual assertions only)",
+            type=str,
+            required=False,
+        )
 
         p_generate.add_argument("--signer", help="Signature to use", type=str, required=False)
         p_generate.add_argument(
@@ -58,6 +67,7 @@ class OAF:
             type=str,
             required=False,
         )
+        p_generate.add_argument("--expiration", help="Expiration date", type=str, required=False)
 
         # Consume Assertions
         p_consume = subparsers.add_parser("consume", help="Consume assertions")
@@ -70,6 +80,7 @@ class OAF:
         p_consume.add_argument(
             "--signer", help="Signature to use (e.g. public key file)", type=str, required=False
         )
+        p_consume.add_argument("--expiration", help="Expiration date", type=str, required=False)
         p_consume.add_argument(
             "--repository",
             help="Assertion repository to use (e.g. sqlite:assertions.db)",
@@ -122,7 +133,7 @@ class OAF:
         if args.assertion and args.subject:
             assertion = OAF.Generate.generate_assertion(args.assertion, args.subject, args)
             if not assertion:
-                logging.error("Error generating assertion")
+                logging.error("No assertion was generated.")
                 sys.exit(1)
 
             assertion.finalize()
@@ -224,22 +235,29 @@ class OAF:
                 print("No assertion classes found.")
 
         @staticmethod
-        def generate_assertion(assertion_type: str, subject_str: str, additional_args: argparse.Namespace) -> BaseAssertion:
+        def generate_assertion(
+            assertion_type: str, subject_str: str, additional_args: argparse.Namespace
+        ) -> BaseAssertion:
             """Generates an assertion."""
             # pylint: disable=import-outside-toplevel
             # pylint: disable=unused-import
-            from assertion.assertion.languages import ProgrammingLanguage
-            from assertion.assertion.reproducible import Reproducible
-            from assertion.assertion.securityadvisories import SecurityAdvisory
-            from assertion.assertion.securityscorecards import SecurityScorecard
+            from assertion.assertion.language import ProgrammingLanguage
             from assertion.assertion.manual import Manual
-            from assertion.assertion.securityreview import SecurityReview
             from assertion.assertion.metadata import Metadata
-            from assertion.assertion.securitytoolfindings import SecurityToolFindings
+            from assertion.assertion.reproducible import Reproducible
+            from assertion.assertion.securityadvisory import SecurityAdvisory
+            from assertion.assertion.securityreview import SecurityReview
+            from assertion.assertion.securityscorecard import SecurityScorecard
+            from assertion.assertion.securitytoolfinding import SecurityToolFinding
+
+            assertion_subclasses = get_subclasses_recursive(BaseAssertion)
+            logging.debug(
+                "Found %d assertion subclasses: %s",
+                len(assertion_subclasses),
+                [c.__name__ for c in assertion_subclasses],
+            )
 
             for cls in get_subclasses_recursive(BaseAssertion):
-                logging.debug("Checking assertion class: %s", cls.__name__)
-
                 if cls.__name__.lower() != assertion_type.strip().lower():
                     continue
 
@@ -253,8 +271,10 @@ class OAF:
 
                 return assertion
 
-            logging.debug(
-                "Assertion not found. Use --list-assertions to see the full list of available assertions."
+            logging.warning(
+                "Assertion [%s] not found. Use --list-assertions to see the full list"
+                "of available assertions.",
+                assertion_type,
             )
             return None
 

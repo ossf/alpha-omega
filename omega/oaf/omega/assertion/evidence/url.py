@@ -1,4 +1,6 @@
-from .base import BaseEvidence, Reproducibility
+"""Evidence sourced from a URL."""
+
+from . import BaseEvidence, Reproducibility
 
 class URLEvidence(BaseEvidence):
     """Evidence about the execution of a command."""

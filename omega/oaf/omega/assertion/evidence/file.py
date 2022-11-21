@@ -1,7 +1,8 @@
-from .base import BaseEvidence, Reproducibility
+"""Evidence originating from a file."""
+from . import BaseEvidence, Reproducibility
 
 class FileEvidence(BaseEvidence):
-    """Evidence about the execution of a command."""
+    """Evidence coming from a file."""
     def __init__(self, filename: str, output: str, reproducibility: Reproducibility):
         self._type = 'https://github.com/ossf/alpha-omega/types/evidence/file/v0.1'
         self.reproducibility = reproducibility

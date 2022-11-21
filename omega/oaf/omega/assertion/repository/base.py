@@ -25,4 +25,11 @@ class BaseRepository:
 
             return SqliteRepository(database)
 
+        if scheme.startswith("dir:"):
+            _, directory = scheme.split(":", 1)
+            # pylint: disable=import-outside-toplevel; circular import
+            from .directory import DirectoryRepository
+
+            return DirectoryRepository(directory)
+
         raise NotImplementedError(f"Repository scheme not supported: {scheme}")

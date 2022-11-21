@@ -3,9 +3,10 @@ Basic implementation of a SQLite repository for assertions.
 """
 import logging
 import sqlite3
+
+from ..assertion.base import BaseAssertion
 from ..subject import BaseSubject
 from .base import BaseRepository
-from ..assertion.base import BaseAssertion
 
 
 class SqliteRepository(BaseRepository):
@@ -65,6 +66,10 @@ class SqliteRepository(BaseRepository):
 
     def find_assertions(self, subject: BaseSubject) -> list[str]:
         """Find assertions for the given subject."""
+        if not self.conn:
+            logging.error("Database connection not initialized")
+            return []
+
         cur = self.conn.cursor()
         cur.execute(
             """SELECT assertion, effective_date

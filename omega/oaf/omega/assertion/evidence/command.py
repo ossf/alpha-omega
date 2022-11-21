@@ -1,4 +1,5 @@
-from .base import BaseEvidence, Reproducibility
+"""Evidence produced by a command line being executed."""
+from . import BaseEvidence, Reproducibility
 
 class CommandEvidence(BaseEvidence):
     """Evidence about the execution of a command."""

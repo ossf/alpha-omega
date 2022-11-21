@@ -32,7 +32,7 @@ if __name__ == "__main__":
                         tmp.close()
 
                         num_imported += 1
-                        if num_imported % 500 == 0:
+                        if num_imported % 100 == 0:
                             logging.info("Imported %d assertions", num_imported)
 
                         cmd = [
@@ -44,7 +44,7 @@ if __name__ == "__main__":
                             f"--input-file={tmp.name}",
                             "--subject=-",
                             "--signer=../../private-key.pem",
-                            "--repository=sqlite:test.db"
+                            "--repository=dir:/opt/hdd/test-assertion1"
                         ]
 
                         logging.debug("Running command: %s", " ".join(cmd))

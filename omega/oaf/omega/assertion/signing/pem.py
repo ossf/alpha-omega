@@ -1,13 +1,14 @@
 """KeyPair signature class."""
-import logging
-import json
 import base64
+import json
+import logging
 import os
-from cryptography.hazmat.primitives.asymmetric import ec
+
 from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+
 from ..assertion.base import BaseAssertion
 from .base import BaseSigner
 
@@ -33,7 +34,7 @@ class KeyPairSigner(BaseSigner):
                 f.read(), password=password, backend=default_backend()
             )
 
-    def sign(self, assertion: BaseAssertion) -> BaseAssertion:
+    def sign(self, assertion: BaseAssertion) -> None:
         """Signs an assertion."""
         data = assertion.serialize("bytes")
         signature = self.private_key.sign(data, ec.ECDSA(hashes.SHA256()))
@@ -41,7 +42,7 @@ class KeyPairSigner(BaseSigner):
             {"type": "keypair", "digest": base64.b64encode(signature).decode("ascii")}
         )
 
-    def verify(self, assertion: str | str) -> bool:
+    def verify(self, assertion: BaseAssertion | str) -> bool:
         """Verifies an assertion."""
         if isinstance(assertion, BaseAssertion):
             assertion_obj = assertion.assertion
@@ -64,9 +65,7 @@ class KeyPairSigner(BaseSigner):
         for signature in signatures:
             try:
                 if signature.get("type") != "keypair":
-                    logging.warning(
-                        "Skipping signature of type %s", signature.get("type")
-                    )
+                    logging.warning("Skipping signature of type %s", signature.get("type"))
                     continue
                 signature_bytes = base64.b64decode(signature.get("digest"))
                 public_key.verify(signature_bytes, data, ec.ECDSA(hashes.SHA256()))

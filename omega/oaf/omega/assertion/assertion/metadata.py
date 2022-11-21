@@ -4,11 +4,11 @@ Asserts the presence of specific programming languages.
 import json
 import logging
 import os
+import typing
 
 from dateutil.parser import parse as parse_date
 
-from ..evidence.base import Reproducibility
-from ..evidence.url import URLEvidence
+from ..evidence import FileEvidence, Reproducibility
 from ..subject import BaseSubject, PackageUrlSubject
 from ..utils import get_complex
 from .base import BaseAssertion
@@ -21,9 +21,11 @@ class Metadata(BaseAssertion):
 
     def __init__(self, subject: BaseSubject, **kwargs):
         super().__init__(subject, **kwargs)
+        logging.debug("Initializing new Metadata asserion.")
 
         if not isinstance(self.subject, PackageUrlSubject):
             raise ValueError("Metadata assertions only support PackageUrlSubject")
+        self.subject.ensure_version()
 
         self.input_file = kwargs.get("input_file")
 
@@ -31,50 +33,46 @@ class Metadata(BaseAssertion):
             raise ValueError("input_file is required")
 
         if not os.path.isfile(self.input_file):
-            raise IOError("Input file [{self.input_file}] does not exist")
+            raise IOError(f"Input file [{self.input_file}] does not exist")
 
-        self.data = {}
-        self.metadata = {}
+        self.data = {}  # type: dict
+        self.metadata = {}  # type: dict[str, typing.Any]
 
-        self.assertion["predicate"]["generator"] = {
-            "name": "openssf.omega.metadata",
-            "version": "0.1.0",
-        }
+        self.set_generator("metadata", "0.1.0", True)
 
     def process(self):
         """Process the assertion."""
         with open(self.input_file, "r", encoding="utf-8") as f:
             try:
-                self.data = json.load(f)
+                _data = f.read()
+                data = json.loads(_data)
             except Exception as msg:
                 raise ValueError("input_file is not a valid JSON file") from msg
 
-        latest_version = get_complex(self.data, "dist-tags.latest")
+        latest_version = get_complex(data, "dist-tags.latest")
         version_publish_date = parse_date(
-            get_complex(self.data, ["time", self.subject.package_url.version])
+            get_complex(data, ["time", self.subject.package_url.version])
         )
-        latest_version_publish_date = parse_date(
-            get_complex(self.data, ["time", latest_version])
-        )
+        latest_version_publish_date = parse_date(get_complex(data, ["time", latest_version]))
 
-        self.evidence = URLEvidence(None, self.data, Reproducibility.HIGH)
+        self.evidence = FileEvidence(self.input_file, data, Reproducibility.HIGH)
 
         self.metadata = {
             "latest_version": latest_version,
             "is_latest_version": self.subject.package_url.version == latest_version,
             "version_publish_date": version_publish_date.isoformat(),
             "version_deprecated": get_complex(
-                self.data, ["versions", self.subject.package_url.version, "deprecated"]
+                data, ["versions", self.subject.package_url.version, "deprecated"]
             )
             is not None,
             "latest_version_publish_date": latest_version_publish_date.isoformat(),
             "latest_version_deprecated": get_complex(
-                self.data, ["versions", latest_version, "deprecated"]
+                data, ["versions", latest_version, "deprecated"]
             )
             is not None,
         }
 
-    def emit(self) -> BaseAssertion:
+    def emit(self) -> None:
         """Emits a metadata assertion for the targeted package."""
         self.assertion["predicate"].update(
             {
@@ -82,5 +80,3 @@ class Metadata(BaseAssertion):
                 "evidence": self.evidence.to_dict() if self.evidence else None,
             }
         )
-
-        return self.assertion

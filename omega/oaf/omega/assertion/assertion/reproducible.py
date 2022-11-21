@@ -9,41 +9,26 @@ import tempfile
 import uuid
 
 from .base import BaseAssertion
-from ..evidence.command import CommandEvidence
-from ..evidence.base import Reproducibility
-from ..subject import BaseSubject, GitHubRepositorySubject, PackageUrlSubject
-from ..utils import is_command_available, find_repository
+from ..evidence import CommandEvidence, Reproducibility
+from ..subject import BaseSubject, PackageUrlSubject
+from ..utils import is_command_available
 
 class Reproducible(BaseAssertion):
     """
     Asserts the results of an execution of the Security Scorecards tool.
-
-    Tests:
-    >>> from ..utils import get_complex
-    >>> subject = PackageUrlSubject("pkg://npm/express@4.4.3")
-    >>> s = SecurityScorecard(subject)
-    >>> s.process()
-    >>> assertion = s.emit()
-    >>> res = get_complex(assertion, 'predicate.content.scorecard_data.maintained')
-    >>> res_int = int(res)
-    >>> res_int >= 0 and res_int <= 10
-    True
     """
 
     def __init__(self, subject: BaseSubject, **kwargs):
         super().__init__(subject, **kwargs)
+        logging.debug("Initializing new Reproducible assertion.")
 
         self.data = None
-        self.evidence = None
         self.reproducible = False
 
         if not is_command_available(["docker", "-help"]):
             raise EnvironmentError("Docker is not available.")
 
-        self.assertion["predicate"]["generator"] = {
-            "name": "openssf.omega.reproducible",
-            "version": "0.1.0",
-        }
+        self.set_generator('reproducible', '0.1.0', True)
 
     def process(self):
         """Process the assertion."""
@@ -51,6 +36,8 @@ class Reproducible(BaseAssertion):
         # Gather the parameters based on the subject
         if not isinstance(self.subject, PackageUrlSubject):
             raise ValueError("Subject is not a PackageUrlSubject.")
+
+        self.subject.ensure_version()
 
         output_filename = os.path.join(
             tempfile.gettempdir(), f"omega-{uuid.uuid4()}.json"
@@ -78,10 +65,12 @@ class Reproducible(BaseAssertion):
             )
             if res.returncode == 0:
                 with open(output_filename, "r", encoding="utf-8") as f:
-                    self.data = json.load(f)
+                    _data = f.read()
+                    self.data = json.loads(_data)
                     self.reproducible = len(self.data) > 0 and self.data[0].get("IsReproducible")
+
                 self.evidence = CommandEvidence(
-                    cmd_safe, res.stdout, Reproducibility.HIGH
+                    cmd_safe, _data, Reproducibility.HIGH
                 )
         except Exception as msg:
             logging.warning("Error running oss-reproducible: %s", msg, exc_info=True)
@@ -92,7 +81,7 @@ class Reproducible(BaseAssertion):
         except OSError:
             logging.debug("Unable to remove temporary file: %s", output_filename)
 
-    def emit(self) -> BaseAssertion:
+    def emit(self) -> None:
         """Emits an assertion based on the results of the analysis."""
         self.assertion["predicate"].update(
             {
@@ -100,5 +89,3 @@ class Reproducible(BaseAssertion):
                 "evidence": self.evidence.to_dict() if self.evidence else None,
             }
         )
-
-        return self.assertion

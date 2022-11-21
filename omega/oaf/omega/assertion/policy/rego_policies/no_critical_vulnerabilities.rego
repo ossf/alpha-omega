@@ -2,13 +2,14 @@ package openssf.omega.policy.no_critical_vulnerabilities
 
 # Metadata (YAML)
 # ---
-# title: Subject is marked as deprecated.
+# title: No publicly-known critical vulnerabilities exist.
 # methodology: >
-#   This policy is used to determine if a project is deprecated, based on
-#   the openssf.omega.metadata assertion.
-# version: 0.1.0
+#   This policy is used to determine if a project contains any publicly-known
+#   critical vulnerability. "Critical" is defined by the `openssf.omega.security_advisories`
+#   assertion.
+# version: 0.1.1
 # last_updated:
-#   date: 2022-11-16
+#   date: 2022-11-18
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
 

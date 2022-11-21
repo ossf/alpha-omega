@@ -6,21 +6,16 @@ import hashlib
 import json
 import logging
 import os
+import typing
 from collections import defaultdict
-import subprocess  # nosec: B404
 
-from packageurl import PackageURL
-from packageurl.contrib.url2purl import url2purl
-
-from ..evidence.base import Reproducibility
-from ..evidence.redacted import RedactedEvidence
+from ..evidence import RedactedEvidence, Reproducibility
 from ..sarif import SarifHelper
-from ..subject import BaseSubject, GitHubRepositorySubject, PackageUrlSubject
-from ..utils import find_repository, get_complex, is_command_available, strtobool
+from ..subject import BaseSubject
 from .base import BaseAssertion
 
 
-class SecurityToolFindings(BaseAssertion):
+class SecurityToolFinding(BaseAssertion):
     """
     Asserts the aggregate results of the execution of a tool against a subject.
 
@@ -37,20 +32,16 @@ class SecurityToolFindings(BaseAssertion):
     def __init__(self, subject: BaseSubject, **kwargs):
         super().__init__(subject, **kwargs)
 
-        self.data = None
-        self.filtered_results = []
-        self.severity_map = {}
+        self.data = None  # type: typing.Optional[dict]
+        self.filtered_results = []  # type: typing.Generator[dict, None, None]
+        self.severity_map = {}  # type: dict[str, int]
 
-        self.evidence = None
         self.input_file = kwargs.get("input_file")
 
-        if not self.input_file:
-            raise ValueError("Input file is required.")
+        if not self.input_file or not os.path.isfile(self.input_file):
+            raise IOError(f"Input file [{self.input_file}] does not exist")
 
-        self.assertion["predicate"]["generator"] = {
-            "name": "openssf.omega.security_tool_findings",
-            "version": "0.1.0",
-        }
+        self.set_generator("security_tool_finding", "0.1.0", True)
 
     def process(self):
         """Process the assertion."""
@@ -75,7 +66,7 @@ class SecurityToolFindings(BaseAssertion):
             )
 
         # Filter the results
-        def delegate(_):
+        def delegate(_) -> bool:
             return True  # Get them all
 
         sarif_helper = SarifHelper(self.data)
@@ -85,13 +76,14 @@ class SecurityToolFindings(BaseAssertion):
         for result in self.filtered_results:
             self.severity_map[self._get_severity(result)] += 1
 
-        logging.debug("Aggregate results: %s", self.severity_map)
+        logging.debug("Aggregate results: %s", dict(self.severity_map))
 
     @staticmethod
-    def _get_severity(result):
+    def _get_severity(result) -> bool:
+        """Returns the severity of the result."""
         return result.get("rule_severity", 0)
 
-    def emit(self) -> BaseAssertion:
+    def emit(self) -> None:
         """Emits a security advisory assertion for the targeted package."""
         self.assertion["predicate"].update(
             {
@@ -99,5 +91,3 @@ class SecurityToolFindings(BaseAssertion):
                 "evidence": self.evidence.to_dict() if self.evidence else None,
             }
         )
-
-        return self.assertion

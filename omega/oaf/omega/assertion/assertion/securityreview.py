@@ -15,21 +15,14 @@ class SecurityReview(BaseAssertion):
     def __init__(self, subject: BaseSubject, **kwargs):
         super().__init__(subject, **kwargs)
 
-        input_file = kwargs.get('input_file')
-        if not input_file:
-            raise ValueError("input_file is a required argument")
+        self.input_file = kwargs.get('input_file')
+        if not self.input_file or not os.path.isfile(self.input_file):
+            raise IOError(f"Input file [{self.input_file}] does not exist")
 
-        if not os.path.isfile(input_file):
-            raise IOError("Input file does not exist")
-
-        self.input_file = input_file
         self.markdown = None
         self.metadata = None
 
-        self.assertion['predicate']['generator'] = {
-            "name": "openssf.omega.security_review",
-            "version": "0.1.0"
-        }
+        self.set_generator('security_review', '0.1.0', True)
 
     def process(self):
         """Process the assertion."""
@@ -56,14 +49,12 @@ class SecurityReview(BaseAssertion):
             self.markdown = "\n".join(markdown_lines)
 
 
-    def emit(self) -> BaseAssertion:
+    def emit(self) -> None:
         """Emits a security review assertion for the targeted package."""
         self.assertion["predicate"].update({
             "content": {
                 "metadata": self.metadata,
                 "markdown": self.markdown
             },
-            "evidence" : self.evidence or None
+            "evidence" : self.evidence.to_dict() if self.evidence else None
         })
-
-        return self.assertion

@@ -1,7 +1,10 @@
+"""Information about the execution result of a policy."""
 from enum import Enum, auto
+
 
 class ResultState(Enum):
     """The result of a policy execution."""
+
     PASS = auto()
     FAIL = auto()
     NOT_APPLICABLE = auto()
@@ -12,6 +15,7 @@ class ResultState(Enum):
 
 class ExecutionResult:
     """The result of a policy execution."""
+
     def __init__(self, state: ResultState, message: str | None = None):
         if not isinstance(state, ResultState):
             raise TypeError("state must be a ResultState")

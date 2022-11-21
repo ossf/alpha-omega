@@ -3,13 +3,13 @@ import logging
 import os
 import subprocess  # nosec - B404:import_subprocess
 from tempfile import TemporaryDirectory
+
 import yaml
 
-from ..assertion.base import BaseAssertion
+from ..signing.base import BaseSigner
 from ..utils import is_command_available
 from .base import BasePolicy
 from .result import ExecutionResult, ResultState
-from ..signing.base import BaseSigner
 
 
 class RegoPolicy(BasePolicy):
@@ -20,7 +20,8 @@ class RegoPolicy(BasePolicy):
     ) -> None:
         """Initialize the policy.
         If policy_names is None, all policies will be loaded.
-        Otherwise, only those policies with a filename that matches a name in policy_names will be loaded.
+        Otherwise, only those policies with a filename that matches a name in policy_names
+        will be loaded.
         """
         super().__init__()
 
@@ -28,7 +29,7 @@ class RegoPolicy(BasePolicy):
             raise EnvironmentError("OpenPolicyAgent (opa) is not available.")
 
         self.policy_directories = policy_directories
-        self.policies = []
+        self.policies = []  # type: list[str]
         self.signer = signer
 
         self.fetch_policies(policy_names)
@@ -73,6 +74,9 @@ class RegoPolicy(BasePolicy):
 
         used_policies = set(policy_files)
         for policy_file in self.policies:
+            if not policy_file:
+                continue
+
             logging.debug("Processing policy file: %s", policy_file)
 
             if not os.path.isfile(policy_file):
@@ -109,7 +113,7 @@ class RegoPolicy(BasePolicy):
                     cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.applies"]
                     logging.debug("Executing: [%s]", " ".join(cmd))
 
-                    res = subprocess.run(    # nosec B603
+                    res = subprocess.run(  # nosec B603
                         cmd, check=False, capture_output=True, text=True
                     )
 
@@ -127,7 +131,9 @@ class RegoPolicy(BasePolicy):
                     # Now execute the policy
                     cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.pass"]
                     logging.debug("Executing: [%s]", " ".join(cmd))
-                    res = subprocess.run(cmd, check=False, text=True, capture_output=True)   # nosec B603
+                    res = subprocess.run(  # nosec B603
+                        cmd, check=False, text=True, capture_output=True
+                    )
 
                     logging.debug("Return code: %d", res.returncode)
                     logging.debug("Output: [%s]", res.stdout.strip() if res.stdout else "")
@@ -140,14 +146,12 @@ class RegoPolicy(BasePolicy):
                         used_policies.discard(policy_file)
                         if res.stdout.strip().lower() == "true":
                             results[policy_file] = ExecutionResult(
-                                state=ResultState.PASS,
-                                message="Policy passed."
+                                state=ResultState.PASS, message="Policy passed."
                             )
                         else:
                             logging.debug("Policy [%s] did not pass the assertion.", policy_name)
                             results[policy_file] = ExecutionResult(
-                                state=ResultState.FAIL,
-                                message="Policy failed."
+                                state=ResultState.FAIL, message="Policy failed."
                             )
                     else:
                         raise ValueError("Rego policy failed to execute (no output).")
@@ -155,7 +159,7 @@ class RegoPolicy(BasePolicy):
         for policy_file in used_policies:
             results[policy_file] = ExecutionResult(
                 state=ResultState.NOT_APPLICABLE,
-                message="No assertions were found that apply to this policy."
+                message="No assertions were found that apply to this policy.",
             )
 
         return results

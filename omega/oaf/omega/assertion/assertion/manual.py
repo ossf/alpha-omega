@@ -19,6 +19,7 @@ class Manual(BaseAssertion):
         if not content:
             raise ValueError("content is a required argument")
 
+        self.content = None        # type: dict | str | None
         if isinstance(content, dict):
             self.content = content
         elif isinstance(content, str):
@@ -29,18 +30,13 @@ class Manual(BaseAssertion):
         else:
             self.content = str(content)
 
-        self.assertion['predicate']['generator'] = {
-            "name": "openssf.omega.manual",
-            "version": "0.1.0"
-        }
+        self.set_generator('manual', '0.1.0', True)
 
     def process(self):
         pass
 
-    def emit(self) -> BaseAssertion:
+    def emit(self) -> None:
         self.assertion["predicate"].update({
             "content": self.content,
-            "evidence" : self.evidence or None
+            "evidence" : self.evidence.to_dict() if self.evidence else None
         })
-
-        return self.assertion

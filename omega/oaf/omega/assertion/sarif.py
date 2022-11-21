@@ -2,10 +2,13 @@
 Helper class for interacting with SARIF files.
 """
 import json
+import typing
+
 from .utils import get_complex
 
 
 class SarifHelper:
+    """Helper class for interacting with SARIF files."""
     def __init__(self, sarif: dict | str):
         if isinstance(sarif, dict):
             self.sarif = sarif
@@ -26,12 +29,16 @@ class SarifHelper:
             raise ValueError("SarifHelper must be initialized with a dict or string")
 
     def filter_by_severity(self, min_severity):
+        """Stub implementation for filtering rules by severity."""
+
         def _filter(result):
             return result.get("rule_defaultConfiguration_level") == min_severity
 
         return self.filter(_filter)
 
-    def filter(self, delegate: callable=None) -> list[dict]:
+    def filter(
+        self, delegate: typing.Optional[typing.Callable]
+    ) -> typing.Generator[dict, None, None]:
         """
         Filters the SARIF results, returning only those that pass a delegate function"""
 

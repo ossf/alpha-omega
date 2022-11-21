@@ -1,12 +1,17 @@
 """
 This module contains subject classes for assertions.
 """
-
+import logging
 from typing import Union
+
 from packageurl import PackageURL
+
+from .utils import get_package_url_with_version
+
 
 class BaseSubject:
     """Base class for subjects."""
+
     def __init__(self):
         self.content = {}
 
@@ -22,12 +27,17 @@ class BaseSubject:
         if isinstance(subject, str):
             if subject == "-":
                 return EmptySubject()
-            if subject.startswith('pkg:'):
+            if subject.startswith("pkg:"):
                 return PackageUrlSubject(subject)
-            if subject.startswith('https://github.com'):
+            if subject.startswith("https://github.com"):
                 return GitHubRepositorySubject(subject)
 
         raise ValueError(f"Unknown subject type: {subject}")
+
+    def ensure_version(self) -> None:
+        """Update the version of the subject."""
+        raise NotImplementedError("ensure_version must be implemented by subclasses")
+
 
 class EmptySubject(BaseSubject):
     """Empty subject."""
@@ -39,8 +49,13 @@ class EmptySubject(BaseSubject):
         """Convert the subject to a dictionary."""
         return {}
 
+    def ensure_version(self) -> None:
+        """Update the version of the subject."""
+
+
 class PackageUrlSubject(BaseSubject):
     """A subject represented by a PackageURL."""
+
     def __init__(self, package_url: Union[str, PackageURL]):
         super().__init__()
         if isinstance(package_url, str):
@@ -57,8 +72,19 @@ class PackageUrlSubject(BaseSubject):
             "purl": str(self.package_url),
         }
 
+    def ensure_version(self) -> None:
+        """Update the version of the subject."""
+        if not self.package_url.version:
+            latest_purl = get_package_url_with_version(self.package_url)
+            if latest_purl:
+                self.package_url = PackageURL.from_string(latest_purl)
+            else:
+                logging.debug("Unable to determine latest version for %s", self.package_url)
+
+
 class GitHubRepositorySubject(BaseSubject):
     """A subject represented by a GitHub URL."""
+
     def __init__(self, github_url: str):
         super().__init__()
         self.github_url = github_url
@@ -71,3 +97,7 @@ class GitHubRepositorySubject(BaseSubject):
             "type": "https://github.com/ossf/alpha-omega/subject/github_url/v0.1",
             "github_url": str(self.github_url),
         }
+
+    def ensure_version(self) -> None:
+        """Update the version of the subject."""
+        raise NotImplementedError("GitHubRepositorySubject does not support ensure_version")

@@ -8,6 +8,7 @@ import requests
 from packageurl import PackageURL
 from packageurl.contrib.purl2url import purl2url
 
+
 # From https://github.com/python/cpython/blob/main/Lib/distutils/util.py
 # This will be removed in Python 3.12, so we'll keep a copy of it.
 def strtobool(val):
@@ -23,6 +24,7 @@ def strtobool(val):
         return 0
     else:
         raise ValueError("invalid truth value %r" % (val,))
+
 
 def get_complex(obj, key, default_value=""):
     """Get a value from the dictionary d by nested.key.value.
@@ -68,7 +70,7 @@ def find_repository(package_url: PackageURL | str) -> str | None:
         raise EnvironmentError("oss-find-source is not available.")
 
     cmd = ["oss-find-source", "-S", str(package_url)]
-    res = subprocess.run(cmd, check=False, capture_output=True, encoding="utf-8") # nosec B603
+    res = subprocess.run(cmd, check=False, capture_output=True, encoding="utf-8")  # nosec B603
     if res.returncode == 0:
         repository = res.stdout.strip()
         return repository or None
@@ -117,7 +119,7 @@ def get_package_url_with_version(package_url: PackageURL | str) -> str:
 
 # Source: https://stackoverflow.com/questions/3232943
 #         /update-value-of-a-nested-dictionary-of-varying-depth/3233356#3233356
-def update_complex(target: dict, overlay: dict):
+def update_complex(target: dict, overlay: collections.abc.Mapping):
     """Updates a nested dictionary with another nested dictionary."""
     for key, value in overlay.items():
         if isinstance(value, collections.abc.Mapping):

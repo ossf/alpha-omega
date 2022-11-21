@@ -3,45 +3,29 @@ Asserts the results of an execution of the Security Scorecards tool.
 """
 import logging
 import time
+import typing
+from collections import defaultdict
+
 import requests
 
-from .base import BaseAssertion
-from ..evidence.url import URLEvidence
-from ..evidence.base import Reproducibility
+from ..evidence import Reproducibility, URLEvidence
 from ..subject import BaseSubject, PackageUrlSubject
-from ..utils import (
-    get_package_url_with_version,
-    get_complex,
-)
+from ..utils import get_complex
+from .base import BaseAssertion
 
 
 class SecurityAdvisory(BaseAssertion):
     """
     Asserts the results of an execution of the Security Scorecards tool.
-
-    Tests:
-    >>> from ..utils import get_complex
-    >>> subject = PackageUrlSubject("pkg://npm/express@4.4.3")
-    >>> s = SecurityScorecard(subject)
-    >>> s.process()
-    >>> assertion = s.emit()
-    >>> res = get_complex(assertion, 'predicate.content.scorecard_data.maintained')
-    >>> res_int = int(res)
-    >>> res_int >= 0 and res_int <= 10
-    True
     """
 
     def __init__(self, subject: BaseSubject, **kwargs):
         super().__init__(subject, **kwargs)
 
-        self.data = None
-        self.evidence = None
-        self.severity_map = {}
+        self.data = None  # type: typing.Optional[dict[str, typing.Any]]
+        self.severity_map = defaultdict(int)
 
-        self.assertion["predicate"]["generator"] = {
-            "name": "openssf.omega.security_advisories",
-            "version": "0.1.0",
-        }
+        self.set_generator("security_advisories", "0.1.0", True)
 
     def process(self):
         """Collects a security advisory assertion for the targeted package."""
@@ -50,18 +34,22 @@ class SecurityAdvisory(BaseAssertion):
         if not isinstance(self.subject, PackageUrlSubject):
             raise ValueError("Subject is not a PackageUrlSubject.")
 
+        self.subject.ensure_version()
+
         logging.debug("Checking deps.dev for public vulnerabilities...")
 
         package_url = self.subject.package_url
-        if package_url.version is None:
-            package_url = get_package_url_with_version(package_url)
-            if not package_url:
-                raise ValueError("Unable to determine package version")
 
         if package_url.namespace:
-            url = f"https://deps.dev/_/s/{package_url.type}/p/{package_url.namespace}/{package_url.name}/v/{package_url.version}"
+            url = (
+                f"https://deps.dev/_/s/{package_url.type}/p/{package_url.namespace}/"
+                f"{package_url.name}/v/{package_url.version}"
+            )
         else:
-            url = f"https://deps.dev/_/s/{package_url.type}/p/{package_url.name}/v/{package_url.version}"
+            url = (
+                f"https://deps.dev/_/s/{package_url.type}/p/{package_url.name}/v/"
+                f"{package_url.version}"
+            )
 
         res = requests.get(url, timeout=30)
 
@@ -69,22 +57,20 @@ class SecurityAdvisory(BaseAssertion):
             logging.warning(
                 "deps.dev returned a non-200 status code. Skipping public vulnerability check."
             )
-            return None
+            return
 
         self.data = res.json()
-        self.evidence = URLEvidence(url, res.content.decode('ascii'), Reproducibility.TEMPORAL)
+        self.evidence = URLEvidence(url, res.content.decode("utf-8"), Reproducibility.TEMPORAL)
 
         self.severity_map.clear()
         latest_observation_date = 0
 
         advisories = get_complex(self.data, "version.advisories")
         for advisory in advisories:
-            latest_observation_date = max(
-                latest_observation_date, advisory.get("observedAt", 0)
-            )
+            latest_observation_date = max(latest_observation_date, advisory.get("observedAt", 0))
 
-            severity_key = advisory.get("severity", "").lower()
-            self.severity_map[severity_key] = self.severity_map.get(severity_key, 0) + 1
+            severity_key = advisory.get("severity", "unknown").lower().strip()
+            self.severity_map[severity_key] += 1
 
         # If no advisories, try to get the version's refresedAt date,
         # or fall back to the current time.
@@ -93,7 +79,7 @@ class SecurityAdvisory(BaseAssertion):
             if latest_observation_date == 0:
                 latest_observation_date = int(time.time())
 
-    def emit(self) -> BaseAssertion:
+    def emit(self) -> None:
         """Emits a security advisory assertion for the targeted package."""
         self.assertion["predicate"].update(
             {
@@ -103,4 +89,3 @@ class SecurityAdvisory(BaseAssertion):
                 "evidence": self.evidence.to_dict() if self.evidence else None,
             }
         )
-        return self.assertion
