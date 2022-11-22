@@ -1,6 +1,8 @@
 """Base class from evidence."""
+
 class BaseEvidence:
     """Holder for generic evidence."""
+
     def __init__(self):
         pass
 

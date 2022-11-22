@@ -7,7 +7,7 @@ class FileEvidence(BaseEvidence):
         self._type = 'https://github.com/ossf/alpha-omega/types/evidence/file/v0.1'
         self.reproducibility = reproducibility
         self.filename = filename
-        self.output = output
+        self.output = str(output)
 
     def to_dict(self):
         """Renders the evidence as a dictionary."""

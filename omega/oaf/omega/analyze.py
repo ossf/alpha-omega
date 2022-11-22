@@ -214,6 +214,15 @@ class AnalysisRunner:
                 "repository": self.assertion_destination,
             }
         )
+        # Programming Language
+        self._execute_assertion_noexcept(
+            **{
+                "assertion": "Characteristic",
+                "subject": self.package_url,
+                "input-file": self.find_output_file("tool-application-inspector.json"),
+                "repository": self.assertion_destination,
+            }
+        )
         # Metadata
         self._execute_assertion_noexcept(
             **{

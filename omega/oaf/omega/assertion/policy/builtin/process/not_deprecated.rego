@@ -1,7 +1,8 @@
-package openssf.omega.policy.process.actively_maintained
+package openssf.omega.policy.process.not_deprecated
 
 # Metadata (YAML)
 # ---
+# name: not_deprecated
 # title: Subject is not marked as deprecated.
 # methodology: >
 #   This policy is used to validate that the project is not marked as
@@ -18,7 +19,7 @@ default applies = false
 # Identify whether this policy applies to a given data object
 applies := true {
     input.predicate.generator.name == "openssf.omega.metadata"
-    input.predicateType == "https://github.com/ossf/alpha-omega/v0.1"
+    input.predicateType == "https://github.com/ossf/alpha-omega/metadata/0.1.0"
 }
 
 pass := true {

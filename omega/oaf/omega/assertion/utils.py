@@ -3,6 +3,7 @@
 import collections.abc
 import logging
 import subprocess  # nosec: B404
+import typing
 
 import requests
 from packageurl import PackageURL
@@ -26,7 +27,7 @@ def strtobool(val):
         raise ValueError("invalid truth value %r" % (val,))
 
 
-def get_complex(obj, key, default_value=""):
+def get_complex(obj: dict, key: str | list, default_value: typing.Any =""):
     """Get a value from the dictionary d by nested.key.value.
     If keys contain periods, then use key=['a','b','c'] instead."""
     if not obj or not isinstance(obj, dict):

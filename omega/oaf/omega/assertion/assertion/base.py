@@ -59,6 +59,7 @@ class BaseAssertion:
                         "hostname": platform.node(),
                         "machine_identifier": str(uuid.UUID(int=uuid.getnode())),
                     },
+                    "uuid": str(uuid.uuid4()),
                 },
             },
         }

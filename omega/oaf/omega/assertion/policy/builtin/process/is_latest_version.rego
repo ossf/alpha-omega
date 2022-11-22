@@ -1,7 +1,8 @@
-package openssf.omega.policy.process.actively_maintained
+package openssf.omega.policy.process.is_latest_version
 
 # Metadata (YAML)
 # ---
+# name: process.is_latest_version
 # title: Subject reflects the latest version available.
 # methodology: >
 #   This policy is used to determine if a subject is the latest version available,
@@ -19,7 +20,7 @@ default applies = false
 # Identify whether this policy applies to a given data object
 applies := true {
     input.predicate.generator.name == "openssf.omega.metadata"
-    input.predicateType == "https://github.com/ossf/alpha-omega/v0.1"
+    input.predicateType == "https://github.com/ossf/alpha-omega/metadata/0.1.0"
 }
 
 pass := true {

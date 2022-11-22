@@ -2,6 +2,7 @@ package openssf.omega.policy.no_critical_vulnerabilities
 
 # Metadata (YAML)
 # ---
+# name: no_critical_vulnerabilities
 # title: No publicly-known critical vulnerabilities exist.
 # methodology: >
 #   This policy is used to determine if a project contains any publicly-known
@@ -19,7 +20,7 @@ default applies = false
 # Identify whether this policy applies to a given data object
 applies := true {
     input.predicate.generator.name == "openssf.omega.security_advisories"
-    input.predicateType == "https://github.com/ossf/alpha-omega/v0.1"
+    input.predicateType == "https://github.com/ossf/alpha-omega/security_advisories/0.1.0"
     input.predicate.content.security_advisories
 }
 

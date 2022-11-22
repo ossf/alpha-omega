@@ -2,6 +2,7 @@ package openssf.omega.policy.process.code_review
 
 # Metadata (YAML)
 # ---
+# name: process.code_review
 # title: Code review usually takes place.
 # methodology: >
 #   This policy is used to determine if code review usually takes place, based on
@@ -18,8 +19,8 @@ default applies = false
 
 # Identify whether this policy applies to a given data object
 applies := true {
-    input.predicate.generator.name == "openssf.omega.security_scorecards"
-    input.predicateType == "https://github.com/ossf/alpha-omega/v0.1"
+    input.predicate.generator.name == "openssf.omega.security_scorecard"
+    input.predicateType == "https://github.com/ossf/alpha-omega/security_scorecard/0.1.0"
 }
 
 pass := true {

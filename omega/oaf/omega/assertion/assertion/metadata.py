@@ -62,12 +62,12 @@ class Metadata(BaseAssertion):
             "is_latest_version": self.subject.package_url.version == latest_version,
             "version_publish_date": version_publish_date.isoformat(),
             "version_deprecated": get_complex(
-                data, ["versions", self.subject.package_url.version, "deprecated"]
+                data, ["versions", self.subject.package_url.version, "deprecated"], default_value=None
             )
             is not None,
             "latest_version_publish_date": latest_version_publish_date.isoformat(),
             "latest_version_deprecated": get_complex(
-                data, ["versions", latest_version, "deprecated"]
+                data, ["versions", latest_version, "deprecated"], default_value=None
             )
             is not None,
         }

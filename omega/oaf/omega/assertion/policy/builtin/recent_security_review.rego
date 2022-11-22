@@ -2,6 +2,7 @@ package openssf.omega.policy.recent_security_review
 
 # Metadata (YAML)
 # ---
+# name: recent_security_review
 # title: Subject is marked as deprecated.
 # methodology: >
 #   This policy is used to determine if a project is deprecated, based on
@@ -13,11 +14,12 @@ package openssf.omega.policy.recent_security_review
 # ---
 
 default pass = false
+default applies = false
 
 # Identify whether this policy applies to a given data object
 applies := true {
-    input.predicateGenerator.name == "openssf.omega.manual_security_review"
-    input.predicateType == "https://github.com/ossf/alpha-omega/v0.1"
+    input.predicateGenerator.name == "openssf.omega.security_review"
+    input.predicateType == "https://github.com/ossf/alpha-omega/security_review/0.1.0"
 }
 
 pass := true {

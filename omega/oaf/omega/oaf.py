@@ -6,7 +6,7 @@ import logging
 import sys
 
 from assertion.assertion.base import BaseAssertion
-from assertion.policy import BasePolicy, RegoPolicy
+from assertion.policy import BasePolicy, DynamicPolicy
 from assertion.repository.base import BaseRepository
 from assertion.signing.base import BaseSigner
 from assertion.subject import BaseSubject
@@ -97,9 +97,10 @@ class OAF:
         )
         p_consume.add_argument(
             "--policy",
-            help='Policy to use, or "all" for all available policies.',
-            type=str,
-            required=True,
+            help='Policy glob to use, defaults to "%(default)s" for built-in policies.',
+            default=["builtin/**/*"],
+            required=False,
+            action="append"
         )
 
     def parse_args(self):
@@ -200,26 +201,10 @@ class OAF:
             sys.exit(1)
 
         # Apply the policies against the assertions
-        if args.policy == "all":
-            rego = RegoPolicy(["assertion/policy/rego_policies"], None, signer)
-        else:
-            rego = RegoPolicy(["assertion/policy/rego_policies"], args.policy.split(","), signer)
-
-        if not rego:
-            logging.error("Error initializing Rego policy evaluator.")
-            sys.exit(1)
-
-        if not rego.policies:
-            logging.error("No policies found.")
-            sys.exit(1)
-
-        results = rego.execute(assertions, None)
-        for policy, result in results.items():
-            metadata = RegoPolicy.get_policy_metadata(policy)
-            if metadata:
-                print(f"[{result.state}]\t[{metadata.get('title', policy)}]\t{result.message}")
-            else:
-                print(f"[{result.state}]\t[{policy}]\t{result.message}")
+        policy = DynamicPolicy(args.policy, signer)
+        for result in policy.execute_all(assertions):
+            for predicate_type, policy_result in result:
+                print(f"[{policy_result.state}]\t[{predicate_type}]")
 
     class Generate:
         """Helper class for the 'generate' subcommand."""
@@ -241,6 +226,7 @@ class OAF:
             """Generates an assertion."""
             # pylint: disable=import-outside-toplevel
             # pylint: disable=unused-import
+            from assertion.assertion.characteristic import Characteristic
             from assertion.assertion.language import ProgrammingLanguage
             from assertion.assertion.manual import Manual
             from assertion.assertion.metadata import Metadata
