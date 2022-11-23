@@ -102,6 +102,9 @@ class AnalysisRunner:
 
     def _execute_assertion_noexcept(self, **kwargs):
         try:
+            if 'input-file' in kwargs and not kwargs.get('input-file'):
+                logging.warning("Skipping assertion because input file is not set.")
+                return
             self._execute_assertion(**kwargs)
         except Exception as msg:
             logging.error("Error executing assertion: %s", msg)
