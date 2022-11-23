@@ -6,11 +6,11 @@ import logging
 import os
 import typing
 
-from dateutil.parser import parse as parse_date
+
 
 from ..evidence import FileEvidence, Reproducibility
 from ..subject import BaseSubject, PackageUrlSubject
-from ..utils import get_complex
+from ..utils import get_complex, parse_date
 from .base import BaseAssertion
 
 
@@ -60,12 +60,12 @@ class Metadata(BaseAssertion):
         self.metadata = {
             "latest_version": latest_version,
             "is_latest_version": self.subject.package_url.version == latest_version,
-            "version_publish_date": version_publish_date.isoformat(),
+            "version_publish_date": version_publish_date.isoformat() if version_publish_date else None,
             "version_deprecated": get_complex(
                 data, ["versions", self.subject.package_url.version, "deprecated"], default_value=None
             )
             is not None,
-            "latest_version_publish_date": latest_version_publish_date.isoformat(),
+            "latest_version_publish_date": latest_version_publish_date.isoformat() if latest_version_publish_date else None,
             "latest_version_deprecated": get_complex(
                 data, ["versions", latest_version, "deprecated"], default_value=None
             )

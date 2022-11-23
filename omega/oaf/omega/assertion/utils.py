@@ -4,6 +4,9 @@ import collections.abc
 import logging
 import subprocess  # nosec: B404
 import typing
+import datetime
+from dateutil.parser import parse as _parse_date
+from dateutil.parser import ParserError
 
 import requests
 from packageurl import PackageURL
@@ -128,3 +131,10 @@ def update_complex(target: dict, overlay: collections.abc.Mapping):
         else:
             target[key] = value
     return target
+
+def parse_date(date_string: str, default: typing.Any = None) -> datetime.datetime | typing.Any:
+    """Parses a date string into a datetime object."""
+    try:
+        return _parse_date(date_string)
+    except (ParserError, OverflowError):
+        return default
