@@ -268,8 +268,8 @@ class OAF:
                 assertion = cls(subject, **additional_args)  # type: BaseAssertion
                 try:
                     assertion.process()
-                except Exception:
-                    logging.error("Error processing assertion")
+                except Exception as msg:
+                    logging.error("Error processing assertion: %s", msg)
                     return None
 
                 return assertion

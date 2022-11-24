@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess  # nosec: B404
 import typing
+from urllib.parse import urlparse
 
 from packageurl import PackageURL
 from packageurl.contrib.url2purl import url2purl
@@ -70,7 +71,9 @@ class SecurityScorecard(BaseAssertion):
                 self.evidence = FileEvidence(self.input_file, _content, Reproducibility.UNKNOWN)
 
                 repo_name = get_complex(self.data, "repo.name")
-                if repo_name.startswith("github.com"):
+
+                result = urlparse(repo_name)
+                if not result.scheme:
                     repo_name = f"https://{repo_name}"
 
                 package_url_d = url2purl(repo_name)

@@ -3,6 +3,7 @@ This module contains subject classes for assertions.
 """
 import logging
 from typing import Union
+from urllib.parse import urlparse
 
 from packageurl import PackageURL
 
@@ -29,10 +30,18 @@ class BaseSubject:
                 return EmptySubject()
             if subject.startswith("pkg:"):
                 return PackageUrlSubject(subject)
-            if subject.startswith("https://github.com"):
-                return GitHubRepositorySubject(subject)
+            try:
+                result = urlparse(subject)
+                if not result.scheme:
+                    result = urlparse(f"https://{subject}")
 
-        raise ValueError(f"Unknown subject type: {subject}")
+                if result.hostname.lower() == "github.com":
+                    return GitHubRepositorySubject(result._replace(scheme="https").geturl())
+                raise ValueError("Only GitHub URLs are supported.")
+            except Exception as msg:
+                raise ValueError(f"Invalid subject [{subject}]") from msg
+
+        raise ValueError(f"Invalid subject [{subject}]")
 
     def ensure_version(self) -> None:
         """Update the version of the subject."""
