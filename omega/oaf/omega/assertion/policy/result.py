@@ -25,3 +25,10 @@ class ExecutionResult:
 
     def __str__(self):
         return f"ExecutionResult(passed={self.state}, message={self.message})"
+
+    def to_json(self) -> dict[str, str]:
+        """Returns a JSON representation of the execution result."""
+        return {
+            "state": str(self.state),
+            "message": self.message,
+        }

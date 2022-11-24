@@ -40,7 +40,10 @@ class CommandPolicy(BasePolicy):
             if field not in self.policy:
                 raise ValueError("Policy is missing required field [{field}].")
 
-    def execute(self, assertions: list[str] | str) -> ExecutionResult:
+    def get_name(self) -> str:
+        return self.policy.get('name')
+
+    def execute(self, assertions: list[str] | str) -> list[dict[str, ExecutionResult]]:
         """Executes a CommandPolicy against a given set of assertions."""
 
         if not assertions or not isinstance(assertions, list | str):
@@ -125,9 +128,10 @@ class CommandPolicy(BasePolicy):
                 )
                 continue
 
-            results.append(
-                (policy_name, ExecutionResult(result_state, f"{stdout}\n{stderr}"))
-            )
+            results.append({
+                "policy_name": policy_name,
+                "execution_result": ExecutionResult(result_state, f"{stdout}\n{stderr}".strip())
+            })
 
         return results
 

@@ -4,7 +4,7 @@ from .result import ExecutionResult
 
 class BasePolicy:
     """Base class for a Policy object."""
-    def execute(self, assertions: list[str]) -> dict[str, ExecutionResult]:
+    def execute(self, assertions: list[str]) -> list[dict[str, ExecutionResult]]:
         """Executes the policy against the assertion."""
         raise NotImplementedError("execute must be implemented by subclasses")
 
@@ -16,3 +16,6 @@ class BasePolicy:
 
     def __str__(self):
         raise NotImplementedError("__str__ must be implemented by subclasses")
+
+    def get_name(self) -> str:
+        raise NotImplementedError("get_name must be implemented by subclasses")

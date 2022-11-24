@@ -1,6 +1,7 @@
 """Collection of general utility functions."""
 
 import collections.abc
+import json
 import logging
 import subprocess  # nosec: B404
 import typing
@@ -148,3 +149,14 @@ def is_valid_url(url: str) -> bool:
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
+
+class ComplexJSONEncoder(json.JSONEncoder):
+    """Handles encoding of complex objects into JSON."""
+    def default(self, o):
+        if isinstance(o, (datetime.datetime, datetime.date)):
+            return o.isoformat()
+        if isinstance(o, (PackageURL,)):
+            return str(o)
+        if hasattr(o, 'to_json') and callable(o.to_json):
+            return o.to_json()
+        return super().default(o)

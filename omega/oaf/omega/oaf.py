@@ -4,16 +4,17 @@ Main entrypoint for the Omega Assertion Framework CLI.
 """
 import argparse
 import glob
+import json
 import importlib
 import logging
 import sys
 
 from assertion.assertion.base import BaseAssertion
-from assertion.policy import BasePolicy, DynamicPolicy
+from assertion.policy import BasePolicy, DynamicPolicy, ResultState
 from assertion.repository.base import BaseRepository
 from assertion.signing.base import BaseSigner
 from assertion.subject import BaseSubject
-from assertion.utils import get_subclasses_recursive
+from assertion.utils import get_subclasses_recursive, ComplexJSONEncoder
 
 
 class OAF:
@@ -100,10 +101,10 @@ class OAF:
         )
         p_consume.add_argument(
             "--policy",
-            help='Policy glob to use, defaults to "%(default)s" for built-in policies.',
-            default=["builtin/**/*"],
+            help='Policy glob to use, defaults to "builtin/**/*" for all built-in policies.',
+            default=[],
             required=False,
-            action="append"
+            action="append",
         )
 
     def parse_args(self):
@@ -206,10 +207,22 @@ class OAF:
             sys.exit(1)
 
         # Apply the policies against the assertions
+        if not args.policy:
+            args.policy = ["builtin/**/*"]
         policy = DynamicPolicy(args.policy, signer)
-        for result in policy.execute_all(assertions):
-            for predicate_type, policy_result in result:
-                print(f"[{policy_result.state}]\t[{predicate_type}]")
+        results = policy.execute_all(assertions)
+        if results:
+            results = list(
+                filter(
+                    lambda s: s.get("execution_result").state
+                    in [ResultState.PASS, ResultState.FAIL],
+                    results,
+                )
+            )
+            print(json.dumps(results, indent=2, cls=ComplexJSONEncoder))
+        else:
+            print("No assertions found for subject.")
+            sys.exit(1)
 
     class Generate:
         """Helper class for the 'generate' subcommand."""

@@ -55,21 +55,25 @@ class DynamicPolicy(BasePolicy):
                 data = f.read()
                 return RegoPolicy(data, self.signer)
 
-        logging.warning("Policy file [%s] does not have a supported extension.", filename)
+        logging.debug("Ignoring file [%s], is not a supported file extension.", filename)
         return None
 
-    def execute(self, assertions: list[str] | str) -> ExecutionResult:
+    def get_name(self) -> str:
+        raise NotImplementedError("get_name must be implemented by concrete classes.")
+
+    def execute(self, assertions: list[str] | str) -> list[dict[str, ExecutionResult]]:
         """Executes the policy against the assertion."""
         raise NotImplementedError("execute must be implemented by a concrete class")
 
-    def execute_all(self, assertions: list[str]) -> dict[str, ExecutionResult]:
+    def execute_all(self, assertions: list[str]) -> list[list[dict[str, ExecutionResult]]]:
         """Executes the policy against the assertion."""
         results = []    # type: list[dict[str,ExecutionResult]]
         for policy in self.policies:
             if isinstance(policy, DynamicPolicy):  # No recursion today!
                 continue
-
-            results.append(policy.execute(assertions))
+            result = policy.execute(assertions)
+            if result:
+                results.extend(result)
         return results
 
     def __str__(self):

@@ -34,12 +34,15 @@ class RegoPolicy(BasePolicy):
 
         self.validate()
 
+    def get_name(self) -> str:
+        return self.metadata.get('name')
+
     def validate(self):
         """Validates the policy."""
         if not self.policy:
             raise ValueError("Policy must be set.")
 
-    def execute(self, assertions: list[str] | str) -> ExecutionResult:
+    def execute(self, assertions: list[str] | str) -> list[dict[str, ExecutionResult]]:
         """Executes a Rego policy against a given set of assertions."""
 
         if not assertions or not isinstance(assertions, list | str):
@@ -121,9 +124,10 @@ class RegoPolicy(BasePolicy):
                 )
                 continue
 
-            results.append(
-                (policy_name, ExecutionResult(result_state, f"{stdout}\n{stderr}"))
-            )
+            results.append({
+                "policy_name": policy_name,
+                "execution_result": ExecutionResult(result_state, f"{stdout}\n{stderr}".strip())
+            })
         return results
 
     def get_policy_metadata(self) -> dict | None:

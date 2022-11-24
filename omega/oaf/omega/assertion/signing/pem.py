@@ -23,24 +23,36 @@ class KeyPairSigner(BaseSigner):
         """Initializes the signer.
 
         Args:
-            key_file: Path to the private key file.
+            key_file: Path to the public or private key file.
             password: Password to decrypt the private key file (optional).
         """
         if not os.path.isfile(key_file):
             raise IOError(f"Key file does not exist: {key_file}")
 
         with open(key_file, "rb") as f:
-            self.private_key = serialization.load_pem_private_key(
-                f.read(), password=password, backend=default_backend()
-            )
+            # Load either the public or private key.
+            key_bytes = f.read()
+            try:
+                self.private_key = serialization.load_pem_private_key(
+                    key_bytes, password=password, backend=default_backend()
+                )
+                self.public_key = self.private_key.public_key()
+            except ValueError:
+                self.private_key = None
+                self.public_key = serialization.load_pem_public_key(
+                    key_bytes, backend=default_backend()
+                )
 
     def sign(self, assertion: BaseAssertion) -> None:
         """Signs an assertion."""
-        data = assertion.serialize("bytes")
-        signature = self.private_key.sign(data, ec.ECDSA(hashes.SHA256()))
-        assertion.add_signature(
-            {"type": "keypair", "digest": base64.b64encode(signature).decode("ascii")}
-        )
+        if self.private_key:
+            data = assertion.serialize("bytes")
+            signature = self.private_key.sign(data, ec.ECDSA(hashes.SHA256()))
+            assertion.add_signature(
+                {"type": "keypair", "digest": base64.b64encode(signature).decode("ascii")}
+            )
+        else:
+            raise ValueError("Cannot sign assertion with public key")
 
     def verify(self, assertion: BaseAssertion | str) -> bool:
         """Verifies an assertion."""
@@ -59,17 +71,16 @@ class KeyPairSigner(BaseSigner):
         BaseAssertion.remove_signatures(assertion_obj)
         data = BaseAssertion.serialize_bare("bytes", assertion_obj)
 
-        public_key = self.private_key.public_key()
-
-        successful = True
+        successful = []
         for signature in signatures:
             try:
                 if signature.get("type") != "keypair":
                     logging.warning("Skipping signature of type %s", signature.get("type"))
                     continue
                 signature_bytes = base64.b64decode(signature.get("digest"))
-                public_key.verify(signature_bytes, data, ec.ECDSA(hashes.SHA256()))
+                self.public_key.verify(signature_bytes, data, ec.ECDSA(hashes.SHA256()))
+                successful.append(True)
             except InvalidSignature:
-                successful = False
+                logging.warning("Invalid signature found")
 
-        return successful
+        return len(successful) == len(signatures) and all(successful)

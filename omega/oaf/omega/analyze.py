@@ -23,7 +23,7 @@ class AnalysisRunner:
     Executes analysis and creates assertions.
     """
 
-    def __init__(self, package_url: str, docker_container: str, assertion_destination: str):
+    def __init__(self, package_url: str, docker_container: str, repository: str, signer: str):
         """Initialize a new Analysis Runner."""
         required_commands = [
             ["python", "-V"],
@@ -46,7 +46,8 @@ class AnalysisRunner:
 
         self.docker_container = docker_container
         self.package_url = get_package_url_with_version(package_url)
-        self.assertion_destination = assertion_destination
+        self.repository = repository
+        self.signer = signer
 
         _uuid = str(uuid.uuid4())
         self.work_directory = os.path.join(tempfile.gettempdir(), f"omega-{_uuid}")  # ADD UUID
@@ -120,9 +121,8 @@ class AnalysisRunner:
             )
         cmd.append(f"--expiration={kwargs['expiration']}")
 
-        if os.path.isfile("private-key.pem"):
-            direct_key_file = os.path.abspath("private-key.pem")
-            cmd.append(f"--signer={direct_key_file}")
+        if kwargs.get('signer'):
+            cmd.append(f"--signer={kwargs['signer']}")
 
         for key, value in kwargs.items():
             cmd.append(f"--{key}")
@@ -158,7 +158,8 @@ class AnalysisRunner:
             **{
                 "assertion": "SecurityScorecard",
                 "subject": self.package_url,
-                "repository": self.assertion_destination,
+                "repository": self.repository
+                "signer": self.signer
             }
         )
 
@@ -167,7 +168,8 @@ class AnalysisRunner:
             **{
                 "assertion": "SecurityAdvisory",
                 "subject": self.package_url,
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
 
@@ -176,7 +178,8 @@ class AnalysisRunner:
             **{
                 "assertion": "Reproducible",
                 "subject": self.package_url,
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
 
@@ -186,7 +189,8 @@ class AnalysisRunner:
                 "assertion": "SecurityToolFinding",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-semgrep.sarif"),
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
 
@@ -195,7 +199,8 @@ class AnalysisRunner:
                 "assertion": "SecurityToolFinding",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-codeql-basic.javascript.sarif"),
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
 
@@ -204,7 +209,8 @@ class AnalysisRunner:
                 "assertion": "SecurityToolFinding",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-snyk-code.sarif"),
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
 
@@ -214,7 +220,8 @@ class AnalysisRunner:
                 "assertion": "ProgrammingLanguage",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-application-inspector.json"),
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
         # Programming Language
@@ -223,7 +230,8 @@ class AnalysisRunner:
                 "assertion": "Characteristic",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-application-inspector.json"),
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
         # Metadata
@@ -232,7 +240,8 @@ class AnalysisRunner:
                 "assertion": "Metadata",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-metadata-native.json"),
-                "repository": self.assertion_destination,
+                "repository": self.repository,
+                "signer": self.signer
             }
         )
 
@@ -244,11 +253,14 @@ if __name__ == "__main__":
         "--toolchain-container", required=False, default="openssf/omega-toolshed:latest"
     )
     parser.add_argument(
-        "--assertion-destination", required=False, default="dir:/opt/hdd/test-assertion1"
+        "--repository", required=True
+    )
+    parser.add_argument(
+        "--signer", required=False
     )
     args = parser.parse_args()
 
     logging.info("Starting analysis runner")
-    runner = AnalysisRunner(args.package_url, args.toolchain_container, args.assertion_destination)
+    runner = AnalysisRunner(args.package_url, args.toolchain_container, args.repository, args.signer)
     runner.execute_docker_container()
     runner.execute_assertions()
