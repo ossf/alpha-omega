@@ -98,7 +98,10 @@ def add_assertion(req: func.HttpRequest) -> func.HttpResponse:
     blob_name = os.path.join(blob_path, str(uuid.uuid4()))
 
     assertion_content = json.dumps(body.get("assertion")).encode("utf-8")
-    assertion_compressed = bz2.compress(assertion_content, compresslevel=9)
+    if os.environ.get('COMPRESS_ASSERTIONS') in ["1", "true", "True"]:
+        assertion_final = bz2.compress(assertion_content, compresslevel=9)
+    else:
+        assertion_final = assertion_content
 
     # Expiration Date
     tags = {}
@@ -119,7 +122,7 @@ def add_assertion(req: func.HttpRequest) -> func.HttpResponse:
 
         container = client.get_container_client(STORAGE_CONTAINER_NAME)
         blob = container.get_blob_client(blob_name)
-        blob.upload_blob(assertion_compressed, tags=tags)
+        blob.upload_blob(assertion_final, tags=tags)
 
         return func.HttpResponse("Assertion added successfully", status_code=200)
     except Exception as msg:
@@ -148,8 +151,12 @@ def find_assertions(req: func.HttpRequest) -> func.HttpResponse:
         results = []
         for blob in container.list_blobs(blob_path):
             try:
-                blob_bytes = container.get_blob_client(blob).download_blob()
-                blob_content = bz2.decompress(blob_bytes.readall())
+                _blob_bytes = container.get_blob_client(blob).download_blob()
+                blob_bytes = _blob_bytes.readall()
+                try:
+                    blob_content = bz2.decompress(blob_bytes)
+                except Exception:
+                    blob_content = blob_bytes
                 results.append(json.loads(blob_content))
             except Exception as msg:
                 logging.exception("Error downloading assertion: %s", msg, exc_info=True)
