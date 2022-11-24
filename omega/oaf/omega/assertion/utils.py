@@ -91,7 +91,7 @@ def get_subclasses_recursive(cls):
     ]
 
 
-def get_package_url_with_version(package_url: PackageURL | str) -> str:
+def get_package_url_with_version(package_url: PackageURL | str) -> PackageURL:
     """Adds the latest version to a versionless PackageURL."""
     logging.debug('Getting latest version for "%s"', str(package_url))
     if isinstance(package_url, str):

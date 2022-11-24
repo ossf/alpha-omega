@@ -86,7 +86,7 @@ class PackageUrlSubject(BaseSubject):
         if not self.package_url.version:
             latest_purl = get_package_url_with_version(self.package_url)
             if latest_purl:
-                self.package_url = PackageURL.from_string(latest_purl)
+                self.package_url = latest_purl
             else:
                 logging.debug("Unable to determine latest version for %s", self.package_url)
 

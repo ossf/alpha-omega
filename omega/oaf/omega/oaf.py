@@ -16,6 +16,7 @@ from assertion.signing.base import BaseSigner
 from assertion.subject import BaseSubject
 from assertion.utils import get_subclasses_recursive, ComplexJSONEncoder
 
+LOG_FORMAT="%(asctime)s %(levelname)s %(filename)s:%(lineno)d (%(funcName)s) - %(message)s"
 
 class OAF:
     """Entrypoint into the Omega Assertion Framework CLI."""
@@ -112,10 +113,10 @@ class OAF:
         args = self.parser.parse_args()
 
         if args.verbose:
-            logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
+            logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
         else:
             logging.basicConfig(
-                level=logging.WARNING, format="%(asctime)s %(levelname)s %(message)s"
+                level=logging.WARNING, format=LOG_FORMAT
             )
 
         if args.command == "generate":
@@ -269,7 +270,7 @@ class OAF:
                 try:
                     assertion.process()
                 except Exception as msg:
-                    logging.error("Error processing assertion: %s", msg)
+                    logging.error("Error processing assertion: %s", msg, exc_info=True)
                     return None
 
                 return assertion
