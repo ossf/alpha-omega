@@ -9,7 +9,7 @@ import os
 import uuid
 
 import azure.functions as func
-from azure.storage.blob import BlobClient, BlobServiceClient, BlobType, ContainerClient, __version__
+from azure.storage.blob import BlobServiceClient
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 

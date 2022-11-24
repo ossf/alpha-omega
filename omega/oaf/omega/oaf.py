@@ -1,7 +1,10 @@
+#!/usr/bin/env python
 """
 Main entrypoint for the Omega Assertion Framework CLI.
 """
 import argparse
+import glob
+import importlib
 import logging
 import sys
 
@@ -226,17 +229,11 @@ class OAF:
             assertion_type: str, subject_str: str, additional_args: argparse.Namespace
         ) -> BaseAssertion:
             """Generates an assertion."""
-            # pylint: disable=import-outside-toplevel
-            # pylint: disable=unused-import
-            from assertion.assertion.characteristic import Characteristic
-            from assertion.assertion.language import ProgrammingLanguage
-            from assertion.assertion.manual import Manual
-            from assertion.assertion.metadata import Metadata
-            from assertion.assertion.reproducible import Reproducible
-            from assertion.assertion.securityadvisory import SecurityAdvisory
-            from assertion.assertion.securityreview import SecurityReview
-            from assertion.assertion.securityscorecard import SecurityScorecard
-            from assertion.assertion.securitytoolfinding import SecurityToolFinding
+            for filename in glob.glob("assertion/assertion/**/*.py", recursive=True):
+                try:
+                    importlib.import_module(filename.replace("/", ".").replace(".py", ""))
+                except Exception as msg:
+                    logging.warning("Error importing assertion: %s", msg)
 
             assertion_subclasses = get_subclasses_recursive(BaseAssertion)
             logging.debug(
