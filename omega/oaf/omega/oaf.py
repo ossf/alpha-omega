@@ -256,6 +256,7 @@ class OAF:
             )
 
             for cls in get_subclasses_recursive(BaseAssertion):
+                # Only use the assertion class we specified
                 if cls.__name__.lower() != assertion_type.strip().lower():
                     continue
 
@@ -265,7 +266,11 @@ class OAF:
                 additional_args = vars(additional_args)
                 additional_args.pop("subject")
                 assertion = cls(subject, **additional_args)  # type: BaseAssertion
-                assertion.process()
+                try:
+                    assertion.process()
+                except Exception:
+                    logging.error("Error processing assertion")
+                    return None
 
                 return assertion
 
