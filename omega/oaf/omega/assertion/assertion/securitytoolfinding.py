@@ -9,7 +9,7 @@ import os
 import typing
 from collections import defaultdict
 
-from ..evidence import RedactedEvidence, Reproducibility
+from ..evidence import RedactedEvidence, Reproducibility, FileEvidence
 from ..sarif import SarifHelper
 from ..subject import BaseSubject
 from .base import BaseAssertion
@@ -35,6 +35,7 @@ class SecurityToolFinding(BaseAssertion):
         self.data = None  # type: typing.Optional[dict]
         self.filtered_results = []  # type: typing.Generator[dict, None, None]
         self.severity_map = {}  # type: dict[str, int]
+        self.include_evidence = kwargs.get("include_evidence", True)
 
         self.input_file = kwargs.get("input_file")
 
@@ -55,15 +56,18 @@ class SecurityToolFinding(BaseAssertion):
             logging.debug("Read %d bytes from input file.", len(_content))
 
             self.data = json.loads(_content)
-            self.evidence = RedactedEvidence(
-                {
-                    "digest": base64.b64encode(
-                        hashlib.sha256(_content.encode("utf-8")).digest()
-                    ).decode("ascii"),
-                    "alg": "sha256",
-                },
-                Reproducibility.UNKNOWN,
-            )
+            if self.include_evidence:
+                self.evidence = FileEvidence(self.input_file, _content, Reproducibility.UNKNOWN)
+            else:
+                self.evidence = RedactedEvidence(
+                    {
+                        "digest": base64.b64encode(
+                            hashlib.sha256(_content.encode("utf-8")).digest()
+                        ).decode("ascii"),
+                        "alg": "sha256",
+                    },
+                    Reproducibility.UNKNOWN,
+                )
 
         # Filter the results
         def delegate(_) -> bool:
@@ -79,9 +83,9 @@ class SecurityToolFinding(BaseAssertion):
         logging.debug("Aggregate results: %s", dict(self.severity_map))
 
     @staticmethod
-    def _get_severity(result) -> bool:
+    def _get_severity(result) -> str:
         """Returns the severity of the result."""
-        return result.get("rule_severity", 0)
+        return result.get("rule_severity", "unknown")
 
     def emit(self) -> None:
         """Emits a security advisory assertion for the targeted package."""
