@@ -65,6 +65,9 @@ class SecurityAdvisory(BaseAssertion):
         self.severity_map.clear()
         latest_observation_date = 0
 
+        if 'version' not in self.data:
+            raise ValueError("deps.dev response is missing version information. This version may not exist.")
+
         advisories = get_complex(self.data, "version.advisories")
         for advisory in advisories:
             latest_observation_date = max(latest_observation_date, advisory.get("observedAt", 0))
