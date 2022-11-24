@@ -149,9 +149,11 @@ class OAF:
 
             if args.repository:
                 repository = BaseRepository.create_repository(args.repository)
-                repository.add_assertion(assertion)
-                print("Assertion added to repository.")
-                logging.debug(assertion.serialize("json-pretty"))
+                if repository.add_assertion(assertion):
+                    print("Assertion added to repository.")
+                    logging.debug(assertion.serialize("json-pretty"))
+                else:
+                    print("Error adding assertion to repository.")
             else:
                 print(assertion.serialize("json-pretty"))
 

@@ -48,6 +48,8 @@ class RegoPolicy(BasePolicy):
         if isinstance(assertions, str):
             assertions = [assertions]
 
+        assertions = filter(lambda s: s, assertions)
+
         policy_name = self.metadata.get("name")
         logging.debug("Processing policy: %s", policy_name)
 

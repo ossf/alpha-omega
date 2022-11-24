@@ -32,4 +32,10 @@ class BaseRepository:
 
             return DirectoryRepository(directory)
 
+        if scheme.startswith('azure:'):
+            _, endpoint = scheme.split(':', 1)
+            # pylint: disable=import-outside-toplevel; circular import
+            from .azure import AzureRepository
+            return AzureRepository(endpoint)
+
         raise NotImplementedError(f"Repository scheme not supported: {scheme}")

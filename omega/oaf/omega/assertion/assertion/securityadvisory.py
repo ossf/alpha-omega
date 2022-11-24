@@ -84,7 +84,7 @@ class SecurityAdvisory(BaseAssertion):
         self.assertion["predicate"].update(
             {
                 "content": {
-                    "security_advisories": self.severity_map,
+                    "security_advisories": dict(self.severity_map),
                 },
                 "evidence": self.evidence.to_dict() if self.evidence else None,
             }

@@ -29,7 +29,7 @@ def connect() -> BlobServiceClient | None:
 
         return BlobServiceClient.from_connection_string(connection_str)
     except Exception as msg:
-        logging.error(f"Failed to connect to Azure Blob Storage: {msg}")
+        logging.error("Failed to connect to Azure Blob Storage: %s", msg)
         return None
 
 
@@ -76,7 +76,13 @@ def remove_expired_assertions(timer: func.TimerRequest) -> None:
 @app.route(route="add")
 @app.http_type(http_type=func.HttpMethod.POST)
 def add_assertion(req: func.HttpRequest) -> func.HttpResponse:
-    """Add an assertion to Azure Storage."""
+    """Add an assertion to Azure Storage.
+
+    Required fields:
+    - subject
+    - assertion
+    - expiration (optional)
+    """
     logging.debug("add_assertion() triggered by HTTP request.")
 
     try:
@@ -91,7 +97,7 @@ def add_assertion(req: func.HttpRequest) -> func.HttpResponse:
     blob_path = get_blob_path(subject)
     blob_name = os.path.join(blob_path, str(uuid.uuid4()))
 
-    assertion_content = json.dumps(body.get("content")).encode("utf-8")
+    assertion_content = json.dumps(body.get("assertion")).encode("utf-8")
     assertion_compressed = bz2.compress(assertion_content, compresslevel=9)
 
     # Expiration Date

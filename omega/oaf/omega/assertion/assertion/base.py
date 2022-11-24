@@ -123,6 +123,8 @@ class BaseAssertion:
             return json.dumps(assertion, indent=2, sort_keys=True, default=str)
         if scheme == "bytes":
             return json.dumps(assertion, indent=0, sort_keys=True, default=str).encode("ascii")
+        if scheme == "dict":
+            return assertion
 
         raise ValueError(f"Invalid serialization type: {scheme}")
 

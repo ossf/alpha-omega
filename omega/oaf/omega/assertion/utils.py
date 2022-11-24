@@ -7,6 +7,7 @@ import typing
 import datetime
 from dateutil.parser import parse as _parse_date
 from dateutil.parser import ParserError
+from urllib.parse import urlparse
 
 import requests
 from packageurl import PackageURL
@@ -138,3 +139,12 @@ def parse_date(date_string: str, default: typing.Any = None) -> datetime.datetim
         return _parse_date(date_string)
     except (ParserError, OverflowError):
         return default
+
+# From: https://stackoverflow.com/a/52455972/1384352
+def is_valid_url(url: str) -> bool:
+    """Checks to see if a URL is valid."""
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
