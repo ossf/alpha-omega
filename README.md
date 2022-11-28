@@ -18,16 +18,23 @@ watch our kickoff webinar video below:
 
 ## Alpha
 
-We have active engagements with the following projects.
+We have active engagements with the following projects:
 
 * [Node.js](/alpha/engagements/2022/node.js)
 * [Eclipse Foundation](/alpha/engagements/2022/eclipse)
-* Python Software Foundation
-* Rust Foundation
+* [Rust Foundation](/alpha/engagements/2022/rust)
+* [jQuery](/alpha/engagements/2022/jquery)
+* [Python Software Foundation](/alpha/engagements/2022/psf)
 
 For more information on Alpha, see [alpha/README.md](alpha/README.md).
 
 ## Omega
+
+Through Omega, we identify security issues in the top 10,000 (or more) most-critical open source
+projects. We do this through engineering and expert analysis.
+
+**We're currently hiring!** If you're interested in joining our team, please see our job posting
+for a [Security Researcher](https://jobs.smartrecruiters.com/LinuxFoundation/743999827424684-security-researcher/analyst,-project-alpha-omega).
 
 The Omega project is still getting started, stay tuned for more information, or learn more
 at [omega/README.md](omega/README.md).
@@ -41,17 +48,25 @@ invite link on the [OpenSSF Community Calendar](https://calendar.google.com/cale
 
 #### Governance
 
-The [CHARTER.md](https://github.com/ossf/alpha-omega/blob/main/CHARTER.md) outlines the scope and governance of this project's activities.
+The [CHARTER.md](https://github.com/ossf/alpha-omega/blob/main/CHARTER.md) outlines the
+scope and governance of this project's activities.
 
 #### Core Team
 
 The Alpha-Omega core team members include:
 
-* [Brian Behlendorf](https://www.linkedin.com/in/brianbehlendorf) (OpenSSF)
 * [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
 * [Michael Winser](https://www.linkedin.com/in/michaelw) (Google)
-* [David A. Wheeler](https://www.linkedin.com/in/david-a-wheeler-27798688/) (Linux Foundation)
+* Yesenia Yser (Alpha-Omega)
 * [Annapurna Veeramachaneni](https://www.linkedin.com/in/annapurna-veeramachaneni-2907a615b/) (Citi)
+* [Brian Behlendorf](https://www.linkedin.com/in/brianbehlendorf) (OpenSSF)
+
+We're grateful to the Linux Foundation and OpenSSF for providing additional support, including:
+* [David A. Wheeler](https://www.linkedin.com/in/david-a-wheeler-27798688/)
+* Michelle Martineau
+* Jennifer Bly
+* Khahil White
+
 
 #### Get Involved
 
