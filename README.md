@@ -57,7 +57,7 @@ The Alpha-Omega core team members include:
 
 * [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
 * [Michael Winser](https://www.linkedin.com/in/michaelw) (Google)
-* Yesenia Yser (Alpha-Omega)
+* [Yesenia Yser](https://www.linkedin.com/in/yser/) (Alpha-Omega)
 * [Annapurna Veeramachaneni](https://www.linkedin.com/in/annapurna-veeramachaneni-2907a615b/) (Citi)
 * [Brian Behlendorf](https://www.linkedin.com/in/brianbehlendorf) (OpenSSF)
 
