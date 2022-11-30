@@ -25,7 +25,7 @@ g. The Technical Initiative will hold monthly public meetings, scheduled via the
 
 #### 2. Technical Steering Committee
 
-a. All decisions relevant to the operations of the Technical Initiative are made by the Technical Steering Committee, which is comprised of one member from each Funding Organization, plus one member appointed by the Linux Foundation.
+a. All decisions relevant to the operations of the Technical Initiative, including budget decisions, are made by the Technical Steering Committee, which is comprised of one member from each Funding Organization, plus one member appointed by the Linux Foundation.
 
 b. Funding Organizations may choose to abstain from designating a Technical Steering Committee representative and may change their decision at any time.
 
@@ -112,4 +112,4 @@ d. Contributed files should contain license information, such as SPDX short form
 
 #### 7. Amendments
 
-a. This charter may be amended by a two-thirds vote of the entire TSC and is subject to approval by the TAC.
+a. This charter may be amended by a two-thirds vote of the entire TSC and subject to review by the OpenSSF Governing Board.
