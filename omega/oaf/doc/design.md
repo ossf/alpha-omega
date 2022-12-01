@@ -1,5 +1,7 @@
 # Overall Goals
 
+(This document is a work-in-progress.)
+
 We want to provide consumers of OSS a better ability to make informed choices about
 the security posture of what they use. More specifically, we care about providing
 information about *assurance activities* that have occurred that suggest that an
@@ -15,7 +17,7 @@ evidence, and policy mappings.
 We're also aware of similar approaches with a related goal -- including SCITT,
 Sigstore, in-toto, SPDX, and others. We are not attempting to compete with any
 of them, since to the best of our knowledge, none of them directly target the space
-we are. 
+we are.
 
 **GOAL:** Integrate with existing standards, including in-toto assertions and SCITT.
 
@@ -44,7 +46,7 @@ forward.
 The subject of an assertion can either by a physical assert (left-pad-1.3.0.tar.gz
 retrieved from registry.npmjs.com) or a logic asset, like "left-pad". I suppose it
 could also be a collection of assets, though defining the scope of the assertion
-may be more difficult. 
+may be more difficult.
 
 There are relationships between these subjects types:
 * Packages are derived from Projects.

@@ -1,21 +1,32 @@
 # Getting Started
 
+This document describes how to get started with OAF, in terms of setting
+up a system with the proper tools and configuration.
+
+First, we're only currently testing OAF on Linux. There isn't anything that
+can't work on Windows, but various scripts make assumptions on things like
+path separators.  Pull requests to improve support here are more welcome.
+
+OAF *should* work within a WSL environment, as long as the underlying tools
+are available.
+
 Step 1: Download additional tools
 
 The Omega Assertion Framework (OAF) requires a few tools to run properly:
 
-* Python
-* OpenPolicyAgent
-* jq
-* Docker
-* OpenSSL
+* [Python 3](https://python.org)
+* [OpenPolicyAgent](https://openpolicyagent.org)
+* [Docker](https://docker.com)
 
-Make sure these are all available and on your path.
+Technically, OpenPolicyAgent is only required for consuming (evaluating)
+assertions, and Docker is only required for generating them.
 
-Step 2: Create a key pair
+If you want to use key pair signing, you'll also need to provide or create
+a key pair, and OpenSSL can be used for this.
 
-This is just for basic testing - we expect to remove this entirely in favor of
-signatures at a higher level.
+Make sure all tools are available on your path.
+
+Step 2: Create a key pair (optional)
 
 ```
 openssl ecparam -name prime256v1 -genkey -noout -out private-key.pem
@@ -24,41 +35,25 @@ openssl ec -in private-key.pem -pubout -out public-key.pem
 
 Step 2: Initialize the Python virtual environment
 
+The Python virtual environment uses a requirements.txt file provided.
 ```
 python -mvenv venv
-source venv/bin/activate (or .\venv\Scripts\activate.ps1 on Windows)
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Step 2: Create an assertion
+If you intend to contribute to OAF, you might want to also install
+requirements from `dev-requirements.txt`, which include a few linters.
+
+Step 3: Generate assertions
 
 ```
-python create-assertion.py \
-    --assertion ManualSecurityReview \
-    --package-url pkg:npm/left-pad@1.3.0 \
-    --assertion_pass true \
-    --review_text 'This was a lot of fun.' \
-    --private-key private-key.pem | tee left-pad-assertion.json
+mkdir output
+python analyze.py --package-url=pkg:npm/left-pad@1.3.0 --repository=dir:$(pwd)/output
 ```
 
-Step 3: Check the assertion with policy
+Step 4: Run policies against assertions
 
 ```
-./check_policy.sh left-pad-assertion.json recent_security_review
+python oaf.py consume --subject=pkg:npm/left-pad@1.3.0 --repository=dir:$(pwd)/output
 ```
-
-Here, `recent_security_review` refers to `assertions/policies/recent_security_review.rego`,
-which defines the logic for what "pass" means.
-
-# Contributing
-
-Since OAF is so new, we don't really need lots of policies or assertions generated,
-but a few more to iron out the wrinkles and address cases that we haven't seen would
-be interesting.
-
-There are definitely missing important features (like validating a signature --
-deferred out since we expect to be using a higher-level standard for this) and a more
-pleasing UX.
-
-We also need to think about where to store these assertions so they can be looked up
-quickly.
