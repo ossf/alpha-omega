@@ -158,7 +158,7 @@ class AnalysisRunner:
             **{
                 "assertion": "SecurityScorecard",
                 "subject": self.package_url,
-                "repository": self.repository
+                "repository": self.repository,
                 "signer": self.signer
             }
         )
