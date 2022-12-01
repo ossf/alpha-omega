@@ -52,7 +52,8 @@ There are relationships between these subjects types:
 * Packages are derived from Projects.
 * Repositories are part of a Project.
 * Files are contained in Packages.
-* A Person takes actions on Files, Repositories, Packages, and Projects.
+* An Actor takes actions on Files, Repositories, Packages, and Projects.
+* An Actor may be a person or an automated system or tool.
 
 Other asset types may be defined later.
 
