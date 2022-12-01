@@ -112,6 +112,10 @@ else
     EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
 fi
 mkdir -p "$EXPORT_DIR"
+if [ ! -d "$EXPORT_DIR" ]; then
+    printf "${BG_RED}${WHITE}Unable to create export directory: ${EXPORT_DIR}${NC}\n"
+    exit 1
+fi
 
 # Fix the OSSGadget Package URL when we have scoped namespaces
 PACKAGE_PURL_OSSGADGET="${PURL}"
