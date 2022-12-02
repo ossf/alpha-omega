@@ -196,6 +196,9 @@ on the types of repositories used, but the reference implementation of OAF suppo
 * **SQLite database**: If you use the `--repository=sqlite:<FILE>` parameter, then the assertions
   will be stored or retrieved from the SQLite database provided. If the file does not exist, then
   a new file will be created an initialized with the proper table structure.
+* **Neo4j database**: If you use the `--repository=neo4j<URI>` parameter, then the assertions
+  will be stored or retrieved from a [Neo4j](https://neo4j.com) database. You'll need to provide
+  a URI compatible with [py2neo](https://py2neo.org/2021.1/).
 * **Simple Web API**: If you use the `--azure=<URL>` parameter, then assertions will be stored
   and retrieved via a simple web API. The server-side implementation is located in
   [here](repositories/azure/).
