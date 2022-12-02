@@ -54,14 +54,16 @@ class KeyPairSigner(BaseSigner):
         else:
             raise ValueError("Cannot sign assertion with public key")
 
-    def verify(self, assertion: BaseAssertion | str) -> bool:
+    def verify(self, assertion: BaseAssertion | str | dict) -> bool:
         """Verifies an assertion."""
         if isinstance(assertion, BaseAssertion):
             assertion_obj = assertion.assertion
         elif isinstance(assertion, str):
             assertion_obj = json.loads(assertion)
+        elif isinstance(assertion, dict):
+            assertion_obj = assertion
         else:
-            raise TypeError("Invalid assertion type")
+            raise TypeError(f"Invalid assertion type: {type(assertion)}")
 
         signatures = assertion_obj.get("signatures", [])
         if not signatures:

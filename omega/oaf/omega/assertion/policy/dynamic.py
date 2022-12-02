@@ -72,6 +72,7 @@ class DynamicPolicy(BasePolicy):
             if isinstance(policy, DynamicPolicy):  # No recursion today!
                 continue
             result = policy.execute(assertions)
+
             if result:
                 results.extend(result)
         return results

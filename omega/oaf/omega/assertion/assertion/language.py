@@ -38,7 +38,6 @@ class ProgrammingLanguage(BaseAssertion):
         with open(self.input_file, "r", encoding="utf-8") as f:
             try:
                 _data = f.read()
-                print(_data)
                 self.evidence = FileEvidence(self.input_file, _data, Reproducibility.UNKNOWN)
                 self.data = json.loads(_data)
                 if "Application Inspector" not in self.data.get("appVersion", ""):
