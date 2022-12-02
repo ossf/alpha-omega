@@ -38,4 +38,10 @@ class BaseRepository:
             from .azure import AzureRepository
             return AzureRepository(endpoint)
 
+        if scheme.startswith('neo4j'):
+            _, uri = scheme.split(':', 1)
+            # pylint: disable=import-outside-toplevel; circular import
+            from .neo4j import Neo4JRepository
+            return Neo4JRepository(uri)
+
         raise NotImplementedError(f"Repository scheme not supported: {scheme}")

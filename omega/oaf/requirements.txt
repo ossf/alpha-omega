@@ -3,6 +3,7 @@ cffi==1.15.1
 charset-normalizer==2.1.1
 cryptography==38.0.3
 idna==3.4
+py2neo==2021.2.3
 packageurl-python==0.10.4
 pycparser==2.21
 python-dateutil==2.8.2
