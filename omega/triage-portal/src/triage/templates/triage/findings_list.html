@@ -1,0 +1,109 @@
+{% extends "./base.html" %}
+
+{% block body %}
+{% block main %}
+<style>
+    #resize_wrapper {
+        position: absolute;
+        top: 8em;
+        left: 1em;
+        right: 1em;
+        bottom: 1em;
+    }
+</style>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <label for="finding_query" class="visually-hidden">Search Query</label>
+        <form action="/findings" method="get">
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" name="q" class="form-control" id="finding_query" placeholder="Search Query..." spellcheck="false" autocomplete="off" value="{{ query }}"/>
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Queries</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Shared Queries</h6></li>
+                    <li><a class="dropdown-item" href="/findings?q=status:Untriaged+tag:backdoor">Untriaged Backdoors</a></li>
+                    <li><a class="dropdown-item" href="#">Assigned to Me</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header">My Queries</h6></li>
+                    <li><a class="dropdown-item" href="#">Assigned to Me</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Save Current Query As...</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/wiki/Query_Syntax_Info">Query Syntax Info</a></li>                    
+                </ul>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="resize_wrapperx" class="row mt-4">
+    <div class="col-lg-12 ps-4 pe-4">
+        <table id="finding_list" class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th class="text-nowrap">Package</th>
+                    <th class="text-nowrap">Issue</th>
+                    <th class="text-nowrap">Filename</th>
+                    <th class="text-nowrap">Tool</th>
+                    <th class="text-nowrap">Severity</th>
+                    <th class="text-nowrap">State</th>
+                </tr>
+            </thead>
+            <tbody style="word-break: break-word;white-space:normal;word-wrap:break-word">
+                {% for finding in findings %}
+                    <tr data-finding-uuid="{{ finding.uuid }}" data-finding-title="{{ finding.normalized_title }}" data-file-path="{{ finding.file.path}}" data-file-location="{{ finding.file_line }}" style="cursor:pointer">
+                        <td>
+                            {% include "triage/widgets/project_name_pretty.html" with project=finding.project_version only %}
+                        </td>
+                        <td>{{ finding.normalized_title|truncatechars:100 }}</td>
+                        <td>{{ finding.get_filename_display }}:{{ finding.file_line }}</td>
+                        <td>{{ finding.tool.name }}</td>
+                        <td>{{ finding.get_severity_display }}</td>
+                        <td>{{ finding.get_state_display }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <div class="col-12 pagination">
+        <ul class="pagination">
+            {% if findings.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ params }}&page=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">begin</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% for i in findings.paginator.page_range %}
+                {% if findings.number == i %}
+                    <li class="page-item active"><a class="page-link">{{ i }}</a><span class="sr-only">(current)</span></li>
+                {% elif i > findings.number|add:'-7' and i < findings.number|add:'7' %}
+                    <li class="page-item"><a class="page-link" href="?{{ params }}&page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+    
+            {% if findings.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ params }}&page={{ findings.paginator.num_pages }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">end</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+    {% endblock main %}
+{% endblock body %}
+
+{% block javascript %}
+    /* Handle clicks of the "New Tool Finding" button */
+    $('#action_new_tooling_bug').on('click', (e) => {
+        let finding_uuid = $('#finding_list').data('finding_uuid');
+        if (finding_uuid !== undefined) {
+            document.location.href = `/tool_defect/new?finding_uuid=${finding_uuid}`;
+        }
+    });
+{% endblock %}

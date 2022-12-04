@@ -1,0 +1,123 @@
+{% extends "./base.html" %}
+
+{% load gravatar %}
+
+{% block body %}
+    {% block main %}
+    <div class="row m-2">
+    <form class="row" action="/tool_defect/save" method="post">
+        {% csrf_token %}
+        {% if tool_defect %}
+            <input type="hidden" name="action" value="update" />
+            <input type="hidden" name="uuid" value="{{ tool_defect.uuid }}"/>
+        {% else %}
+            <input type="hidden" name="action" value="create" />
+        {% endif %}
+
+        <div class="col-lg-12">
+            <div class="float-end">
+                {% if tool_defect %}
+                    <button type="submit" class="btn btn-primary"><i class="far fa-save me-2"></i>Save</button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Add</button>
+                {% endif %}
+                <a class="btn btn-secondary" href="/tool_defect/"><i class="fas fa-list me-2"></i>Back to List</a>
+            </div>
+
+            {% if tool_defect %}
+                <h4>Edit Tool Defect</h4>
+            {% else %}
+                <h4>Add Tool Defect</h4>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-6 g-3">
+            <div class="row">
+                <div class="col-lg-12 mb-3">
+                    <label for="toolDefectTitle" class="form-label sr-only">Title</label>
+                    <input type="text" class="form-control" id="toolDefectTitle" name="title" value="{{ tool_defect.title }}" placeholder="Defect title" />
+                </div>
+                <div class="col-lg-6">
+                    <label for="toolDefectState" class="form-label">State</label>
+                    <select id="toolDefectState" class="form-select" name="state">
+                        {% for state in tool_defect_states|dictsort:1 %}
+                            <option {% if tool_defect.state == state.0 %}selected{% endif %} value="{{ state.0 }}">{{ state.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-6">
+                    <label for="toolDefectTool" class="form-label">Tool</label>
+                    <select id="toolDefectTool" class="form-select" name="tool">
+                        {% for tool in tools|dictsort:"name" %}
+                            <option {% if tool_defect.tool == tool %}selected{% endif %} value="{{ tool.uuid }}">{{ tool }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-12">
+                    <label for="toolDefectDescription" class="form-label">Description</label>
+                    <textarea id="toolDefectDescription" class="form-control" name="description" rows="7">{{ tool_defect.description }}</textarea>
+                </div>
+                <div class="col-lg-12">
+                    <div class="mt-2">
+                        <label class="form-label" aria-title="Notes">Notes</label>
+                    </div>
+
+                    {% include "triage/widgets/notes.html" with notes=tool_defect.notes.all %}
+
+                    <label for="toolDefectNoteNew" class="form-label sr-only">New Note</label>
+                    <textarea id="toolDefectNoteNew" class="form-control" placeholder="Add a note..." name="note_content"></textarea>    
+                </div>      
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <label for="toolDefectFindings" class="form-label">Associated Findings</label>
+            {% if tool_defect.findings or finding %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Project</th>
+                            <th>State</th>
+                            <th>Severity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if finding %}
+                        <input type="hidden" name="finding_uuid" value="{{ finding.uuid }}" />
+                        <tr>
+                            <td title="{{ finding.title }}">{{ finding.normalized_title }}</td>
+                            <td>{{ finding.project_version.package_url }}</td>
+                            <td>{{ finding.get_state_display }}</td>
+                            <td>{{ finding.get_severity_display }}</td>
+                            <td class="text-center">
+                                <a href="{{ finding.get_absolute_url }}" title="View" aria-label="View this finding"><i class="far fa-eye"></i></a>
+                                    &nbsp;&nbsp;
+                                <a href="#" title="Delete" aria-label="Delete this finding"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% for finding in tool_defect.findings.all %}
+                        <tr>
+                            <td title="{{ finding.title }}">{{ finding.normalized_title }}</td>
+                            <td>{{ finding.project_version.package_url }}</td>
+                            <td>{{ finding.get_state_display }}</td>
+                            <td>{{ finding.get_severity_display }}</td>
+                            <td class="text-center">
+                                <a href="{{ finding.get_absolute_url }}" title="View" aria-label="View this finding"><i class="far fa-eye"></i></a>
+                                    &nbsp;&nbsp;
+                                <a href="javascript:alert('not implemented.')" title="Delete" aria-label="Delete this finding"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p><i>No findings associated with this defect.</i></p>
+            {% endif %}
+        </div>
+    </div>
+    </form>
+    {% endblock main %}
+{% endblock body %}

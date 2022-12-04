@@ -1,0 +1,95 @@
+{% extends "./base.html" %}
+{% load gravatar %}
+{% block body %}
+    <form action="/wiki/save" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="wiki_article_uuid" value="{{ wiki_article.uuid }}"/>
+
+        <div class="row mt-2">
+            <div class="col-12">
+                <div class="float-end">
+                    {% if wiki_article %}
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="far fa-save me-2"></i>Save</button>
+                    {% else %}
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Add</button>
+                    {% endif %}
+                    <a class="btn btn-sm btn-secondary" href="/wiki/new"><i class="fas fa-plus me-2"></i>New</a>
+                    <a class="btn btn-sm btn-secondary" href="{{ wiki_article.get_absolute_url }}"><i class="far fa-times-circle me-2"></i>Cancel</a>
+                </div>
+
+                {% if wiki_article %}
+                    <h4>Edit Wiki Article</h4>
+                {% else %}
+                    <h4>Add Wiki Article</h4>
+                {% endif %}
+            </div>
+
+            {% if wiki_article.versions %}
+                <div class="col-md-10">
+            {% else %}
+                <div class="col-12">
+            {% endif %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="wiki_article_title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="wiki_article_title" name="title" value="{{ wiki_article_revision.title }}" placeholder="Article title" required="required"/>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="wiki_article_slug" class="form-label">Slug</label>
+                        <input type="text" class="form-control" id="wiki_article_slug" name="slug" pattern="^[-\w]+\Z" value="{{ wiki_article.slug }}" placeholder="Article slug" required="required"/>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="wiki_article_state" class="form-label">State</label>
+                        <select id="wiki_article_state" class="form-select" name="state">
+                            {{ wiki_article_states }}
+                            {% for state in wiki_article_states|dictsort:1 %}
+                                <option value="{{ state.0 }}" {% if wiki_article.state == state.0 %}selected{% endif %}>{{ state.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="wiki_article_content" class="form-label">Content</label>
+                        <textarea id="wiki_article_content" class="form-control font-monospace" name="content" rows="12">{{ wiki_article_revision.content }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <label for="wiki_article_change_comment" class="form-label">Change Summary</label>
+                        <div class="input-group mb-3">
+                            <button class="btn btn-secondary" type="button" id="minor-edit">Minor Edit</button>
+                            <input type="text" class="form-control" id="wiki_article_change_comment" name="change_comment" value="" placeholder="" required="required" aria-label="Change comment" aria-describedby="minor-edit"/>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+            {% if wiki_article.versions %}
+            <div class="col-md-2">
+                <div class="input-form-group">
+                    <label class="form-label">History</label>
+                    <ul class="list-group small list-group-flush">
+                        {% for version in wiki_article.versions %}
+                            {% if version.uuid == wiki_article_revision.uuid %}
+                                <a class="list-group-item pt-0 pb-1 ps-1 list-group-item-info" href="{{ version.get_absolute_edit_url }}" aria-current="true">
+                            {% else %}
+                                <a class="list-group-item pt-0 pb-1 ps-1" href="{{ version.get_absolute_edit_url }}">
+                            {% endif %}
+                                <div class="float-start mt-2">
+                                    <img title="{{ version.created_by.email }}" src="{{ version.created_by|gravatar }}" class="avatar-small rounded-circle me-2" style="width:28px;height:28px"/>
+                                </div>    
+                                <div class="p-1 mb-2" style="margin-left: 28px">
+                                    <span class="fw-bold">{{ version.change_comment|default:"(No comment)" }}</span>
+                                    <span class="text-muted" style="font-size: 70%">{{ version.created_at|date:"SHORT_DATETIME_FORMAT" }} by {{ version.created_by.get_full_name }} </span>
+                                </div>
+                            </a>
+                        {% endfor %}
+                      </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+{% endblock body %}
+
+{% block javascript %}
+$('#minor-edit').on('click', (e) => {
+    $('#wiki_article_change_comment').val('Minor edit');
+});
+{% endblock javascript %}

@@ -1,0 +1,70 @@
+{% extends "./base.html" %}
+
+{% block body %}
+<style>
+
+</style>
+
+<div class="row" style="margin-top: 5px">
+    <div class="col-12">
+        <label for="cases_query" class="visually-hidden">Search Query</label>
+        <form action="/wiki/special:list" method="get">
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" name="q" class="form-control" id="cases_query" placeholder="Search Query..." spellcheck="false" autocomplete="off" value="{{ query }}"/>
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Queries</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Shared Queries</h6></li>
+                    <li><a class="dropdown-item" href="/wiki/special:list?q=state:active">Active Articles</a></li>
+                    <li><a class="dropdown-item" href="/wiki/special:list?q=state:active+updated_dt:>=@today-30">Recently Created</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/wiki/Query_Syntax_Info">Query Syntax Info</a></li>
+                </ul>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row" style="margin-top: 8px">
+    <div class="col-lg-12">
+        <h4>Wiki Articles</h4>
+        {% if wiki_articles %}
+            <table id="case_list" class="table table-sm table-hover" style="overflow-y:auto">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>State</th>
+                        <th>Last Updated</th>
+                        <th>Last Updated by</th>
+                    </tr>
+                </thead>
+                <tbody style="word-break: break-word;white-space:normal;word-wrap:break-word">
+                    {% for wiki_article in wiki_articles %}
+                        <tr class="data_row" data-wiki_article_slug="{{ wiki_article.slug }}" style="cursor:pointer">
+                            <td>{{ wiki_article.current.title }}</td>
+                            <td>{{ wiki_article.get_state_display }}</td>
+                            <td>{{ wiki_article.current.updated_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+                            <td>{{ wiki_article.current.updated_by.get_full_name }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center"><i>No wiki articles found.</i></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <i>There are no wiki articles available. Try expanding your query.</i>
+        {% endif %}
+    </div>
+</div>
+{% endblock body %}
+
+{% block javascript %}
+    /* Handle row clicks */
+    $('tr.data_row').on('click', (e) => {
+        let slug = $(e.target).closest('tr').data('wiki_article_slug')
+        if (slug !== undefined) {
+            document.location.href = `/wiki/${slug}`;
+        }
+    });
+{% endblock %}

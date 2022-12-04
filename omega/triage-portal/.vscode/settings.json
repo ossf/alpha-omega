@@ -1,0 +1,42 @@
+{
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "100",
+        "--force-exclude",
+        "\\.html"
+    ],
+    "editor.rulers": [
+        100
+    ],
+    "editor.inlineSuggest.enabled": true,
+    "html.format.enable": false,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "terminal.integrated.env.linux": {
+        "DJANGO_SETTINGS_MODULE": "core.settings",
+        "PYTHONPATH": "${workspaceFolder}/src"
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.linting.enabled": false,
+    "python.linting.pylintPath": "pylint",
+    "python.linting.pylintEnabled": false,
+    "python.linting.pylintArgs": [
+        "--init-hook=import sys;sys.path.append('${workspaceFolder}/src')",
+        "--load-plugins",
+        "pylint_django",
+        "--django-settings-module",
+        "core.settings"
+    ],
+    "python.linting.banditEnabled": false,
+    "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "editor.bracketPairColorization.enabled": true,
+    "html.format.templating": true
+}

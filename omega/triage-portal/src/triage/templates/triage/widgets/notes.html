@@ -1,0 +1,13 @@
+{% if notes %}
+    {% load gravatar %}
+    {% for note in notes %}
+        <div class="float-start mt-1">
+            <img title="{{ note.created_by.email }}" src="{{ note.created_by|gravatar }}" class="avatar-small rounded-circle me-2" style="width:38px;height:38px"/>
+        </div>    
+        <div class="note border rounded p-2 mb-2" style="margin-left: 42px">
+            <span class="fw-bold">{{ note.created_by.get_full_name }}</span>
+            <span class="text-muted" style="font-size: 70%">commented {{ note.created_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+            <div class="note-content pt-2 ms-2">{{ note.content }}</div>
+        </div>
+    {% endfor %}
+{% endif %}

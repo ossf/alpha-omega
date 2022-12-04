@@ -1,0 +1,140 @@
+{% extends "./base.html" %}
+
+{% block body %}
+    {% block main %}
+
+<style>
+    #filterCondition, #filterAction {
+        font-family: 'Inconsolata', monospace;
+    }
+</style>
+
+<div class="row">
+    <div class="mb-3"></div>
+    <form class="row" method="post" action="/filter/save">
+        {% csrf_token %}
+        <input type="hidden" name="filter_uuid" value="{{ filter.uuid }}"/>
+
+        {% if error_messages %}
+            <div class="alert alert-primary" role="alert">
+                <strong>Error: </strong>
+                {% for error_message in error_messages %}
+                    <div>{{ error_message }}</div>
+                {% endfor %}
+                
+            </div>
+        {% endif %}
+
+        <div class="fs-4">
+            <div class="float-end">
+                {% if filter %}
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="far fa-save me-2"></i>Save</button>
+                {% else %}
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Add</button>
+                {% endif %}
+                <a class="btn btn-sm btn-secondary" href="/filter/new"><i class="fas fa-plus me-2"></i>New</a>
+                <a class="btn btn-sm btn-danger" id="delete_filter" href="#"><i class="fas fa-trash me-2"></i>Delete</a>
+                <a class="btn btn-sm btn-secondary" href="/filter"><i class="fas fa-list me-2"></i>Back to List</a>
+            </div>
+            {% if filter %}
+                <h4>Modify Filter</h4>
+            {% else %}
+                <h4>Add Filter</h4>
+            {% endif %}
+        </div>
+
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12">
+                    <label for="filterTitle" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="filterTitle" name="title" value="{{ filter.title }}" required />
+                </div>
+                <div class="col-md-4">
+                    <label for="filterActive" class="form-label">Active</label>
+                    <select id="filterActive" class="form-select" name="active">
+                        <option value="true"  {% if not filter or filter.active %}selected{% endif %}>Active</option>
+                        <option value="false" {% if filter and not filter.active %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="filterPriority" class="form-label">Priority</label>
+                    <input type="number" class="form-control" id="filterPriority" name="priority" value="{{ filter.priority|default:"500" }}" required min="0" max="1000"/>
+                    <small id="filterPriority" class="form-text text-muted">0=highest priority, 1000=lowest priority</small>
+                </div>            
+                <div class="col-12">
+                    <label for="filter_condition" class="form-label">Condition
+                        <a href="/wiki/How_To_Write_Filters" target="_blank">
+                            <i class="far fa-question-circle"></i>
+                        </a>
+                    </label>
+                    <div id="filter_condition_div"></div>
+                    <textarea data-editor="python" data-gutter="6" id="filter_condition" style="opacity:0" rows="8" placeholder="Add a condition evaluator..." name="condition">{{ filter.condition }}</textarea>
+                </div>
+                <div class="col-12 mt-2">
+                    <label for="filterAction" class="form-label">Action
+                        <a href="/wiki/How_To_Write_Filters" target="_blank">
+                            <i class="far fa-question-circle"></i>
+                        </a>
+                    </label>
+                    <textarea data-editor="python" data-gutter="6" id="filterAction" style="opacity:0" rows="8" placeholder="Add an action to take..." name="action">{{ filter.action }}</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+    {% endblock %}
+{% endblock %}
+
+{% block javascript %}
+
+// Source: https://stackoverflow.com/a/19513428/1384352
+// Hook up ACE editor to all textareas with data-editor attribute
+$(function() {
+    $('textarea[data-editor]').each(function() {
+        var textarea = $(this);
+        var mode = textarea.data('editor') || 'text';
+        var editDiv = $('<div>', {
+            position: 'absolute',
+            width: '100%',
+            height: textarea.height(),
+        }).insertBefore(textarea);
+        textarea.css('display', 'none');
+        var editor = ace.edit(editDiv[0]);
+        editor.setShowPrintMargin(false);
+        editor.renderer.setShowGutter(textarea.data('gutter'));
+        editor.getSession().setValue(textarea.val());
+        editor.getSession().setMode("ace/mode/" + mode);
+        editor.setOptions({
+            'fontFamily': 'Inconsolata',
+            'fontSize': localStorage.getItem('last-used-editor-font-size') || '1.1rem',
+            tabSize: 2,
+            useSoftTabs: true
+        });    
+        editor.setTheme("ace/theme/cobalt");
+
+        // copy back to textarea on form submit...
+        textarea.closest('form').on('submit', () => {
+            textarea.val(editor.getSession().getValue());
+        });
+    });
+    $('a#delete_filter').on('click', (e) => {
+        e.preventDefault();
+        if (confirm('Are you sure you want to delete this filter? This action cannot be undone.')) {
+            $.ajax({
+                url: 'filter/delete',
+                type: 'POST',
+                data: {
+                    filter_uuid: '{{ filter.uuid }}'
+                },
+                success: function(data) {
+                    window.location.href = '/filter';
+                },
+                error: function(data) {
+                    alert('Error deleting filter: ' + data.responseText);
+                }
+            });
+        }
+    });
+});
+{% endblock javascript %}

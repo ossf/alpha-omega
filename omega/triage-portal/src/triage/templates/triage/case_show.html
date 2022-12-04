@@ -1,0 +1,207 @@
+{% extends "./base.html" %}
+{% load gravatar %}
+{% block body %}
+    <div class="mb-3"></div>
+    <form class="row" method="post" action="/cases/save">    
+        {% csrf_token %}
+        <input type="hidden" name="case_uuid" value="{{ case.uuid }}"/>
+
+        {% if error_messages %}
+            <div class="alert alert-primary" role="alert">
+                <strong>Error: </strong>
+                {% for error_message in error_messages %}
+                    <div>{{ error_message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="fs-4">
+            <div class="float-end">
+                {% if case %}
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="far fa-save me-2"></i>Save</button>
+                {% else %}
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-plus me-2"></i>Add</button>
+                {% endif %}
+                <a class="btn btn-sm btn-secondary" href="/cases/new"><i class="fas fa-plus me-2"></i>New</a>
+                <a class="btn btn-sm btn-secondary" href="/cases"><i class="fas fa-list me-2"></i>Back to List</a>
+            </div>
+
+            {% if case %}
+                <h4>Modify Case</h4>
+            {% else %}
+                <h4>Add Case</h4>
+            {% endif %}
+        </div>
+
+        <div class="col-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="case_title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="case_title" name="title" value="{{ case.title|default:"" }}">
+                        </div>
+                        <div class="col-12 mt-2">
+                            <label for="case_description" class="form-label">Description</label>
+                            <textarea id="case_description" class="form-control" name="description" rows="7">{{ case.description|default:"" }}</textarea>
+                        </div>            
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label">Findings</label>
+                            <div style="max-height:150px;overflow:auto">
+                                <ul class="list-group small">
+                                {% for finding in case.findings.all %}
+                                        <li class="list-group-item p-1">
+                                            <a href="{{ finding.get_absolute_url }}">
+                                                {{ finding.normalized_title }}
+                                            </a>
+                                        </li>
+                                {% empty %}
+                                    <li class="list-group-item p-1"><i>No findings</i></li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="form-text">
+                                To associate a finding with this case, navigate to the finding and select "Add to Case" and choose this case.
+                            </div>
+                        </div>
+                        <div class="col-12 upload_container mt-2" data-target_type="case" data-target_uuid="{{ case.uuid }}">
+                            <div class="float-end"><a href="/wiki/How_To_Upload_Attachments" target="_blank"><i class="fas fa-cloud-upload-alt"></i></a></div>
+                            <label class="form-label">Attachments</label>
+                            <div style="max-height:150px;overflow:auto">
+                                <ul id="case_attachments" class="list-group small list-group-flush">
+                                {% for attachment in case.attachments.all %}
+                                        <li class="list-group-item p-1">
+                                            <a href="{{ attachment.get_absolute_url }}">
+                                                {% include "triage/widgets/icon_for_file.html" with filename=attachment.filename only %}
+                                                {{ attachment.filename }}
+                                            </a>
+                                        </li>
+                                {% empty %}
+                                    <li class="list-group-item p-1"><i>No attachments</i></li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="caseState" class="form-label">State</label>
+                <select id="caseState" class="form-select" name="state">
+                    {% for state in case_states|dictsort:1 %}
+                        <option value="{{ state.0 }}" {% if case.state == state.0 %}selected{% endif %}>{{ state.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="case_assigned_to" class="form-label">Assigned To</label>
+                <select id="case_assigned_to" class="form-select" name="assigned_to">
+                    <option value="" {% if not case.assigned_to %}selected{% endif %}>--Select Assignee--</option>
+                    {% for user in users %}
+                        <option value="{{ user.username }}" {% if case.assigned_to == user %}selected{% endif %}>{{ user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="case_resolved_target_dt" class="form-label">Resolution Target</label>
+                <input type="date" class="form-control" id="case_resolved_target_dt" name="resolved_target_dt" value="{{ case.resolved_target_dt|date:"Y-m-d" }}">
+            </div>
+            <div class="col-md-3">
+                <label for="case_resolved_actual_dt" class="form-label">Resolution Actual</label>
+                <input type="date" class="form-control" id="case_resolved_actual_dt" name="resolved_actual_dt" value="{{ case.resolved_actual_dt|date:"Y-m-d" }}">
+            </div>            
+            <div class="col-md-3">
+                <label for="case_reporting_partner" class="form-label">Reporting Partner</label>
+                <select id="case_reporting_partner" class="form-select" name="reporting_partner">
+                    <option value="" {% if not case.reporting_partner %}selected{% endif %}>--Select Reporting Partner--</option>
+                    {% for partner in reporting_partners %}
+                        <option value="{{ partner.0 }}" {% if case.reporting_partner == partner.0 %}selected{% endif %}>{{ partner.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="case_reported_to" class="form-label">Reported To</label>
+                <input type="text" class="form-control" id="case_reported_to" name="reported_to" value="{{ case.reported_to|default:"" }}">
+            </div>
+            <div class="col-md-3">
+                <label for="case_reported_dt" class="form-label">Reported Date</label>
+                <input type="date" class="form-control" id="case_reported_dt" name="reported_dt" value="{{ case.reported_dt|date:"Y-m-d" }}">
+            </div>                        
+            <div class="col-md-3">
+                <label for="caseReportingReference" class="form-label">Reporting Reference</label>
+                <input type="text" class="form-control" id="caseReportingReference" name="reporting_reference" value="{{ case.reporting_reference|default:"" }}">
+            </div>
+            <div class="col-12 mt-2">
+                <h5>Notes</h5>
+                <label class="form-label sr-only">Notes</label>
+                <label for="case_note_new" class="form-label sr-only">Add a Note</label>
+                <textarea id="case_note_new" class="form-control mb-2" placeholder="Add a note..." name="note_text"></textarea>
+
+                {% include "triage/widgets/notes.html" with notes=case.notes.all %}
+
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block javascript %}
+    $(document).ready(function() {
+        $('.upload_container')
+            .on('drop', dropHandler)
+            .on('dragover', dragOver)
+            .on('dragleave', dragEnd);
+    });
+    function dragEnd(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(e.target).closest('.upload_container').css('border', '');
+    }
+    function dragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.originalEvent.dataTransfer.dropEffect = 'copy';
+        $(e.target).closest('.upload_container').css('border', '2px dashed #ccc');
+    }
+    function dropHandler(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const container = $(e.target).closest('.upload_container');
+        container.css('border', '');
+
+        var files = e.originalEvent.dataTransfer.files;
+        var formData = new FormData();
+        for (var i = 0; i < files.length; i++) {
+            formData.append('attachment', files[i]);
+        }
+        formData.append('target_type', container.data('target_type'));
+        formData.append('target_uuid', container.data('target_uuid'));
+        $.ajax({
+            url: '/api/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                for (let attachment of data.attachments) {
+                    $('#case_attachments').append(
+                        '<li class="list-group-item p-1">' +
+                            '<a href="/attachment/' + attachment.uuid + '">' +
+                                '<i class="far fa-file me-2"></i> ' +
+                                attachment.filename +
+                            '</a>' +
+                        '</li>'
+                    )
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    }
+{% endblock %}
