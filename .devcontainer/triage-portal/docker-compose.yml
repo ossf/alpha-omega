@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: triage-portal/Dockerfile
       args:
         # Update 'VARIANT' to pick a version of Python: 3, 3.10, 3.9, 3.8, 3.7, 3.6
         # Append -bullseye or -buster to pin to an OS version.
@@ -14,7 +14,7 @@ services:
         NODE_VERSION: "lts/*"
 
     volumes:
-      - ..:/workspace:cached  
+      - ..:/workspace:cached
     init: true
 
     # Overrides default command so things don't shut down after the process ends.

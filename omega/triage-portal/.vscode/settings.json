@@ -17,9 +17,9 @@
     "python.terminal.activateEnvInCurrentTerminal": true,
     "terminal.integrated.env.linux": {
         "DJANGO_SETTINGS_MODULE": "core.settings",
-        "PYTHONPATH": "${workspaceFolder}/src"
+        "PYTHONPATH": "${workspaceFolder}/omega/triage/portal/src"
     },
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.defaultInterpreterPath": "${workspaceFolder}/omega/triage-portal/.venv/bin/python",
     "python.linting.enabled": false,
     "python.linting.pylintPath": "pylint",
     "python.linting.pylintEnabled": false,

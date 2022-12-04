@@ -1,6 +1,7 @@
 #!/bin/bash
 
-ROOT="/workspaces/omega-triage-portal"
+ROOT="/workspaces/alpha-omega/omega/triage-portal"
+cd "$ROOT"
 
 # Create and activate the virtual environment
 echo "Creating virtual environment."

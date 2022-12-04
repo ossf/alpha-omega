@@ -3,3 +3,4 @@
 *.pyc
 omega/analyzer/worker/results
 venv/*
+/**/.venv/*

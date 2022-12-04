@@ -7,14 +7,14 @@
             "label": "PyLint: Scan entire project",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceFolder}/.venv/bin/"
+                "cwd": "${workspaceFolder}/omega/triage-portal/.venv/bin/"
             },
-            "command": "${workspaceFolder}/.venv/bin/pylint",
+            "command": "${workspaceFolder}/omega/triage-portal/.venv/bin/pylint",
             "args": [
                 "--msg-template",
                 "\"{path}:{line}:{column}:{category}:{symbol} - {msg}\"",
                 {
-                    "value": "--init-hook=\"import sys;sys.path.append('${workspaceFolder}/src')\"",
+                    "value": "--init-hook=\"import sys;sys.path.append('${workspaceFolder}/omega/triage-portal/src')\"",
                     "quoting": "strong"
                 },
                 "--load-plugins",
@@ -22,7 +22,7 @@
                 "--django-settings-module",
                 "core.settings",
                 "--exit-zero",
-                "${workspaceFolder}/src/triage"
+                "${workspaceFolder}/omega/triage-portal/src/triage"
             ],
             "presentation": {
                 "reveal": "never",
@@ -54,7 +54,7 @@
             ],
             "problemMatcher": [],
             "options": {
-                "cwd": "${workspaceFolder}/src"
+                "cwd": "${workspaceFolder}/omega/triage-portal/src"
             },
         },
         {
@@ -67,7 +67,7 @@
             ],
             "problemMatcher": [],
             "options": {
-                "cwd": "${workspaceFolder}/src"
+                "cwd": "${workspaceFolder}/omega/triage-portal/src"
             },
         },
         {
@@ -86,7 +86,7 @@
             ],
             "problemMatcher": [],
             "options": {
-                "cwd": "${workspaceFolder}/src"
+                "cwd": "${workspaceFolder}/omega/triage-portal/src"
             },
         },
     ]

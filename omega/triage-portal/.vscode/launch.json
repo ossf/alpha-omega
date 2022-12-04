@@ -8,7 +8,7 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/manage.py",
+            "program": "${workspaceFolder}/omega/triage-portal/src/manage.py",
             "args": [
                 "runserver",
                 "0.0.0.0:8000"
