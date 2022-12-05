@@ -17,7 +17,7 @@ django-redis==5.2.0
 django-taggit==3.1.0
 django_debug_toolbar==3.8.1
 dodgy==0.2.1
-flake8==6.0.0
+flake8==5.0.4
 flake8-polyfill==1.0.2
 gitdb==4.0.10
 GitPython==3.1.29
@@ -34,15 +34,15 @@ packageurl-python==0.10.4
 packaging==21.3
 pathspec==0.10.2
 pbr==5.8.0
-pep8-naming==0.13.2
+pep8-naming==0.10.0
 platformdirs==2.5.4
 poetry-semver==0.1.0
 prospector==1.8.2
 psycopg2==2.9.5
-pycodestyle==2.10.0
+pycodestyle==2.9.1
 pycparser==2.21
 pydocstyle==6.1.1
-pyflakes==3.0.1
+pyflakes==2.5.0
 pylint==2.15.7
 pylint-celery==0.3
 pylint-common==0.2.5
