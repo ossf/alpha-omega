@@ -48,8 +48,17 @@
 	"forwardPorts": [
 		8000
 	],
+	"portsAttributes": {
+		"8000": {
+			"label": "Triage Portal (Django)",
+			"protocol": "http",
+			"onAutoForward": "notify",
+			"requireLocalPort": false,
+			"elevateIfNeeded": false
+		}
+	},
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "find . && bash alpha-omega/.devcontainer/triage-portal/postcreate-initialize.sh",
+	"postCreateCommand": "bash alpha-omega/.devcontainer/triage-portal/postcreate-initialize.sh",
 	"remoteEnv": {
 		"DJANGO_SETTINGS_MODULE": "core.settings",
 		"PYTHONPATH": "/workspaces/alpha-omega/omega/triage-portal/src"

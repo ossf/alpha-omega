@@ -20,10 +20,9 @@ SECRET_KEY = get_env_variable("SECRET_KEY")
 DEBUG = to_bool(get_env_variable("DEBUG"))
 
 INTERNAL_IPS = [
-    "127.0.0.1",
 ]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
