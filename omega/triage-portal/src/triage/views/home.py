@@ -10,8 +10,12 @@ from triage.models import Case, Finding, ToolDefect
 
 @login_required
 def home(request: HttpRequest) -> HttpResponse:
-    finding_last_updated = Finding.objects.all().order_by("-updated_at").first().created_at
-    case_last_updated = Case.objects.all().order_by("-updated_at").first().created_at
+    most_recent_finding = Finding.objects.all().order_by("-updated_at")
+    finding_last_updated = most_recent_finding.first().created_at if most_recent_finding else None
+
+    most_recent_case = Case.objects.all().order_by("-updated_at")
+    case_last_updated = most_recent_case.first().created_at if most_recent_case else None
+
     my_work = {
         "num_cases": Case.objects.filter(assigned_to=request.user).count(),
         "num_findings": Finding.objects.filter(assigned_to=request.user).count(),
