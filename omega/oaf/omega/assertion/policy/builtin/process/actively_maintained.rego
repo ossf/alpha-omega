@@ -3,13 +3,13 @@ package openssf.omega.policy.process.actively_maintained
 # Metadata (YAML)
 # ---
 # name: process.actively_maintained
-# title: Subject is marked as deprecated.
+# title: Subject is actively maintained
 # methodology: >
-#   This policy is used to determine if a project is deprecated, based on
-#   the openssf.omega.metadata assertion.
+#   This policy is used to determine if a project is being actively maintained,
+#   based on the scorecard "maintained" score.
 # version: 0.1.0
 # last_updated:
-#   date: 2022-11-16
+#   date: 2022-12-16
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
 
