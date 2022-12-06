@@ -3,10 +3,10 @@ package openssf.omega.policy.recent_security_review
 # Metadata (YAML)
 # ---
 # name: recent_security_review
-# title: Subject is marked as deprecated.
+# title: Subject has had a recent security review (within the last 720 days)
 # methodology: >
-#   This policy is used to determine if a project is deprecated, based on
-#   the openssf.omega.metadata assertion.
+#   This policy is used to determine if a project has had a security review
+#   within the last 720 days (and "passed" it).
 # version: 0.1.0
 # last_updated:
 #   date: 2022-11-16

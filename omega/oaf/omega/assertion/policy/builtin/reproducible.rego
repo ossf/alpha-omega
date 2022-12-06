@@ -3,10 +3,10 @@ package openssf.omega.policy.reproducible
 # Metadata (YAML)
 # ---
 # name: reproducible
-# title: Subject is marked as deprecated.
+# title: Subject can be reproduced from its purported source repository.
 # methodology: >
-#   This policy is used to determine if a project is deprecated, based on
-#   the openssf.omega.metadata assertion.
+#   This policy is used to determine if a package can be rebuilt from its source
+#   repository.
 # version: 0.1.0
 # last_updated:
 #   date: 2022-11-16
