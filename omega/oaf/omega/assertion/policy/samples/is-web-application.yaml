@@ -1,0 +1,6 @@
+schema: https://github.com/ossf/alpha-omega/policy/command/v1
+name: Mike's policy
+command: python
+args:
+  - process/is-web-application.py
+input-style: stdin

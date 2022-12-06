@@ -2,6 +2,9 @@
 
 """
 The purpose of this script is to summarize Omega output results for later export.
+
+DEPRECATED: Use create-assertion.py instead.
+
 """
 import argparse
 import datetime

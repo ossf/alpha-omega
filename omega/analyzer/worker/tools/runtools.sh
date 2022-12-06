@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2059
 
 ###############################################################################
 # Open Source Security Foundation (OpenSSF)
@@ -72,7 +73,7 @@ if [ -z "${NO_COLOR}" ]; then
     DARKGRAY='\033[30;1m'
     RED='\033[0;31m'
     GREEN='\033[0;32m'
-    YELLOW='\033[0;33m'
+    YELLOW='\033[1;33m'
     BLUE='\033[0;34m'
     BG_RED='\033[41m'
     NC='\033[0m'
@@ -107,14 +108,14 @@ PACKAGE_DIR_NOVERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR_NOVERS
 if ([ -n "${DESTINATION_DIR}" ] && [ -d "${DESTINATION_DIR}" ]); then
     EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
 else
-    # check for parameter substitution
-    if ([ -n "${DESTINATION_DIR}" ] && [ -d "${!DESTINATION_DIR}" ]); then
-        EXPORT_DIR="${!DESTINATION_DIR}/${PACKAGE_DIR}"
-    else
-        EXPORT_DIR="/opt/export/${PACKAGE_DIR}"
-    fi
+    DESTINATION_DIR="/opt/export"
+    EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
 fi
 mkdir -p "$EXPORT_DIR"
+if [ ! -d "$EXPORT_DIR" ]; then
+    printf "${BG_RED}${WHITE}Unable to create export directory: ${EXPORT_DIR}${NC}\n"
+    exit 1
+fi
 
 # Fix the OSSGadget Package URL when we have scoped namespaces
 PACKAGE_PURL_OSSGADGET="${PURL}"
@@ -124,18 +125,18 @@ fi
 
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
-ANALYZER_VERSION="0.8.3"
+ANALYZER_VERSION="0.8.4"
 ANALYSIS_DATE=$(date)
 
 # ASCII Art generated using http://patorjk.com/software/taag/#p=display&h=0&v=0&c=echo&f=THIS&t=Toolshed
 printf "\n"
 printf "${BLUE}The Open Source Security Foundation - Alpha-Omega${NC}\n";
-printf "${YELLOW} ▄▀▀▀█▀▀▄  ▄▀▀▀▀▄   ▄▀▀▀▀▄   ▄▀▀▀▀▄      ▄▀▀▀▀▄  ▄▀▀▄ ▄▄   ▄▀▀█▄▄▄▄  ▄▀▀█▄▄  \n";
-printf "${YELLOW}█    █  ▐ █      █ █      █ █    █      █ █   ▐ █  █   ▄▀ ▐  ▄▀   ▐ █ ▄▀   █ \n";
-printf "${YELLOW}▐   █     █      █ █      █ ▐    █         ▀▄   ▐  █▄▄▄█    █▄▄▄▄▄  ▐ █    █ \n";
-printf "${YELLOW}   █      ▀▄    ▄▀ ▀▄    ▄▀     █       ▀▄   █     █   █    █    ▌    █    █ \n";
-printf "${YELLOW} ▄▀         ▀▀▀▀     ▀▀▀▀     ▄▀▄▄▄▄▄▄▀  █▀▀▀     ▄▀  ▄▀   ▄▀▄▄▄▄    ▄▀▄▄▄▄▀ \n";
-printf "${YELLOW}█ ${BLUE}omega-help${YELLOW}@${BLUE}openssf.org${YELLOW}      █          ▐       █   █     █    ▐   █     ▐  \n";
+printf "${YELLOW} ▄▀▀▀█▀▀▄  ▄▀▀▀▀▄   ▄▀▀▀▀▄   ▄▀▀▀▀▄      ▄▀▀▀▀▄  ▄▀▀▄ ▄▄   ▄▀▀█▄▄▄▄  ▄▀▀█▄▄  ${NC}\n";
+printf "${YELLOW}█    █  ▐ █      █ █      █ █    █      █ █   ▐ █  █   ▄▀ ▐  ▄▀   ▐ █ ▄▀   █ ${NC}\n";
+printf "${YELLOW}▐   █     █      █ █      █ ▐    █         ▀▄   ▐  █▄▄▄█    █▄▄▄▄▄  ▐ █    █ ${NC}\n";
+printf "${YELLOW}   █      ▀▄    ▄▀ ▀▄    ▄▀     █       ▀▄   █     █   █    █    ▌    █    █ ${NC}\n";
+printf "${YELLOW} ▄▀         ▀▀▀▀     ▀▀▀▀     ▄▀▄▄▄▄▄▄▀  █▀▀▀     ▄▀  ▄▀   ▄▀▄▄▄▄    ▄▀▄▄▄▄▀ ${NC}\n";
+printf "${YELLOW}█                             █          ▐       █   █     █    ▐   █     ▐  ${NC}\n";
 printf "${YELLOW}▐                             ▐                  ▐   ▐     ▐        ▐ ${DARKGRAY}v${ANALYZER_VERSION}${NC}\n\n";
 
 printf "${BLUE}Starting at: ${YELLOW}${ANALYSIS_DATE}${NC}\n"
@@ -239,6 +240,15 @@ for PREVIOUS_VERSION in $PREVIOUS_VERSIONS; do
     ApplicationInspector.CLI tagdiff --src1 "$CUR_ROOT" --src2 "$TOP_ROOT/$PREVIOUS_VERSION" -g none -f json -o "/opt/result/tool-application-inspector-diff.$PREVIOUS_VERSION.json" >>/opt/result/tool-application-inspector.log 2>&1
 done
 event stop tool-application-inspector
+
+# Metadata
+printf "${RED}Extracting metadata...${NC}\n"
+event start extract-metadata
+if [ -z "$LIBRARIES_IO_API_KEY" ]; then
+    oss-metadata -s libraries.io "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-metadata-librariesio.json 2>/opt/result/tool-metadata-librariesio.error
+fi
+oss-metadata -s deps.dev "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-metadata-depsdev.json 2>/opt/result/tool-metadata-depsdev.error
+oss-metadata -s native "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-metadata-native.json 2>/opt/result/tool-metadata-native.error
 
 # String Diff
 printf "${RED}Identifying new strings from previous version...${NC}\n"
@@ -497,9 +507,9 @@ for LANGUAGE in "${LANGUAGES[@]}"; do
             sed "s|_SOURCE_|$PACKAGE_PURL_NAME|gi" /opt/toolshed/etc/codeql-controlflow-$LANGUAGE.template >"$CODEQL_CONTROLFLOW_QUERY"
 
             # Write the qlpack.yml file
-            echo "name: custom-controlflow-$LANGUAGE" >/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
-            echo "version: 0.0.0" >>/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
-            echo "libraryPathDependencies: codeql-$LANGUAGE" >>/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
+            echo "name: custom-controlflow-$LANGUAGE" >"/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml"
+            echo "version: 0.0.0" >>"/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml"
+            echo "libraryPathDependencies: codeql-$LANGUAGE" >>"/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml"
         else
             printf "${BG_RED}${WHITE}Missing CodeQL control flow template for ${LANGUAGE}.${NC}\n"
         fi
@@ -570,14 +580,14 @@ fi
 event stop tool-manalyze
 
 # Snyk Code - https://snyk.io
-if [ -z $SNYK_TOKEN ]; then
+if [ -z "$SNYK_TOKEN" ]; then
     printf "${RED}Skipping Snyk Code (SNYK_TOKEN environment variable not defined)...${NC}\n"
 else
     printf "${RED}Checking Snyk Code...${NC}\n"
     event start tool-snyk-code
     snyk code test --sarif-file-output=/opt/result/tool-snyk-code.sarif --severity-threshold=low "${CUR_ROOT}/src" >/opt/result/tool-snyk-code.log 2>&1
     SNYK_ERR=$?
-    if [ $SNYK_ERR -eq 2 -o $SYNK_ERR -eq 3 ]; then
+    if [[ $SNYK_ERR == 2 || $SNYK_ERR == 3 ]]; then
         echo "Snyk Code failed to run, error code: $SNYK_ERR" >/opt/result/tool-snyk-code.error
     fi
     event stop tool-snyk-code
@@ -601,7 +611,7 @@ printf "${BLUE}Analysis Summary: ${DARKGRAY}[ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL}"
 printf "${DARKGRAY}]${NC}\n${BLUE}"
 printf -- "-%.0s" $(seq 1 $(( 21 + ${#PACKAGE_PURL} )))
-printf "\n${NC}${DARKGRAY}"
+printf "${NC}\n${DARKGRAY}"
 if [ -f /opt/result/summary-console.txt ]; then
     cat /opt/result/summary-console.txt | sort | uniq
 fi
@@ -610,5 +620,8 @@ printf "${NC}\n\n"
 event stop runtools
 
 cp /tmp/events.txt "$EXPORT_DIR/summary-telemetry-events.txt"
+
+# Fix permissions to match the export directory
+chown -R nonroot:1000 $DESTINATION_DIR/*
 
 exit 0
