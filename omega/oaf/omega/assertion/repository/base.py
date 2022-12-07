@@ -1,6 +1,8 @@
 """
 Base class for assertion repositories.
 """
+import os
+
 from ..subject import BaseSubject
 
 
@@ -32,16 +34,31 @@ class BaseRepository:
 
             return DirectoryRepository(directory)
 
-        if scheme.startswith('azure:'):
-            _, endpoint = scheme.split(':', 1)
+        if scheme.startswith("webapi:"):
+            _, endpoint = scheme.split(":", 1)
             # pylint: disable=import-outside-toplevel; circular import
-            from .azure import AzureRepository
-            return AzureRepository(endpoint)
+            from .webapi import WebApiRepository
 
-        if scheme.startswith('neo4j'):
-            _, uri = scheme.split(':', 1)
+            return WebApiRepository(endpoint)
+
+        if scheme.startswith("azurestorage:"):
+            _, endpoint = scheme.split(":", 1)
+            # pylint: disable=import-outside-toplevel; circular import
+            from .azurestorage import AzureStorageRepository
+
+            if endpoint:
+                return AzureStorageRepository(endpoint)
+
+            if os.environ.get("AZURE_STORAGE_CONNECTION_STRING"):
+                return AzureStorageRepository(os.environ.get("AZURE_STORAGE_CONNECTION_STRING"))
+
+            raise ValueError("No Azure Storage connection string provided")
+
+        if scheme.startswith("neo4j"):
+            _, uri = scheme.split(":", 1)
             # pylint: disable=import-outside-toplevel; circular import
             from .neo4j import Neo4JRepository
+
             return Neo4JRepository(uri)
 
         raise NotImplementedError(f"Repository scheme not supported: {scheme}")

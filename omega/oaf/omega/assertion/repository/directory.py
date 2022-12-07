@@ -7,6 +7,7 @@ import uuid
 
 from ..assertion.base import BaseAssertion
 from ..subject import BaseSubject
+from ..utils import encode_path_safe
 from .base import BaseRepository
 
 
@@ -16,24 +17,14 @@ class DirectoryRepository(BaseRepository):
     """
 
     def __init__(self, root_path: str):
+        super().__init__()
         if not os.path.isdir(root_path):
             raise ValueError("Root path is not a directory")
         self.root_path = root_path
 
-    @staticmethod
-    def sanitize_directory(directory: str) -> str:
-        """Replace special characters in a string with valid directory characters."""
-        result = []
-        for char in list(directory):
-            if char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.@":
-                result.append(f"%{ord(char):02x}")
-            else:
-                result.append(char)
-        return "".join(result)
-
     def get_filename(self, subject) -> tuple[str, str]:
         """Get the path and filename for a given subject."""
-        sub_path = self.sanitize_directory(str(subject))
+        sub_path = encode_path_safe(str(subject))
         prefix = hashlib.sha256(sub_path.encode("utf-8"), usedforsecurity=False).hexdigest()[0:3]
         dest_path = os.path.join(self.root_path, "assertions", prefix, sub_path)
         os.makedirs(dest_path, exist_ok=True)
