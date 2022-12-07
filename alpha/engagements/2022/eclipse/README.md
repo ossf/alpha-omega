@@ -13,7 +13,7 @@ June
 ### Monthly Updates
 
 * [August 2022](update-2022-08.md)
-* [October 2022](update-2022-10.md)
+* [November 2022](update-2022-11.md)
 
 ### Primary Contacts
 
