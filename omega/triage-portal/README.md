@@ -26,5 +26,5 @@ TBD
 
 ## Security
 
-See SECURITY.md](https://github.com/ossf/alpha-omega/blob/main/SECURITY.md).
+See [SECURITY.md](https://github.com/ossf/alpha-omega/blob/main/SECURITY.md).
 
