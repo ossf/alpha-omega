@@ -67,14 +67,13 @@ class DynamicPolicy(BasePolicy):
 
     def execute_all(self, assertions: list[str]) -> list[list[dict[str, ExecutionResult]]]:
         """Executes the policy against the assertion."""
-        results = []    # type: list[dict[str,ExecutionResult]]
+        results = []    # type: ExecutionResult
         for policy in self.policies:
             if isinstance(policy, DynamicPolicy):  # No recursion today!
                 continue
             result = policy.execute(assertions)
-
             if result:
-                results.extend(result)
+                results.append(result)
         return results
 
     def __str__(self):

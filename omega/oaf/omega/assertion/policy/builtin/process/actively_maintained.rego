@@ -12,6 +12,7 @@ package openssf.omega.policy.process.actively_maintained
 #   date: 2022-12-16
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.in
 
 default pass = false
 default applies = false
@@ -23,5 +24,6 @@ applies := true {
 }
 
 pass := true {
-    to_number(input.predicate.content.scorecard_data.maintained) >= 7
+    some assertion in input
+    to_number(assertion.predicate.content.scorecard_data.maintained) >= 7
 }

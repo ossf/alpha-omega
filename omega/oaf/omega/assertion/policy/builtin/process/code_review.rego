@@ -13,6 +13,7 @@ package openssf.omega.policy.process.code_review
 #   date: 2022-11-11
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.in
 
 default pass = false
 default applies = false
@@ -24,5 +25,6 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.content.scorecard_data.code_review >= 7
+    some assertion in input
+    assertion.predicate.content.scorecard_data.code_review >= 7
 }

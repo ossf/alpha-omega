@@ -12,6 +12,7 @@ package openssf.omega.policy.reproducible
 #   date: 2022-11-16
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.in
 
 default pass = false
 default applies = false
@@ -23,5 +24,6 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.content.reproducible == true
+    some assertion in input
+    assertion.predicate.content.reproducible == true
 }

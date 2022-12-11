@@ -12,6 +12,7 @@ package openssf.omega.policy.no_well_known_backdoors
 #   date: 2022-11-25
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.every
 
 default pass = false
 default applies = false
@@ -23,5 +24,7 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.content.backdoor_present == false
+    every assertion in input {
+        assertion.predicate.content.backdoor_present == false
+    }
 }
