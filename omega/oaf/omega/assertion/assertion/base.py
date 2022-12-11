@@ -40,8 +40,8 @@ class BaseAssertion:
         self.subject = subject  # type: BaseSubject
         self.kwargs = kwargs  # type: dict
 
-        self.timestamp = datetime.datetime.now() # type: datetime.datetime | None
-        self.expiration = kwargs.get('expiration') # type: str | datetime.datetime | None
+        self.timestamp = datetime.datetime.now()  # type: datetime.datetime | None
+        self.expiration = kwargs.get("expiration")
         self.error = False  # type: bool
         self.evidence = None  # type: BaseEvidence | None
         self._is_finalized = False  # type: bool
@@ -148,26 +148,42 @@ class BaseAssertion:
         # Set the timestamp
         _timestamp = None
         if self.timestamp:
-            _timestamp = datetime.datetime.strftime(
-                self.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ"
-            )
+            _timestamp = datetime.datetime.strftime(self.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
         self.assertion["predicate"]["operational"]["timestamp"] = _timestamp
 
-        _expiration = None
         if self.expiration:
-            if isinstance(self.expiration, datetime.datetime):
-                _expiration = datetime.datetime.strftime(
-                    self.expiration, "%Y-%m-%dT%H:%M:%S.%fZ"
-                )
-            elif isinstance(self.expiration, str):
-                _expiration_dt = date_parse(self.expiration, fuzzy=True)
-                _expiration = datetime.datetime.strftime(
-                    _expiration_dt, "%Y-%m-%dT%H:%M:%S.%fZ"
-                )
-        self.assertion["predicate"]["operational"]["expiration"] = _expiration
+            self.assertion["predicate"]["operational"]["expiration"] = datetime.datetime.strftime(
+                self.expiration, "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
 
         # Necessary for serialization
         self._is_finalized = True
+
+    @property
+    def expiration(self) -> datetime.datetime | None:
+        """Get the expiration."""
+        return self._expiration
+
+    @expiration.setter
+    def expiration(self, value: str | datetime.datetime | None) -> None:
+        """Set the expiration, parsing it if it's a string."""
+        if value is None:
+            self._expiration = None
+            return
+
+        if isinstance(value, datetime.datetime):
+            self._expiration = value
+            return
+
+        if isinstance(value, str):
+            if not str:
+                self._expiration = None
+                return
+
+            self._expiration = date_parse(value, fuzzy=True)
+            return
+
+        raise ValueError("Expiration must be a datetime or string")
 
     def set_generator(
         self, generator_name: str, generator_version: str, include_predicate: bool = False
