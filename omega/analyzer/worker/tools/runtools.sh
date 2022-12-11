@@ -294,7 +294,7 @@ event stop tool-oss-detect-cryptography
 # Backdoor Detection
 printf "${RED}Detecting backdoors...${NC}\n"
 event start tool-oss-detect-backdoor
-ApplicationInspector.CLI analyze -s "$CUR_ROOT" -i -r /opt/OSSGadget/Resources/BackdoorRules/ --scan-unknown-filetypes --no-show-progress -o /opt/result/tool-oss-detect-backdoor.json -f json --file-timeout 10000 >/opt/result/tool-oss-detect-backdoor.error 2>&1
+oss-detect-backdoor -o /opt/results/tool-oss-detect-backdoor.sarif -f sarifv2 "$CUR_ROOT" 2>&1 | tail +11 >/opt/result/tool-oss-detect-backdoor.error
 event stop tool-oss-detect-backdoor
 
 # Defogger
@@ -312,9 +312,9 @@ event stop tool-oss-find-source
 # DevSkim
 printf "${RED}Running DevSkim...${NC}\n"
 event start tool-devskim
-devskim analyze --file-format sarif -d "$CUR_ROOT" >/opt/result/tool-devskim.sarif-noformat 2>/opt/result/tool-devskim.error
-cat /opt/result/tool-devskim.sarif-noformat | jq > /opt/result/tool-devskim.sarif
-rm /opt/result/tool-devskim.sarif-noformat
+devskim analyze -o sarif -O /opt/result/tool-devskim-noformat.sarif -I "$CUR_ROOT" 2>/opt/result/tool-devskim.error
+cat /opt/result/tool-devskim-noformat.sarif | jq > /opt/result/tool-devskim.sarif
+rm /opt/result/tool-devskim-noformat.sarif
 event stop tool-devskim
 
 # CheckSec
