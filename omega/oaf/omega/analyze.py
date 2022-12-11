@@ -183,36 +183,17 @@ class AnalysisRunner:
             }
         )
 
-        # Security Advisories
-        self._execute_assertion_noexcept(
-            **{
-                "assertion": "SecurityToolFinding",
-                "subject": self.package_url,
-                "input-file": self.find_output_file("tool-semgrep.sarif"),
-                "repository": self.repository,
-                "signer": self.signer
-            }
-        )
-
-        self._execute_assertion_noexcept(
-            **{
-                "assertion": "SecurityToolFinding",
-                "subject": self.package_url,
-                "input-file": self.find_output_file("tool-codeql-basic.javascript.sarif"),
-                "repository": self.repository,
-                "signer": self.signer
-            }
-        )
-
-        self._execute_assertion_noexcept(
-            **{
-                "assertion": "SecurityToolFinding",
-                "subject": self.package_url,
-                "input-file": self.find_output_file("tool-snyk-code.sarif"),
-                "repository": self.repository,
-                "signer": self.signer
-            }
-        )
+        # Static Analyzers (SARIF)
+        for _filename in ['tool-semgrep.sarif', 'tool-devskim.sarif', 'tool-codeql-basic.javascript.sarif', 'tool-snyk-code.sarif']:
+            self._execute_assertion_noexcept(
+                **{
+                    "assertion": "SecurityToolFinding",
+                    "subject": self.package_url,
+                    "input-file": self.find_output_file(_filename),
+                    "repository": self.repository,
+                    "signer": self.signer
+                }
+            )
 
         # Programming Language
         self._execute_assertion_noexcept(
@@ -224,7 +205,8 @@ class AnalysisRunner:
                 "signer": self.signer
             }
         )
-        # Programming Language
+
+        # Characteristics
         self._execute_assertion_noexcept(
             **{
                 "assertion": "Characteristic",
@@ -234,6 +216,7 @@ class AnalysisRunner:
                 "signer": self.signer
             }
         )
+
         # Metadata
         self._execute_assertion_noexcept(
             **{
