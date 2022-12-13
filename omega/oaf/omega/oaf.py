@@ -215,8 +215,7 @@ class OAF:
         if results:
             results = list(
                 filter(
-                    lambda s: s.get("execution_result").state
-                    in [ResultState.PASS, ResultState.FAIL],
+                    lambda s: s.state in [ResultState.PASS, ResultState.FAIL],
                     results,
                 )
             )

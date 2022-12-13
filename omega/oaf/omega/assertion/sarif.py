@@ -29,8 +29,6 @@ class SarifHelper:
             raise ValueError("SarifHelper must be initialized with a dict or string")
 
     def filter_by_severity(self, min_severity):
-        """Stub implementation for filtering rules by severity."""
-
         def _filter(result):
             return result.get("rule_defaultConfiguration_level") == min_severity
 

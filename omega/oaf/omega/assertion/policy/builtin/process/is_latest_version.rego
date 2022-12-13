@@ -8,11 +8,12 @@ package openssf.omega.policy.process.is_latest_version
 #   This policy is used to determine if a subject is the latest version available,
 #   so if the subject is version 1.1 and version 1.2 was available, then this policy
 #   shoud evaluate to false. It uses the openssf.omega.metadata assertion.
-# version: 0.1.0
+# version: 0.1.1
 # last_updated:
-#   date: 2022-11-16
+#   date: 2022-12-10
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.in
 
 default pass = false
 default applies = false
@@ -24,5 +25,7 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.content.metadata.is_latest_version == true
+    some assertion in input
+    assertion.predicate.content.metadata.is_latest_version == true
 }
+

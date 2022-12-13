@@ -12,6 +12,7 @@ package openssf.omega.policy.recent_security_review
 #   date: 2022-11-16
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.in
 
 default pass = false
 default applies = false
@@ -23,9 +24,10 @@ applies := true {
 }
 
 pass := true {
-	ns := time.parse_rfc3339_ns(input.timestamp)
-	d := time.now_ns() - ns
+    some assertion in input
+    ns := time.parse_rfc3339_ns(input.timestamp)
+    d := time.now_ns() - ns
     d < (1000000000 * 60 * 60 * 24 * 720)
 
-    input.predicate.pass == true
+    assertion.predicate.pass == true
 }

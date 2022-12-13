@@ -42,7 +42,7 @@ class RegoPolicy(BasePolicy):
         if not self.policy:
             raise ValueError("Policy must be set.")
 
-    def execute(self, assertions: list[str] | str) -> list[dict[str, ExecutionResult]]:
+    def execute(self, assertions: list[str] | str) -> ExecutionResult | None:
         """Executes a Rego policy against a given set of assertions."""
 
         if not assertions or not isinstance(assertions, list | str):
@@ -56,7 +56,23 @@ class RegoPolicy(BasePolicy):
         policy_name = self.metadata.get("name")
         logging.debug("Processing policy: %s", policy_name)
 
-        results = []  # type: list[(str, ExecutionResult)]
+        eval_assertions = []
+
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", prefix="omega-", delete=False
+        ) as f:
+            f.write(self.policy)
+            policy_filename = f.name
+
+        cmd_template = [
+            "opa",
+            "eval",
+            "--stdin-input",
+            "-d",
+            policy_filename,
+            "--format",
+            "pretty",
+        ]
 
         for assertion_str in assertions:
             assertion = json.loads(assertion_str)
@@ -66,21 +82,6 @@ class RegoPolicy(BasePolicy):
                 logging.error("Assertion signature is invalid, ignoring.")
                 continue
 
-            with tempfile.NamedTemporaryFile(
-                "w", encoding="utf-8", prefix="omega-", delete=False
-            ) as f:
-                f.write(self.policy)
-                policy_filename = f.name
-
-            cmd_template = [
-                "opa",
-                "eval",
-                "--stdin-input",
-                "-d",
-                policy_filename,
-                "--format",
-                "pretty",
-            ]
             cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.applies"]
             logging.debug("Executing: [%s]", " ".join(cmd))
 
@@ -99,36 +100,38 @@ class RegoPolicy(BasePolicy):
                 logging.debug("Policy [%s] did not apply to assertion.", policy_name)
                 continue  # Policy does not apply, try the next file
 
-            # Now execute the policy
-            cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.pass"]
-            logging.debug("Executing: [%s]", " ".join(cmd))
-            res = subprocess.run(  # nosec B603
-                cmd, check=False, text=True, capture_output=True, input=assertion_str
+            # Append the assertion to the list of all assertions to evaluate
+            eval_assertions.append(assertion)
+
+        if not eval_assertions:
+            logging.debug("No assertions to evaluate.")
+            return None
+
+        # Now execute the policy
+        cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.pass"]
+        logging.debug("Executing: [%s]", " ".join(cmd))
+        res = subprocess.run(  # nosec B603
+            cmd, check=False, text=True, capture_output=True, input=json.dumps(eval_assertions)
+        )
+
+        stdout = res.stdout.strip() if res.stdout else ""
+        stderr = res.stderr.strip() if res.stderr else ""
+
+        logging.debug("Return code: %d", res.returncode)
+        logging.debug("Output: [%s]", stdout)
+        logging.debug("Error: [%s]", stderr)
+
+        if res.returncode == 0:
+            result_state = ResultState.PASS if strtobool(stdout) else ResultState.FAIL
+        elif res.returncode == 1:
+            result_state = ResultState.NOT_APPLICABLE
+        else:
+            logging.warning(
+                "Unexpected return code [%d] from policy [%s].", res.returncode, policy_name
             )
+            return None
 
-            stdout = res.stdout.strip() if res.stdout else ""
-            stderr = res.stderr.strip() if res.stderr else ""
-
-            logging.debug("Return code: %d", res.returncode)
-            logging.debug("Output: [%s]", stdout)
-            logging.debug("Error: [%s]", stderr)
-
-
-            if res.returncode == 0:
-                result_state = ResultState.PASS if strtobool(stdout) else ResultState.FAIL
-            elif res.returncode == 1:
-                result_state = ResultState.NOT_APPLICABLE
-            else:
-                logging.warning(
-                    "Unexpected return code [%d] from policy [%s].", res.returncode, policy_name
-                )
-                continue
-
-            results.append({
-                "policy_name": policy_name,
-                "execution_result": ExecutionResult(result_state, f"{stdout}\n{stderr}".strip())
-            })
-        return results
+        return ExecutionResult(policy_name, result_state, f"{stdout}\n{stderr}".strip())
 
     def get_policy_metadata(self) -> dict | None:
         """Returns the metadata from a policy file."""

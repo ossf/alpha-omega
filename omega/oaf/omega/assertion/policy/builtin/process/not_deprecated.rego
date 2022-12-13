@@ -7,11 +7,12 @@ package openssf.omega.policy.process.not_deprecated
 # methodology: >
 #   This policy is used to validate that the project is not marked as
 #   deprecated, based on the openssf.omega.metadata assertion.
-# version: 0.1.0
+# version: 0.1.1
 # last_updated:
-#   date: 2022-11-16
+#   date: 2022-12-10
 #   author: Michael Scovetta <michael.scovetta@gmail.com>
 # ---
+import future.keywords.every
 
 default pass = false
 default applies = false
@@ -23,5 +24,7 @@ applies := true {
 }
 
 pass := true {
-    input.predicate.content.metadata.latest_version_deprecated == false
+    every assertion in input {
+        assertion.predicate.content.metadata.latest_version_deprecated == false
+    }
 }
