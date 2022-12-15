@@ -26,7 +26,7 @@ def parse_query_to_Q(model: Model, query: str) -> Q:
     priority_clause = pp.Group(
         pp.Keyword("priority").suppress()
         + pp.Literal(":").suppress()
-        + pp.one_of(["<", ">", "<=", ">=", "=="]).setResultsName("op")
+        + pp.one_of(["<", ">", "<=", ">=", "==", "!="]).setResultsName("op")
         + pp.Word(pp.nums).setResultsName("value")
     ).setResultsName("priority")
 
@@ -216,6 +216,10 @@ def parse_query_to_Q(model: Model, query: str) -> Q:
             q = q & Q(priority__gte=results.priority.value)
         elif results.priority.op == "==":
             q = q & Q(priority__exact=results.priority.value)
+        elif results.priority.op == "!=":
+            q = q & ~Q(priority__exact=results.priority.value)
+        else:
+            logger.warn("Unknown priority op: %s", results.priority.op)
 
     if results.purl:
         if "project_version" in available_attributes:
