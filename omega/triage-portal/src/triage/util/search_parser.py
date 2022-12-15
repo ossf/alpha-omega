@@ -59,14 +59,14 @@ def parse_query_to_Q(model: Model, query: str) -> Q:
     updated_dt_clause = pp.Group(
         pp.Keyword("updated").suppress()
         + pp.Literal(":").suppress()
-        + pp.one_of(["<", ">", "<=", ">=", "=="]).setResultsName("op")
+        + pp.one_of(["<", ">", "<=", ">=", "==", "!="]).setResultsName("op")
         + pp.pyparsing_common.iso8601_date("datetime")
     ).setResultsName("updated_dt")
 
     created_dt_clause = pp.Group(
         pp.Keyword("created").suppress()
         + pp.Literal(":").suppress()
-        + pp.one_of(["<", ">", "<=", ">=", "=="]).setResultsName("op")
+        + pp.one_of(["<", ">", "<=", ">=", "==", "!="]).setResultsName("op")
         + (
             pp.pyparsing_common.iso8601_date("datetime")
             ^ (
@@ -178,6 +178,10 @@ def parse_query_to_Q(model: Model, query: str) -> Q:
             q = q & Q(updated_at__gte=target)
         elif results.updated_dt.op == "==":
             q = q & Q(updated_at__exact=target)
+        elif results.updated_dt.op == "!=":
+            q = q & ~Q(created_at__exact=target)
+        else:
+            logger.warning("Unknown updated_dt op: %s", results.updated_dt.op)
 
     if results.created_dt:
         if results.created_dt.datetime:
@@ -204,6 +208,10 @@ def parse_query_to_Q(model: Model, query: str) -> Q:
             q = q & Q(created_at__gte=target)
         elif results.created_dt.op == "==":
             q = q & Q(created_at__exact=target)
+        elif results.created_dt.op == "!=":
+            q = q & ~Q(created_at__exact=target)
+        else:
+            logger.warning("Unknown created_dt op: %s", results.created_dt.op)
 
     if results.priority:
         if results.priority.op == "<":
@@ -219,7 +227,7 @@ def parse_query_to_Q(model: Model, query: str) -> Q:
         elif results.priority.op == "!=":
             q = q & ~Q(priority__exact=results.priority.value)
         else:
-            logger.warn("Unknown priority op: %s", results.priority.op)
+            logger.warning("Unknown priority op: %s", results.priority.op)
 
     if results.purl:
         if "project_version" in available_attributes:
