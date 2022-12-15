@@ -130,10 +130,6 @@ const load_source_code = function(options) {
                 ace.edit('editor').getSession().clearAnnotations();
             }
 
-            // @TODO Are these necessary?
-            //$('#package-source-external-link').data('package-url', $row.data('package-url'));
-            //$('#issue-metadata-link').data('issue-id', $row.data('issue-id'));
-
             $(window).trigger('resize');
             $('#editor').css('height', $(window).height() - $('#editor').offset().top - 10);
 
