@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class Project(BaseTimestampedModel, BaseUserTrackedModel):
     """An abstract project undergoing analysis."""
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     name = models.CharField(max_length=1024, db_index=True)
     package_url = models.CharField(max_length=1024, null=True, blank=True, db_index=True)
     metadata = models.JSONField(null=True)
@@ -35,7 +35,7 @@ class Project(BaseTimestampedModel, BaseUserTrackedModel):
 class ProjectVersion(BaseTimestampedModel, BaseUserTrackedModel):
     """A version of a project."""
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     project = models.ForeignKey("Project", on_delete=models.CASCADE)
     package_url = models.CharField(max_length=1024, null=True, blank=True, db_index=True)
     files = models.ManyToManyField("File", blank=True, editable=True)

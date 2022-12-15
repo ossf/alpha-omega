@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class WikiArticleRevision(BaseTimestampedModel, BaseUserTrackedModel):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     article = models.ForeignKey("WikiArticle", on_delete=models.CASCADE, related_name="revisions")
     title = models.CharField(max_length=1024)
     content = models.TextField(null=True, blank=True)
@@ -45,7 +45,7 @@ class ActiveWikiArticleManager(models.Manager):
 
 
 class WikiArticle(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     slug = models.SlugField(unique=True)
     state = models.CharField(
         max_length=2, choices=WorkItemState.choices, default=WorkItemState.ACTIVE

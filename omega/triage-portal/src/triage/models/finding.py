@@ -92,7 +92,7 @@ class Finding(BaseTimestampedModel, BaseUserTrackedModel):
                     return cls.NONE
             return cls.NOT_SPECIFIED
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     project_version = models.ForeignKey(
         "ProjectVersion", on_delete=models.CASCADE, null=True, blank=True
     )

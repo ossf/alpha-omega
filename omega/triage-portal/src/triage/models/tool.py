@@ -18,7 +18,7 @@ class Tool(BaseTimestampedModel, BaseUserTrackedModel):
         STATIC_ANALYSIS = "SA", _("Static Analysis")
         OTHER = "OT", _("Other")
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     name = models.CharField(max_length=128)
     friendly_name = models.CharField(max_length=128, blank=True, null=True)
     version = models.CharField(max_length=64, null=True, blank=True)

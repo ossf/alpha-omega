@@ -22,7 +22,7 @@ class Case(BaseTimestampedModel, BaseUserTrackedModel):
         MSRC = "MS", _("Microsoft Security Response Center")
         NOT_SPECIFIED = "NS", _("Not Specified")
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     findings = models.ManyToManyField("Finding", related_name="cases")
     state = models.CharField(max_length=2, choices=WorkItemState.choices, default=WorkItemState.NEW)
     title = models.CharField(max_length=1024)

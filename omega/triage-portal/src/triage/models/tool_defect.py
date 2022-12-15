@@ -35,7 +35,7 @@ class ToolDefect(BaseTimestampedModel, BaseUserTrackedModel):
     """
 
     tool = models.ForeignKey(Tool, on_delete=models.CASCADE)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     title = models.CharField(max_length=1024)
     description = models.TextField(null=True, blank=True)
     findings = models.ManyToManyField("Finding")

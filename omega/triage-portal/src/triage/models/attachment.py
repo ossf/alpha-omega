@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Attachment(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     filename = models.CharField(max_length=1024)
     content = models.BinaryField()
     content_type = models.CharField(max_length=255)

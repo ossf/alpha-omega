@@ -16,7 +16,7 @@ class File(models.Model):
     Represents a file that is associated with an analyzed project.
     """
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     name = models.CharField(max_length=512, db_index=True)
     path = models.CharField(max_length=4096, db_index=True)
     content = models.ForeignKey("FileContent", on_delete=models.CASCADE, editable=False)

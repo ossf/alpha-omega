@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class Scan(BaseTimestampedModel, BaseUserTrackedModel):
     """A scan of a project version."""
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True, unique=True)
     project_version = models.ForeignKey("ProjectVersion", on_delete=models.CASCADE)
     tool = models.ForeignKey("Tool", on_delete=models.CASCADE)
 
