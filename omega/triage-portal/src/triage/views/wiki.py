@@ -124,6 +124,16 @@ def edit_wiki_article_revision(
 @login_required
 @require_http_methods(["POST"])
 def save_wiki_article(request: HttpRequest) -> HttpResponse:
+    """Saves a wiki article.
+
+    Required fields:
+      wiki_article_uuid: UUID of the wiki article to update. If not provided, a new
+          wiki article will be created.
+      title: Title of the wiki article.
+      content: Content of the wiki article.
+      state: State of the wiki article.
+      change_comment: Comment for the change.
+    """
     wiki_article_uuid = request.POST.get("wiki_article_uuid")
     if not wiki_article_uuid:
         wiki_article = WikiArticle()

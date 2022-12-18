@@ -18,7 +18,6 @@ urlpatterns = [
     path("tool_defect/", tool_defect.show_tool_defects),
     # Findings
     path("api/findings/add_archive", findings.api_add_scan_archive),
-    path("api/findings/add", findings.api_add),
     path("api/findings/get_files", findings.api_get_files),
     path("api/findings/get_source_code", findings.api_get_source_code),
     path("api/findings/download_file", findings.api_download_file),
@@ -46,5 +45,6 @@ urlpatterns = [
     path("wiki/<str:slug>/edit", wiki.edit_wiki_article),
     path("wiki/<str:slug>/<uuid:wiki_article_revision_uuid>/edit", wiki.edit_wiki_article_revision),
     path("wiki/", wiki.home),
+    # Default (Home)
     path("", home.home),
 ]

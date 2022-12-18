@@ -2,41 +2,25 @@ import json
 import logging
 import os
 from base64 import b64encode
-from triage.util.content_managers.file_manager import FileManager
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import (
-    HttpRequest,
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseForbidden,
-    JsonResponse,
-)
+from django.http import (HttpRequest, HttpResponse, HttpResponseBadRequest,
+                         JsonResponse)
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth import get_user_model
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from packageurl import PackageURL
-
-from triage.models import (
-    Attachment,
-    Case,
-    File,
-    FileContent,
-    Finding,
-    ProjectVersion,
-    Scan,
-    WorkItemState,
-)
-from triage.util.azure_blob_storage import ToolshedBlobStorageAccessor
-from triage.util.finding_importers.sarif_importer import SARIFImporter
+from triage.models import (Case, File, Finding,
+                           ProjectVersion, WorkItemState)
+from triage.util.content_managers.file_manager import FileManager
 from triage.util.finding_importers.archive_importer import ArchiveImporter
+from triage.util.finding_importers.sarif_importer import SARIFImporter
 from triage.util.general import clamp
 from triage.util.search_parser import parse_query_to_Q
 from triage.util.source_viewer import path_to_graph
-from triage.util.source_viewer.viewer import SourceViewer
 
 logger = logging.getLogger(__name__)
 
@@ -106,9 +90,8 @@ def show_upload(request: HttpRequest) -> HttpResponse:
 @login_required
 def show_finding_by_uuid(request: HttpRequest, finding_uuid) -> HttpResponse:
     finding = get_object_or_404(Finding, uuid=finding_uuid)
-    from django.contrib.auth.models import (
-        User,
-    )  # pylint: disable=import-outside-toplevel
+    from django.contrib.auth.models import \
+        User  # pylint: disable=import-outside-toplevel
 
     assignee_list = User.objects.all()
     context = {"finding": finding, "assignee_list": assignee_list}
@@ -168,7 +151,7 @@ def api_get_source_code(request: HttpRequest) -> JsonResponse:
         if file and file.file_key:
             file_manager = FileManager()
             content = file_manager.get_file(file.file_key)
-            if content:
+            if content is not None:
                 return JsonResponse(
                     {
                         "file_contents": b64encode(content).decode("utf-8"),
@@ -264,38 +247,6 @@ def api_add_scan_archive(request: HttpRequest) -> JsonResponse:
     )
 
     return JsonResponse({"success": True})
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_add(request: HttpRequest) -> JsonResponse:
-    """Inserts data into the database.
-
-    Required:
-    - sarif => the SARIF content (file contents)
-    - package_url => the package URL (must include version)
-    - scan_artifact => an archive of the content analyzed
-    """
-    sarif = request.FILES.get("sarif")
-    if sarif is None:
-        return JsonResponse({"error": "No sarif provided"})
-    sarif_content = json.load(sarif)
-
-    scan_artifact = request.FILES.get("scan_artifact")
-    if scan_artifact is None:
-        return JsonResponse({"error": "No scan_artifact provided"})
-
-    try:
-        package_url = PackageURL.from_string(request.POST.get("package_url"))
-        if package_url.version is None:
-            raise ValueError("Missing version")
-    except ValueError:
-        return JsonResponse({"error": "Invalid or missing package url"})
-
-    user = get_user_model().objects.get(pk=1)
-    SARIFImporter.import_sarif_file(package_url, sarif_content, user)
-    return JsonResponse({"success": True})
-
 
 @csrf_exempt
 @require_http_methods(["POST"])

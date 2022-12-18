@@ -54,7 +54,8 @@ def show_cases(request: HttpRequest) -> HttpResponse:
 
     return render(request, "triage/case_list.html", context)
 
-
+@login_required
+@require_http_methods(["GET"])
 def show_case(request: HttpRequest, case_uuid: UUID) -> HttpResponse:
     """Shows a case."""
     case = get_object_or_404(Case, uuid=str(case_uuid))
@@ -82,8 +83,9 @@ def new_case(request: HttpRequest) -> HttpResponse:
 @login_required
 @require_http_methods(["POST"])
 def save_case(request: HttpRequest) -> HttpResponse:
+    """Saves a case."""
     case_uuid = request.POST.get("case_uuid")
-    if case_uuid is None or case_uuid == "":
+    if not case_uuid:
         case = Case()
         case.created_by = request.user
     else:
