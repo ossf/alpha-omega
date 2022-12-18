@@ -17,6 +17,7 @@ urlpatterns = [
     path("tool_defect/save", tool_defect.save_tool_defect),
     path("tool_defect/", tool_defect.show_tool_defects),
     # Findings
+    path("api/findings/add_archive", findings.api_add_scan_archive),
     path("api/findings/add", findings.api_add),
     path("api/findings/get_files", findings.api_get_files),
     path("api/findings/get_source_code", findings.api_get_source_code),

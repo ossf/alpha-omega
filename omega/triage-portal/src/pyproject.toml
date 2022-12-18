@@ -71,7 +71,9 @@ limit-inference-results = 100
 
 # List of plugins (as comma separated values of python module names) to load,
 # usually to register additional checkers.
-# load-plugins = ["pylint_django"]
+load-plugins = [
+    "pylint_django"
+]
 
 # Pickle collected data for later comparisons.
 persistent = true
@@ -156,7 +158,7 @@ function-naming-style = "snake_case"
 # function-rgx =
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names = ["i", "j", "k", "ex", "Run", "_"]
+good-names = ["f", "i", "j", "k", "ex", "Run", "_"]
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted

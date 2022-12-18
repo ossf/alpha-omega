@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from base64 import b64encode
-
+from triage.util.content_managers.file_manager import FileManager
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -14,6 +14,7 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth import get_user_model
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -31,6 +32,7 @@ from triage.models import (
 )
 from triage.util.azure_blob_storage import ToolshedBlobStorageAccessor
 from triage.util.finding_importers.sarif_importer import SARIFImporter
+from triage.util.finding_importers.archive_importer import ArchiveImporter
 from triage.util.general import clamp
 from triage.util.search_parser import parse_query_to_Q
 from triage.util.source_viewer import path_to_graph
@@ -59,15 +61,19 @@ def show_findings(request: HttpRequest) -> HttpResponse:
             findings = findings.filter(query_object)
 
     findings = findings.select_related("project_version", "tool", "file")
-    findings = findings.order_by('-project_version__package_url', 'title', 'created_at')
+    findings = findings.order_by("-project_version__package_url", "title", "created_at")
     paginator = Paginator(findings, page_size)
     page_object = paginator.get_page(page)
 
     query_string = request.GET.copy()
-    if 'page' in query_string:
+    if "page" in query_string:
         query_string.pop("page", None)
 
-    context = {"query": query, "findings": page_object, "params": query_string.urlencode() }
+    context = {
+        "query": query,
+        "findings": page_object,
+        "params": query_string.urlencode(),
+    }
 
     return render(request, "triage/findings_list.html", context)
 
@@ -100,7 +106,9 @@ def show_upload(request: HttpRequest) -> HttpResponse:
 @login_required
 def show_finding_by_uuid(request: HttpRequest, finding_uuid) -> HttpResponse:
     finding = get_object_or_404(Finding, uuid=finding_uuid)
-    from django.contrib.auth.models import User
+    from django.contrib.auth.models import (
+        User,
+    )  # pylint: disable=import-outside-toplevel
 
     assignee_list = User.objects.all()
     context = {"finding": finding, "assignee_list": assignee_list}
@@ -156,20 +164,22 @@ def api_get_source_code(request: HttpRequest) -> JsonResponse:
     """Returns the source code for a finding."""
     file_uuid = request.GET.get("file_uuid")
     if file_uuid:
-        file = File.objects.filter(uuid=file_uuid).select_related("content").first()
-        return JsonResponse(
-            {
-                "file_contents": b64encode(file.content.data).decode("utf-8"),
-                "file_name": file.path,
-                "status": "ok",
-            }
-        )
-    else:
-        logger.info("Source code not found for %s", file_uuid)
-        return JsonResponse({"status": "error", "message": "File not found"}, status=404)
-
-    # return JsonResponse({"status": "error"}, status=500)
-
+        file = File.objects.filter(uuid=file_uuid).first()
+        if file and file.file_key:
+            file_manager = FileManager()
+            content = file_manager.get_file(file.file_key)
+            if content:
+                return JsonResponse(
+                    {
+                        "file_contents": b64encode(content).decode("utf-8"),
+                        "file_name": file.path,
+                        "status": "ok",
+                    }
+                )
+    logger.info("Source code not found for %s", file_uuid)
+    return JsonResponse(
+        {"status": "error", "message": "File not found"}, status=404
+    )
 
 @login_required
 @cache_page(60 * 5)
@@ -212,10 +222,48 @@ def api_get_blob_list(request: HttpRequest) -> JsonResponse:
     finding = get_object_or_404(Finding, uuid=finding_uuid)
     source_code = finding.scan.get_blob_list()
     source_graph = path_to_graph(
-        map(lambda s: s.get("relative_path"), source_code), finding.scan.project_version.package_url
+        map(lambda s: s.get("relative_path"), source_code),
+        finding.scan.project_version.package_url,
     )
 
     return JsonResponse({"data": source_graph, "status": "ok"})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_add_scan_archive(request: HttpRequest) -> JsonResponse:
+    """Inserts data into the database.
+
+    Required:
+    - scan_artifact => an archive of the content analyzed
+    - package_url => the package URL (must include version)
+    - scan_type => the type of scan (e.g. "toolshed")
+    - replace => replace existing scan if it exists (default: false)
+    """
+    scan_artifact = request.FILES.get("scan_artifact")
+    if scan_artifact is None:
+        return JsonResponse({"error": "No scan_artifact provided"})
+
+    try:
+        package_url = PackageURL.from_string(request.POST.get("package_url"))
+        if package_url.version is None:
+            raise ValueError("Missing version")
+    except ValueError:
+        return JsonResponse({"error": "Invalid or missing package url"})
+
+    if request.user.is_anonymous:
+        user = get_user_model().objects.get(id=1)
+    else:
+        user = request.user
+
+    project_version = ProjectVersion.get_or_create_from_package_url(package_url, user)
+
+    archive_importer = ArchiveImporter()
+    archive_importer.import_archive(
+        scan_artifact.name, scan_artifact.read(), project_version, user
+    )
+
+    return JsonResponse({"success": True})
 
 
 @csrf_exempt
@@ -283,10 +331,9 @@ def api_add_artifact(request: HttpRequest) -> JsonResponse:
         sarif_content = json.load(sarif)
         SARIFImporter.import_sarif_file(package_url, sarif_content, user)
 
-    """
-    Source code files are usually archives that contain source code or other
-    artifacts. They'll be automatically extracted during the import process. They
-    are associated with a ProjectVersion"""
+    # Source code files are usually archives that contain source code or other
+    # artifacts. They'll be automatically extracted during the import process. They
+    # are associated with a ProjectVersion.
     if "source_code" in request.FILES:
         source_code = request.FILES.get("source_code")
         source_code_content = source_code.read()
@@ -315,6 +362,8 @@ def api_upload_attachment(request: HttpRequest) -> JsonResponse:
             content_type=attachment.content_type,
             content=attachment.read(),
         )
-        results.append({"filename": new_attachment.filename, "uuid": new_attachment.uuid})
+        results.append(
+            {"filename": new_attachment.filename, "uuid": new_attachment.uuid}
+        )
 
     return JsonResponse({"success": True, "attachments": results})

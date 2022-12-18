@@ -30,9 +30,11 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#">Save Current Query As...</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="/wiki/Query_Syntax_Info">Query Syntax Info</a></li>                    
+                    <li><a class="dropdown-item" href="/wiki/Query_Syntax_Info">Query Syntax Info</a></li>
                 </ul>
+                <a href="/findings/upload" class="btn btn-secondary" type="button" aria-expanded="false"><i class="fa fa-plus"></i> Upload</a>
             </div>
+
         </form>
     </div>
 </div>
@@ -83,7 +85,7 @@
                     <li class="page-item"><a class="page-link" href="?{{ params }}&page={{ i }}">{{ i }}</a></li>
                 {% endif %}
             {% endfor %}
-    
+
             {% if findings.has_next %}
                 <li class="page-item">
                     <a class="page-link" href="?{{ params }}&page={{ findings.paginator.num_pages }}" aria-label="Next">

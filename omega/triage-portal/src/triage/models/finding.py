@@ -144,7 +144,7 @@ class Finding(BaseTimestampedModel, BaseUserTrackedModel):
     objects = models.Manager()
 
     def __str__(self):
-        return f"{self.normalized_title} in {self.file.name}:{self.file_line}"
+        return f"{self.normalized_title} in {self.file}:{self.file_line}"
 
     def get_absolute_url(self):
         return f"/finding/{self.uuid}"

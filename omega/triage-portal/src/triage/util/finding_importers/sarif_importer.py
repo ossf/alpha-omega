@@ -10,7 +10,7 @@ import uuid
 from typing import Optional, Type
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
 from packageurl import PackageURL
 
 from triage.models import Finding, ProjectVersion, Scan, Tool, WorkItemState
@@ -26,7 +26,7 @@ class SARIFImporter:
 
     @classmethod
     def import_sarif_file(
-        cls, package_url: PackageURL | str, sarif: dict, user: Optional[Type[AbstractUser]]
+        cls, sarif: dict, project_version: ProjectVersion, user: AbstractBaseUser | None
     ) -> bool:
         """
         Imports a SARIF file containing tool findings into the database.
@@ -40,31 +40,23 @@ class SARIFImporter:
         Returns:
             True if the SARIF content was successfully imported, False otherwise.
         """
-        if package_url is None:
-            raise TypeError("The package_url must not be None")
-
-        if isinstance(package_url, str):
-            package_url = PackageURL.from_string(package_url)
-
-        if package_url.version is None:
-            raise TypeError(
-                f"The package_url ({package_url}) does not contain a version. Unable to import."
-            )
-
         if sarif is None:
-            raise TypeError("The sarif content must not be None.")
+            raise ValueError("The sarif content must not be None.")
 
         if sarif.get("version") != "2.1.0":
             raise ValueError("Only SARIF version 2.1.0 is supported.")
 
-        user = get_user_model().objects.get(id=1)  # TODO: Fix this hardcoding
-        project_version = ProjectVersion.get_or_create_from_package_url(package_url, user)
+        if project_version is None:
+            raise ValueError("The project version must not be None.")
+
+        if user is None:
+            user = get_user_model().objects.get(id=1)  # TODO: Fix this hardcoding
 
         num_imported = 0
         processed = set()  # Reduce duplicates
 
         # First load all of the rules
-        for run in sarif.get("runs"):
+        for run in sarif.get("runs", []):
             tool_name = get_complex(run, "tool.driver.name")
             tool_version = get_complex(run, "tool.driver.version")
             tool = Tool.objects.get_or_create(
@@ -96,7 +88,7 @@ class SARIFImporter:
                     artifact_location = get_complex(location, "physicalLocation.artifactLocation")
 
                     src_root = get_complex(artifact_location, "uriBaseId", "%SRCROOT%")
-                    if src_root.upper() not in ["%SRCROOT%", "SRCROOT"]:
+                    if str(src_root).upper() not in ["%SRCROOT%", "SRCROOT"]:
                         continue
 
                     uri = get_complex(artifact_location, "uri")
@@ -116,10 +108,17 @@ class SARIFImporter:
                         file_path = get_complex(artifact_location, "uri")
                         file_path = cls.normalize_file_path(file_path)
 
-                        file = project_version.files.filter(path=file_path).first()
-                        if not file:
-                            logger.debug("File %s not found, skipping.", file_path)
+                        possible_files = project_version.files.filter(path__endswith=os.path.basename(file_path))
+                        if len(possible_files) > 1:
+                            logger.debug("Multiple files found for path %s, skipping.", file_path)
+                            for pf in possible_files:
+                                logger.debug("Possible file: %s", pf.path)
                             continue
+                        file = possible_files.first()
+
+                        #if not file:
+                        #    logger.debug("File %s not found, skipping.", file_path)
+                        #    continue
 
                         # Create the issue
                         finding = Finding()

@@ -8,7 +8,7 @@ from packageurl import PackageURL
 logger = logging.getLogger(__name__)
 
 
-def get_complex(obj, key, default_value=""):
+def get_complex(obj, key, default_value: str | None = ""):
     """Get a value from the dictionary d by nested.key.value.
     If keys contain periods, then use key=['a','b','c'] instead."""
     if not obj or not isinstance(obj, dict):
@@ -20,7 +20,7 @@ def get_complex(obj, key, default_value=""):
         for inner_key in parts:
             _data = _data[inner_key]
         return _data
-    except Exception:
+    except Exception:   # pylint: disable=broad-except
         return default_value
 
 
@@ -45,7 +45,7 @@ def strtobool(value: str, default: bool) -> bool:
     return default
 
 
-def parse_date(date_str: str) -> datetime:
+def parse_date(date_str: str) -> datetime | None:
     """Converts a date string to a timezone-aware datetime object."""
     if date_str:
         try:
@@ -54,8 +54,8 @@ def parse_date(date_str: str) -> datetime:
                 parsed_dt = datetime(parsed.year, parsed.month, parsed.day)
                 if parsed_dt:
                     return timezone.make_aware(parsed_dt)
-        except Exception as msg:
-            logger.warning(f"Failed to parse date: {msg}")
+        except Exception as msg:  # pylint: disable=broad-except
+            logger.warning("Failed to parse date: %s", msg)
     return None
 
 def clamp(value, min_value, max_value):
