@@ -219,7 +219,7 @@ FILE_STORAGE_PROVIDERS = {
     "default": {
         "provider": "triage.util.content_managers.file_manager.FileManager",
         "args": {
-            "root_path": "/tmp/omega-fs"
+            "root_path": "/home/vscode/omega-fs"
         }
     }
 }

@@ -18,7 +18,7 @@
     background: transparent;
 }
 #file_info {
-    background-color:#d7e0e9; 
+    background-color:#d7e0e9;
     color: #333;
     padding-left: 6px;
     padding-right: 6px;
@@ -98,10 +98,18 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="/tool_defect/new?finding_uuid={{ finding.uuid }}"><i class="fas fa-bug"></i>&nbsp;&nbsp;New Tooling Bug</a></li>
                 <li><a class="dropdown-item" href="https://slack.com"><i class="fab fa-slack"></i>&nbsp;&nbsp;Slack</a></li>
-                <li><a class="dropdown-item" href="/findings/upload">Upload Findings</a></li>
+                <li><a class="dropdown-item" href="/findings/upload"><i class="fa fa-upload"></i>Upload Findings</a></li>
             </ul>
         </div>
         <ul class="list-group list-group-flush">
+            <li class="list-group-item pb-4 pt-4">
+                <p class="text-muted fw-bold">Details</p>
+                <div class="d-flex flex-row">
+                    <div class="p-2">Tool:</div>
+                    <div class="p-2 flex-grow-1">{{ finding.tool.friendly_name }} {{ finding.tool.version }}</div>
+                </div>
+            </li>
+
             <li class="list-group-item pb-4 pt-4">
                 <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
                 <ul class="dropdown-menu dropdown-menu-end shadow pt-0 pb-0" style="width: 280px; border:0">
@@ -128,9 +136,8 @@
                     {% endif %}
                 </div>
             </li>
-            
             <li class="list-group-item">
-                <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-briefcase"></i></button>
+                <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
                 <ul class="dropdown-menu dropdown-menu-end shadow pt-0 pb-0" style="width: 280px; border:0">
                     <li class="list-group-item">
                         <div class="float-end"><a href="#">
@@ -147,32 +154,18 @@
                         </datalist>
                     </li>
                 </ul>
-                
-                <p class="text-muted fw-bold">Triage Status</p>
-                <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" />
-                    <label class="btn btn-outline-success" for="btnradio1">True</label>
-                  
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" />
-                    <label class="btn btn-outline-danger" for="btnradio2">False</label>
-                    
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" />
-                    <label class="btn btn-outline-info" for="btnradio3">???</label>
-                  </div>
-            </li>
-            <li class="list-group-item">
                 <p class="text-muted fw-bold">Severity</p>
                 <div class="btn-toolbar" role="toolbar" aria-label="Severity rating button toolbar">
                 <div id="severity_button_group" class="btn-group btn-group-sm me-2" role="group" aria-label="Severity rating button group">
                     <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_vh" autocomplete="off" value="VH" {% if finding.get_calculated_severity == "VH" %}checked{% endif %}/>
                     <label class="btn btn-outline-danger" for="btn_severity_vh" title="Very High">VH</label>
-                  
+
                     <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_h" autocomplete="off" value="H" {% if finding.get_calculated_severity == "H" %}checked{% endif %}/>
                     <label class="btn btn-outline-danger" for="btn_severity_h" title="High">H</label>
-                    
+
                     <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_m" autocomplete="off" value="M" {% if finding.get_calculated_severity == "M" %}checked{% endif %}/>
                     <label class="btn btn-outline-warning" for="btn_severity_m" title="Medium">M</label>
-                    
+
                     <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_l" autocomplete="off" value="L" {% if finding.get_calculated_severity == "L" %}checked{% endif %}/>
                     <label class="btn btn-outline-info" for="btn_severity_l" title="Low">L</label>
 
@@ -182,7 +175,7 @@
                 <div id="severity_button_group" class="btn-group btn-group-sm" role="group" aria-label="Severity rating button group">
                     <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_in" autocomplete="off" value="IN" {% if finding.get_calculated_severity == "IN" %}checked{% endif %}/>
                     <label class="btn btn-outline-info" for="btn_severity_in" title="Informational">IN</label>
-                    
+
                     <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_ns" autocomplete="off" value="NS" {% if finding.get_calculated_severity == "NS" %}checked{% endif %}/>
                     <label class="btn btn-outline-info" for="btn_severity_ns" title="Not Specified / Unknown">??</label>
 
@@ -214,7 +207,7 @@
                     </li>
                     <li class="list-group-item">
                         <input type="text" list="label_list" class="form-control" autocomplete="false"/>
-                        <datalist id="assignee_list">
+                        <datalist id="label_list">
                             {% for label in label_list %}
                                 <option value="{{ label.uuid }}">{{ label.title }}</option>
                             {% endfor %}
@@ -231,9 +224,9 @@
             <li class="list-group-item">
                 <p class="text-muted fw-bold">Notes</p>
                 <textarea class="form-control w-100 h-100" style="min-height: 150px" placeholder="Add a quick note..."></textarea>
-            </li>            
+            </li>
             <li class="list-group-item">
-                
+
             </li>
         </ul>
     </div>
@@ -309,9 +302,9 @@
             }
         });
     });
-    $('#estimated_impact').on('keypress', (e) => { 
-        if (e.keyCode === 13) { 
-            e.preventDefault(); 
+    $('#estimated_impact').on('keypress', (e) => {
+        if (e.keyCode === 13) {
+            e.preventDefault();
             $('#estimated_impact').trigger('change');
         }
     });
@@ -344,7 +337,7 @@
 
             }
         });
-        
+
         /* Resize the file and editor */
         $(window).on('resize', (e) => {
             $('#editor').css('height', $(window).height() - $('#editor').offset().top - 10);
