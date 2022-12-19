@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser
 from packageurl import PackageURL
 
-from triage.models import Finding, ProjectVersion, Scan, Tool, WorkItemState
+from triage.models import Finding, ProjectVersion, Scan, Tool, WorkItemState, File
 from triage.util.general import get_complex
 
 logger = logging.getLogger(__name__)
@@ -85,7 +85,9 @@ class SARIFImporter:
                 message = get_complex(result, "message.text")
                 level = get_complex(result, "level")
                 for location in get_complex(result, "locations"):
-                    artifact_location = get_complex(location, "physicalLocation.artifactLocation")
+                    artifact_location = get_complex(
+                        location, "physicalLocation.artifactLocation"
+                    )
 
                     src_root = get_complex(artifact_location, "uriBaseId", "%SRCROOT%")
                     if str(src_root).upper() not in ["%SRCROOT%", "SRCROOT"]:
@@ -97,7 +99,9 @@ class SARIFImporter:
                     key = {
                         "title": message,
                         "path": uri,
-                        "line_number": get_complex(location, "physicalLocation.region.startLine"),
+                        "line_number": get_complex(
+                            location, "physicalLocation.region.startLine"
+                        ),
                     }
                     key = hashlib.sha256(json.dumps(key).encode("utf-8")).digest()
 
@@ -108,17 +112,10 @@ class SARIFImporter:
                         file_path = get_complex(artifact_location, "uri")
                         file_path = cls.normalize_file_path(file_path)
 
-                        possible_files = project_version.files.filter(path__endswith=os.path.basename(file_path))
-                        if len(possible_files) > 1:
-                            logger.debug("Multiple files found for path %s, skipping.", file_path)
-                            for pf in possible_files:
-                                logger.debug("Possible file: %s", pf.path)
+                        file = cls.get_most_likely_source(project_version, file_path)
+                        if not file:
+                            logger.debug("File not found, skipping.")
                             continue
-                        file = possible_files.first()
-
-                        #if not file:
-                        #    logger.debug("File %s not found, skipping.", file_path)
-                        #    continue
 
                         # Create the issue
                         finding = Finding()
@@ -133,7 +130,9 @@ class SARIFImporter:
                             location, "physicalLocation.region.startLine", None
                         )
                         finding.severity_level = Finding.SeverityLevel.parse(level)
-                        finding.analyst_severity_level = Finding.SeverityLevel.NOT_SPECIFIED
+                        finding.analyst_severity_level = (
+                            Finding.SeverityLevel.NOT_SPECIFIED
+                        )
                         finding.confidence = Finding.ConfidenceLevel.NOT_SPECIFIED
 
                         finding.created_by = user
@@ -160,7 +159,7 @@ class SARIFImporter:
             return False
 
     @classmethod
-    def normalize_file_path(self, path):
+    def normalize_file_path(cls, path):
         """Normalizes a file path to be relative to the root."""
         logger.debug("normalize_file_path(%s)", path)
         try:
@@ -173,7 +172,7 @@ class SARIFImporter:
             return path
 
     @classmethod
-    def normalize_title(self, title):
+    def normalize_title(cls, title):
         norm = {
             r"^Bracket object notation with user input is present.*": "Bracket object notation",
             r"^Object injection via bracket notation.*": "Object injection",
@@ -183,3 +182,42 @@ class SARIFImporter:
             if re.match(regex, title, re.IGNORECASE):
                 return replacement
         return title
+
+    @classmethod
+    def get_most_likely_source(
+        cls, project_version: ProjectVersion, file_path: str
+    ) -> File | None:
+        """Returns the most likely source file for a given issue."""
+
+        possible_files = project_version.files.filter(
+            path__endswith=os.path.basename(file_path)
+        )
+        if not possible_files:
+            logger.debug("No files found for path %s, skipping.", file_path)
+            return None
+
+        if len(possible_files) == 1:
+            logger.debug(
+                "Only one possible file found for path %s, using that one.", file_path
+            )
+            return possible_files.first()
+
+        # Let's make up a shortest-suffix algorithm (why not?!)
+        file_path = file_path.strip(os.path.sep)
+        parts = file_path.split(os.path.sep)
+        best_option = None
+
+        # Iterate through increasingly large suffixes of the path, and see which files
+        # end with it. Only count the first one found at each level, since we have no
+        # other way to distinguish between them.
+        for i in range(len(parts) - 1, -1, -1):
+            target = os.path.sep + os.path.sep.join(parts[i:])
+            logger.debug("New target: [%s]", target)
+
+            for possible_file in possible_files:
+                if possible_file.path.endswith(target):
+                    logger.debug("Best option is now [%s]", possible_file.path)
+                    best_option = possible_file
+                    break
+
+        return best_option
