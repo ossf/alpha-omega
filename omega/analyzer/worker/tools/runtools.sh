@@ -330,7 +330,7 @@ event stop tool-oss-detect-cryptography
 # Backdoor Detection
 printf "${RED}Detecting backdoors...${NC}\n"
 event start tool-oss-detect-backdoor
-oss-detect-backdoor -o /opt/results/tool-oss-detect-backdoor.sarif -f sarifv2 "$CUR_ROOT" 2>&1 | tail +11 >/opt/result/tool-oss-detect-backdoor.error
+oss-detect-backdoor -o /opt/result/tool-oss-detect-backdoor.sarif -f sarifv2 "$CUR_ROOT" 2>&1 | tail +11 >/opt/result/tool-oss-detect-backdoor.error
 event stop tool-oss-detect-backdoor
 
 # Defogger
