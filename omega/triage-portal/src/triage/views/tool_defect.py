@@ -106,6 +106,12 @@ def save_tool_defect(request: HttpRequest) -> HttpResponse:
     note_content = request.POST.get("note_content")
     tool_defect.save()
 
+    finding_uuid = request.POST.get("finding_uuid");
+    if finding_uuid:
+        finding = get_object_or_404(Finding, uuid=finding_uuid)
+        tool_defect.findings.add(finding)
+        tool_defect.save()
+
     if note_content and note_content.strip():
         note = Note(content=note_content, created_by=request.user, updated_by=request.user)
         note.save()
