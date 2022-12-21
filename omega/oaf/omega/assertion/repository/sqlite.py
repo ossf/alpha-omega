@@ -15,6 +15,7 @@ class SqliteRepository(BaseRepository):
     """
 
     def __init__(self, sqlite_db: str):
+        super().__init__()
         self.conn = None  # type: sqlite3.Connection | None
         self._initialize(sqlite_db)
 

@@ -13,13 +13,14 @@ from ..utils import is_valid_url
 from .base import BaseRepository
 
 
-class AzureRepository(BaseRepository):
+class WebApiRepository(BaseRepository):
     """
-    Implementation of using an Azure endpoint for storing assertions.
-    Service-side code is located in the repository/azure directory.
+    Implementation of using a basic web API endpoint for storing assertions.
+    Sample service-side code is located in the repository/azure directory.
     """
 
     def __init__(self, endpoint: str):
+        super().__init__()
         if not is_valid_url(endpoint):
             raise ValueError("Endpoint must be a valid URL")
         self.endpoint = endpoint
@@ -32,7 +33,9 @@ class AzureRepository(BaseRepository):
 
         data = {"subject": subject, "assertion": assertion_content, "expiration": expiration}
         url = urljoin(self.endpoint, "api/add")
-        res = requests.post(url, json=data, headers={"content-type": "application/json"}, timeout=30)
+        res = requests.post(
+            url, json=data, headers={"content-type": "application/json"}, timeout=30
+        )
         return res.status_code == 200
 
     def find_assertions(self, subject: BaseSubject) -> list[str]:

@@ -1,16 +1,16 @@
 """Collection of general utility functions."""
 
 import collections.abc
+import datetime
 import json
 import logging
 import subprocess  # nosec: B404
 import typing
-import datetime
-from dateutil.parser import parse as _parse_date
-from dateutil.parser import ParserError
 from urllib.parse import urlparse
 
 import requests
+from dateutil.parser import ParserError
+from dateutil.parser import parse as _parse_date
 from packageurl import PackageURL
 from packageurl.contrib.purl2url import purl2url
 
@@ -32,7 +32,7 @@ def strtobool(val):
         raise ValueError("invalid truth value %r" % (val,))
 
 
-def get_complex(obj: dict, key: str | list, default_value: typing.Any =""):
+def get_complex(obj: dict, key: str | list, default_value: typing.Any = ""):
     """Get a value from the dictionary d by nested.key.value.
     If keys contain periods, then use key=['a','b','c'] instead."""
     if not obj or not isinstance(obj, dict):
@@ -134,12 +134,14 @@ def update_complex(target: dict, overlay: collections.abc.Mapping):
             target[key] = value
     return target
 
+
 def parse_date(date_string: str, default: typing.Any = None) -> datetime.datetime | typing.Any:
     """Parses a date string into a datetime object."""
     try:
         return _parse_date(date_string)
     except (ParserError, OverflowError):
         return default
+
 
 # From: https://stackoverflow.com/a/52455972/1384352
 def is_valid_url(url: str) -> bool:
@@ -150,13 +152,26 @@ def is_valid_url(url: str) -> bool:
     except ValueError:
         return False
 
+
+def encode_path_safe(directory: str) -> str:
+    """Replace special characters in a string with valid directory characters (percent encoded)"""
+    result = []
+    for char in list(directory):
+        if char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.@":
+            result.append(f"%{ord(char):02x}")
+        else:
+            result.append(char)
+    return "".join(result)
+
+
 class ComplexJSONEncoder(json.JSONEncoder):
     """Handles encoding of complex objects into JSON."""
+
     def default(self, o):
         if isinstance(o, (datetime.datetime, datetime.date)):
             return o.isoformat()
         if isinstance(o, (PackageURL,)):
             return str(o)
-        if hasattr(o, 'to_json') and callable(o.to_json):
+        if hasattr(o, "to_json") and callable(o.to_json):
             return o.to_json()
         return super().default(o)
