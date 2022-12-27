@@ -19,6 +19,30 @@ hardware.
 
 We're exploring making the pre-built image available.
 
+### Troubleshooting steps
+
+#### MacOS M1 Chip
+If using a Mac OSX with the latest Docker Desktop (4.15 as of writing), `docker build build.ps1` will shoot out several error messages.
+
+Make sure to create `/etc/apt/` with sudo user
+
+Download and install
+* `wget` with `brew install wget`
+* `dkpg` with `brew install dpkg`
+* .NET core with `brew install mono-libgdiplus`
+
+There is a known issue with [M1 Apple chip on MacOS](https://stackoverflow.com/questions/71040681/qemu-x86-64-could-not-open-lib64-ld-linux-x86-64-so-2-no-such-file-or-direc), which would produce the error when running
+
+```qemu-x86_64: Could not open '/lib64/ld-linux-x86-64.so.2': No such file or directory```
+
+The following two options are available to work around this issue:
+1. Set the DOCKER_DEFAULT_PLATFORM environment variable to linux/amd64
+
+`export DOCKER_DEFAULT_PLATFORM=linux/amd64`
+2. In the FROM section of the Dockerfile, line 1, modify to the following
+
+`FROM --platform=linux/amd64 mcr.microsoft.com/mirror/docker/library/ubuntu:22.04`
+
 ## Running
 
 To run the image, navigate to the `worker` directory and run the `run-analysis.ps1`
