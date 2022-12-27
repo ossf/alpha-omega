@@ -92,6 +92,8 @@ else
     NC=''
 fi
 
+VERY_SHORT_ANALYZER_TIMEOUT="30s"
+SHORT_ANALYZER_TIMEOUT="10m"
 LONG_ANALYZER_TIMEOUT="60m"
 
 BUILD_SCRIPT_ROOT="/opt/buildscripts"
@@ -143,7 +145,7 @@ fi
 
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
-ANALYZER_VERSION="0.8.4"
+ANALYZER_VERSION="0.8.5"
 ANALYSIS_DATE=$(date)
 
 # ASCII Art generated using http://patorjk.com/software/taag/#p=display&h=0&v=0&c=echo&f=THIS&t=Toolshed
@@ -328,16 +330,19 @@ event stop tool-oss-detect-cryptography
 # Backdoor Detection
 printf "${RED}Detecting backdoors...${NC}\n"
 event start tool-oss-detect-backdoor
-oss-detect-backdoor -o /opt/results/tool-oss-detect-backdoor.sarif -f sarifv2 "$CUR_ROOT" 2>&1 | tail +11 >/opt/result/tool-oss-detect-backdoor.error
+oss-detect-backdoor -o /opt/result/tool-oss-detect-backdoor.sarif -f sarifv2 "$CUR_ROOT" 2>&1 | tail +11 >/opt/result/tool-oss-detect-backdoor.error
 event stop tool-oss-detect-backdoor
 
 # Defogger
 printf "${RED}Detecting obfuscated code...${NC}\n"
 event start tool-oss-defog
 if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
-    oss-defog "$CUR_ROOT/src" >/dev/null 2>/opt/result/tool-oss-defog.txt
+    timeout $SHORT_ANALYZER_TIMEOUT oss-defog "$CUR_ROOT/src" >/dev/null 2>/opt/result/tool-oss-defog.txt
 else
-    oss-defog "$PACKAGE_PURL_OSSGADGET" >/dev/null 2>/opt/result/tool-oss-defog.txt
+    timeout $SHORT_ANALYZER_TIMEOUT oss-defog "$PACKAGE_PURL_OSSGADGET" >/dev/null 2>/opt/result/tool-oss-defog.txt
+fi
+if [ $? -eq 124 ]; then
+    echo "oss-defog timed out after $SHORT_ANALYZER_TIMEOUT." >>/opt/result/tool-oss-defog.txt
 fi
 event stop tool-oss-defog
 
@@ -428,7 +433,10 @@ if [[ "$FILE_TYPES" =~ ( )(c|h|hpp|c\+\+|cpp)( ) ]]; then
     cd "$CUR_ROOT/src"
     printf "${RED}Running CppCheck...${NC}\n"
     event start tool-cppcheck
-    cppcheck --enable=all --quiet --template='{file}~!~{line}~!~{severity}~!~{message}~!~{code}~!~{id}~!~{cwe}' "$CUR_ROOT/src" >/opt/result/tool-cppcheck.json 2>/opt/result/tool-cppcheck.error
+    timeout $SHORT_ANALYZER_TIMEOUT cppcheck --addon=threadsafety --addon=y2038 --template='{file}~!~{line}~!~{severity}~!~{message}~!~{code}~!~{id}~!~{cwe}' "$CUR_ROOT/src" >/opt/result/tool-cppcheck.json 2>/opt/result/tool-cppcheck.error
+    if [ $? -eq 124 ]; then
+        echo "CppCheck timed out after $SHORT_ANALYZER_TIMEOUT." >>/opt/result/tool-cppcheck.error
+    fi
     event stop tool-cppcheck
 fi
 
@@ -636,7 +644,7 @@ fi
 # Manalyze - https://github.com/JusticeRage/Manalyze
 printf "${RED}Checking Manalyze...${NC}\n"
 event start tool-manalyze
-find "$CUR_ROOT/src" -type f -print0 | xargs -0 file | grep "PE32" | cut -d: -f1 | xargs -I{} -n1 bash -c 'F="{}"; FN=$(echo $F | shasum -a256 | cut -d" " -f1); manalyze -d all --plugins=compilers,peid,strings,findcrypt,packer,imports,resources,mitigation,overlay,authenticode -o json --pe "$F" >"/opt/result/tool-manalyze.$FN.json" 2>>/opt/result/tool-manalyze.log'
+find "$CUR_ROOT/src" -type f -print0 | xargs -0 file | grep "PE32" | cut -d: -f1 | xargs -I{} -n1 bash -c 'F="{}"; FN=$(echo $F | shasum -a256 | cut -d" " -f1); timeout $VERY_SHORT_ANALYZER_TIMEOUT manalyze -d all --plugins=compilers,peid,strings,findcrypt,packer,imports,resources,mitigation,overlay,authenticode -o json --pe "$F" >"/opt/result/tool-manalyze.$FN.json" 2>>/opt/result/tool-manalyze.log'
 if [ -n "$(ls -A /opt/result/tool-manalyze.*.json 2>/dev/null)" ]; then
     cat /opt/result/tool-manalyze.*.json | jq -s > /opt/result/tool-manalyze.json
     rm /opt/result/tool-manalyze.*.json
@@ -649,9 +657,9 @@ if [ -z "$SNYK_TOKEN" ]; then
 else
     printf "${RED}Checking Snyk Code...${NC}\n"
     event start tool-snyk-code
-    snyk code test --sarif-file-output=/opt/result/tool-snyk-code.sarif --severity-threshold=low "${CUR_ROOT}/src" >/opt/result/tool-snyk-code.log 2>&1
+    timeout $SHORT_ANALYZER_TIMEOUT snyk code test --sarif-file-output=/opt/result/tool-snyk-code.sarif --severity-threshold=low "${CUR_ROOT}/src" >/opt/result/tool-snyk-code.log 2>&1
     SNYK_ERR=$?
-    if [[ $SNYK_ERR == 2 || $SNYK_ERR == 3 ]]; then
+    if [[ $SNYK_ERR == 2 || $SNYK_ERR == 3 || $SNYK_ERR == 124 ]]; then
         echo "Snyk Code failed to run, error code: $SNYK_ERR" >/opt/result/tool-snyk-code.error
     fi
     event stop tool-snyk-code
