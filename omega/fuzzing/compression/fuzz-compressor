@@ -68,7 +68,7 @@ do
   radamsa "$WORK_DIR/sample.gz" > "${WORK_DIR}/fuzzed.gz"
   ${DECOMPRESSOR} ${DECOMPRESSOR_ARGS} "${WORK_DIR}/fuzzed.gz" > /dev/null 2>&1
   if (( $? > 127 )); then
-    NEW_FILENAME="${CRASHES_DIR}/${COMPRESSOR}-fuzzed-$(uuidgen-r).gz"
+    NEW_FILENAME="${CRASHES_DIR}/${COMPRESSOR}-fuzzed-$(uuidgen -r).gz"
     mv "$WORK_DIR/fuzzed.gz" "${NEW_FILENAME}"
     echo "!!! Found a crash, saving to: ${NEW_FILENAME}"
   else
