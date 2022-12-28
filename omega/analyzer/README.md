@@ -21,16 +21,6 @@ We're exploring making the pre-built image available.
 
 ### Troubleshooting steps
 
-#### Windows
-Ensure you have the following installed on your machine:
-* wget via [GNU WGET](https://eternallybored.org/misc/wget/)
-
-Download the latest version zip file.
-Unzip it
-Copy the wget.exe file into C:\Program Files\Git\mingw64\bin
-
-C:\Program Files\Git\mingw64\bin is my Git Bash tool path.
-
 #### MacOS M1 Chip
 If using a Mac OSX with the latest Docker Desktop (4.15 as of writing), `docker build build.ps1` will shoot out several error messages.
 

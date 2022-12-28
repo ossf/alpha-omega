@@ -1,4 +1,3 @@
-#FROM --platform=linux/amd64 mcr.microsoft.com/mirror/docker/library/ubuntu:22.04
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:22.04
 # Copyright (C) Microsoft Corporation, All rights reserved.
 
@@ -106,7 +105,6 @@ RUN apt-get update && \
             sudo \
             openssh-client \
             openjdk-17-jdk
-#    apt-get update
 
 ##################################
 ####### Install Core Tools #######
