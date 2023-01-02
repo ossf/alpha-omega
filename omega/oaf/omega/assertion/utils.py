@@ -70,16 +70,22 @@ def find_repository(package_url: PackageURL | str) -> str | None:
             raise EnvironmentError("Invalid PackageURL provided.")
 
     if package_url.type == "github":
-        return purl2url(package_url)
+        try:
+            return purl2url(str(package_url))
+        except Exception:
+            logging.warning("Unable to parse PackageURL to GitHub repository: %s", str(package_url))
 
     if not is_command_available(["oss-find-source"]):
         raise EnvironmentError("oss-find-source is not available.")
 
-    cmd = ["oss-find-source", "-S", str(package_url)]
-    res = subprocess.run(cmd, check=False, capture_output=True, encoding="utf-8")  # nosec B603
-    if res.returncode == 0:
-        repository = res.stdout.strip()
-        return repository or None
+    try:
+        cmd = ["oss-find-source", "-S", str(package_url)]
+        res = subprocess.run(cmd, check=False, capture_output=True, encoding="utf-8")  # nosec B603
+        if res.returncode == 0:
+            repository = res.stdout.strip()
+            return repository or None
+    except Exception:
+        logging.warning("Failed to find repository for %s", str(package_url))
 
     return None
 

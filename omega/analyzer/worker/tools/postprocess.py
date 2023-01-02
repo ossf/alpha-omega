@@ -754,8 +754,14 @@ class PostProcessor:
 
             for finding in findings:
                 parts = finding.split(':', 1)
-                filename = parts[0].split('/', 3)[-1]
-                snippet = parts[1]
+                if len(parts) == 2:
+                    filename = parts[0].split('/', 3)[-1]
+                    snippet = parts[1]
+                elif len(parts) == 1:
+                    filename = parts[0].split('/', 3)[-1]
+                    snippet = '(No snippet available)'
+                else:
+                    continue
 
                 self.add_result(**{
                     'tool_name': 'oss-defog',
