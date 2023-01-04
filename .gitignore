@@ -1,8 +1,12 @@
 /.vs
 *.env
 *.pyc
-**/.mypy_cache
+/omega/analyzer/worker/results
+/venv/*
+**/.venv
 **/venv/
 *.db
-oss-gadget.log
 *.pem
+oss-gadget.log
+**/.idea/workspace.xml
+**/.idea/tasks.xml

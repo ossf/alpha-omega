@@ -1,0 +1,25 @@
+{% spaceless %}
+    {% with ext4=filename|slice:"-4:" ext3=filename|slice:"-3:" ext2=filename|slice:"-2" %}
+        {% if ext3 == "pdf" %}
+            <i class="far fa-file-pdf me-2"></i>
+        {% elif ext3 == "doc" or ext4 == "docx" %}
+            <i class="far fa-file-word me-2"></i>
+        {% elif ext3 == "zip" or ext3 == "tar" %}
+            <i class="far fa-file-archive me-2"></i>
+        {% elif ext3 == "xls" or ext4 == "xlsx" %}
+            <i class="far fa-file-excel me-2"></i>
+        {% elif ext3 == "ppt" or ext4 == "pptx" %}
+            <i class="far fa-file-powerpoint me-2"></i>
+        {% elif ext3 == "mp3" or ext3 == "wav" or ext3 == "ogg" or ext4 == "flac" %}
+            <i class="far fa-file-audio me-2"></i>
+        {% elif ext3 == "mp4" or ext3 == "avi" or ext3 == "mkv" or ext3 == "mov" or ext3 == "wmv" or ext3 == "mpg" or ext3 == "mpeg" %}
+            <i class="far fa-file-video me-2"></i>
+        {% elif ext3 == "gif" or ext3 == "jpg" or ext3 == "png" or ext3 == "ico" %}
+            <i class="far fa-file-image me-2"></i>
+        {% elif ext3 == "txt" or ext2 == "md" or ext3 == "rst" or ext2 == "py" or ext2 == "sh" or ext3 == "xml" or ext4 == "html" or ext3 == "css" or ext2 == "js" %}
+            <i class="far fa-file-alt me-2"></i>
+        {% else %}
+            <i class="far fa-file me-2"></i>
+        {% endif %}
+    {% endwith %}
+{% endspaceless %}

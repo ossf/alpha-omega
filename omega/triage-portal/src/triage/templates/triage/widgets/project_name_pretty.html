@@ -1,0 +1,30 @@
+{% load project_helpers %}
+{% parse_package_url project.package_url %}
+{% spaceless %}
+    {% if package_url.type == "npm" %}
+        <img style="height: 24px" src="https://img.icons8.com/color/48/000000/npm.png"/>
+    {% elif package_url.type == "gem" %}
+        <img style="height: 24px" src="https://img.icons8.com/color/100/000000/ruby-gem.png"/>
+    {% elif package_url.type == "nuget" %}
+        <img style="height: 24px" src="https://img.icons8.com/external-tal-revivo-color-tal-revivo/24/000000/external-nuget-a-free-and-open-source-package-manager-designed-for-the-microsoft-development-platform-logo-color-tal-revivo.png"/>
+    {% elif package_url.type == "pypi" %}
+        <img style="height: 24px" src="https://img.icons8.com/color/48/000000/python--v1.png"/>
+    {% elif package_url.type == "github" %}
+        <img style="height: 24px" src="https://img.icons8.com/ios-glyphs/30/000000/github.png"/>
+    {% elif package_url.type == "ubuntu" %}
+        <img style="height: 24px" src="https://img.icons8.com/color/48/000000/linux--v1.png"/>
+    {% else %}
+        <div class="badge bg-secondary">{{ package_url.type }}</div>
+    {% endif %}
+
+    <span style="font-size: 80%">
+        {% if package_url.namespace %}
+            {{ package_url.namespace }}/{{ package_url.name }}
+        {% else %}
+            {{ package_url.name }}
+        {% endif %}
+        <span class="text-muted">
+            {{ package_url.version }}
+        </span>
+    </span>
+{% endspaceless %}

@@ -1,0 +1,11 @@
+{
+    "folders": [
+        {
+            "name": "triage-portal",
+            "path": "/workspaces/alpha-omega/omega/triage-portal"
+        },
+        {
+            "path": "../.devcontainer"
+        }
+    ]
+}

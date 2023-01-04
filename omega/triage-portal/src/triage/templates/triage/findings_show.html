@@ -1,0 +1,368 @@
+{% extends "./base.html" %}
+
+{% load gravatar %}
+
+{% block body %}
+<style>
+/* Remove the caret from dropdown triggers */
+.dropdown-toggle::after {
+    content: none;
+}
+/* Give file links a little color */
+.jstree-proton .jstree-anchor {
+    color: rgb(0, 0, 59);
+}
+/* Remove the scrollbar from the file listing */
+#data::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+#file_info {
+    background-color:#d7e0e9;
+    color: #333;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.gravatar {
+    border-radius: 16px;
+}
+.file_tree_context_menu_item {
+    font-size: 75%;
+}
+.highlighted_line {
+    background-color: #f5f5f5;
+}
+</style>
+<div class="row">
+    <div class="col-12 mt-4 mb-2">
+        <div class="fs-3 text-truncate">
+            {{ finding.title }}
+            <span class="text-muted">#{{ finding.pk }}</span>
+        </div>
+    </div>
+    <div id="file_listing" class="col-lg-2 border-end">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <button class="btn dropdown-toggle float-end pe-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li>
+                        <a class="dropdown-item" href="#"><i class="fas fa-download"></i>&nbsp;&nbsp;Download files</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/util/finding-redirect?finding_uuid={{ finding.uuid }}&type=github"><i class="fab fa-github"></i>&nbsp;&nbsp;View Source (GitHub)</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#"><img src="/static/triage/images/icon-vscode.png" width="16" height="16" style="filter: grayscale(100%);"></i>&nbsp;&nbsp;View Source (VS Code)</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#"><img src="https://sourcegraph.com/.assets/img/favicon.png?v=2" width="16" height="16" style="filter: grayscale(100%);"></i>&nbsp;&nbsp;View Source (SourceGraph)</a>
+                    </li>
+                </ul>
+                <p class="text-muted fw-bold mb-0">Files</p>
+                <div id="data" class="pe-0 mt-0 w-100" style="overflow:auto; padding-right: 0;"></div>
+            </li>
+        </ul>
+    </div>
+    <div id="finding_center" class="col-lg-8">
+        <div id="file_info">
+            <div class="float-end">
+                <a class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-bars"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item" href="javascript:beautify_source_code()">Beautify</a></li>
+                    <li><a class="dropdown-item" href="javascript:toggle_word_wrap()">Toggle Word Wrap</a></li>
+                    <li><a class="dropdown-item" href="javascript:change_font_size(1.1)">Increase Font Size</a></li>
+                    <li><a class="dropdown-item" href="javascript:change_font_size(0.9)">Decrease Font Size</a></li>
+                </ul>
+            </div>
+            <i class="far fa-folder"></i>&nbsp;
+            <span id="file_path">{{ finding.file_path }}
+                {% if finding.file_line %}
+                    :{{finding.file_line }}
+                {% endif %}
+            </span>
+        </div>
+        <div class="card">
+            <div id="editor" class="overflow-auto"></div>
+        </div>
+    </div>
+    <div id="finding_right" class="col-lg-2">
+        <div class="text-end">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end shadow ">
+                <li><a class="dropdown-item" href="#">Auto-Triage Rules</a></li>
+                <li><a class="dropdown-item" href="#">Compare Versions</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-file-export"></i>&nbsp;&nbsp;Export to SARIF</a></li>
+                <li><a class="dropdown-item" href="#">Similar Findings</a></li>
+                <li><a class="dropdown-item" href="#">Source Repository</a></li>
+                <li><a class="dropdown-item" href="#">Watch</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/tool_defect/new?finding_uuid={{ finding.uuid }}"><i class="fas fa-bug"></i>&nbsp;&nbsp;New Tooling Bug</a></li>
+                <li><a class="dropdown-item" href="https://slack.com"><i class="fab fa-slack"></i>&nbsp;&nbsp;Slack</a></li>
+                <li><a class="dropdown-item" href="/findings/upload"><i class="fa fa-upload"></i>Upload Findings</a></li>
+            </ul>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item pb-4 pt-4">
+                <p class="text-muted fw-bold">Details</p>
+                <div class="d-flex flex-row">
+                    <div class="p-2">Tool:</div>
+                    <div class="p-2 flex-grow-1">{{ finding.tool.friendly_name }} {{ finding.tool.version }}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item pb-4 pt-4">
+                <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end shadow pt-0 pb-0" style="width: 280px; border:0">
+                    <li class="list-group-item">
+                        <strong>Choose an assignee</strong>
+                    </li>
+                    <li class="list-group-item">
+                        <input id="assigned_to" type="text" list="assignee_list" class="form-control" autocomplete="false"/>
+                        <datalist id="assignee_list">
+                            <option value="$clear">Remove assignee</option>
+                            {% for assignee in assignee_list %}
+                                <option value="{{ assignee.username }}">{{ assignee.first_name }} {{ assignee.last_name }}</option>
+                            {% endfor %}
+                        </datalist>
+                    </li>
+                </ul>
+                <p class="text-muted fw-bold">Assignee</p>
+                <div id="assigned_to_content">
+                    {% if finding.assigned_to %}
+                        <img class="gravatar" src="{{ finding.assigned_to|gravatar }}" width="32" height="32" alt="{{ finding.assigned_to.username }}" />
+                        <span class="text-muted">{{ finding.assigned_to.first_name }} {{ finding.assigned_to.last_name }}</span>
+                    {% else %}
+                        No one&#8212;<a id="assign_self" href="#">assign yourself</a>
+                    {% endif %}
+                </div>
+            </li>
+            <li class="list-group-item">
+                <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end shadow pt-0 pb-0" style="width: 280px; border:0">
+                    <li class="list-group-item">
+                        <div class="float-end"><a href="#">
+                            <i class="fas fa-plus"></i>&nbsp;&nbsp;New</a>
+                        </div>
+                        <strong>Add to Case</strong>
+                    </li>
+                    <li class="list-group-item">
+                        <input type="text" list="case_list" class="form-control"/>
+                        <datalist id="case_list">
+                            {% for case in case_list %}
+                                <option value="{{ case.uuid }}">{{ case.title }}</option>
+                            {% endfor %}
+                        </datalist>
+                    </li>
+                </ul>
+                <p class="text-muted fw-bold">Severity</p>
+                <div class="btn-toolbar" role="toolbar" aria-label="Severity rating button toolbar">
+                <div id="severity_button_group" class="btn-group btn-group-sm me-2" role="group" aria-label="Severity rating button group">
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_vh" autocomplete="off" value="VH" {% if finding.get_calculated_severity == "VH" %}checked{% endif %}/>
+                    <label class="btn btn-outline-danger" for="btn_severity_vh" title="Very High">VH</label>
+
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_h" autocomplete="off" value="H" {% if finding.get_calculated_severity == "H" %}checked{% endif %}/>
+                    <label class="btn btn-outline-danger" for="btn_severity_h" title="High">H</label>
+
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_m" autocomplete="off" value="M" {% if finding.get_calculated_severity == "M" %}checked{% endif %}/>
+                    <label class="btn btn-outline-warning" for="btn_severity_m" title="Medium">M</label>
+
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_l" autocomplete="off" value="L" {% if finding.get_calculated_severity == "L" %}checked{% endif %}/>
+                    <label class="btn btn-outline-info" for="btn_severity_l" title="Low">L</label>
+
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_vl" autocomplete="off" value="VL" {% if finding.get_calculated_severity == "VL" %}checked{% endif %}/>
+                    <label class="btn btn-outline-info" for="btn_severity_vl" title="Very Low">VL</label>
+                </div>
+                <div id="severity_button_group" class="btn-group btn-group-sm" role="group" aria-label="Severity rating button group">
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_in" autocomplete="off" value="IN" {% if finding.get_calculated_severity == "IN" %}checked{% endif %}/>
+                    <label class="btn btn-outline-info" for="btn_severity_in" title="Informational">IN</label>
+
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_ns" autocomplete="off" value="NS" {% if finding.get_calculated_severity == "NS" %}checked{% endif %}/>
+                    <label class="btn btn-outline-info" for="btn_severity_ns" title="Not Specified / Unknown">??</label>
+
+                    <input type="radio" class="btn-check" name="btn_severity" id="btn_severity_no" autocomplete="off" value="NO" {% if finding.get_calculated_severity == "NO" %}checked{% endif %}/>
+                    <label class="btn btn-outline-info" style="background-color: lightgoldenrodyellow" for="btn_severity_no" title="None (False Positive)">N/A</label>
+                  </div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end shadow pt-0 pb-0" style="width: 280px; border:0">
+                    <li class="list-group-item">
+                        <strong>Update Impact</strong>
+                    </li>
+                    <li class="list-group-item">
+                        <input id="estimated_impact" type="number" class="form-control" autocomplete="false" value="{{ finding.estimated_impact|default:"0" }}" min="0" max="32767" />
+                        <small>Values range from 0 (no impact) to 32,767 (highest possible impact), leave blank for unknown.</small>.
+                    </li>
+                </ul>
+                <p class="text-muted fw-bold">Estimated Impact</p>
+                <span id="estimated_impact_content" class="badge rounded-pill bg-info">{{ finding.estimated_impact }}</span>
+            </li>
+            <li class="list-group-item">
+                <button class="btn dropdown-toggle float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-cog"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end shadow pt-0 pb-0" style="width: 280px; border:0">
+                    <li class="list-group-item">
+                        <strong>Choose a label</strong>
+                    </li>
+                    <li class="list-group-item">
+                        <input type="text" list="label_list" class="form-control" autocomplete="false"/>
+                        <datalist id="label_list">
+                            {% for label in label_list %}
+                                <option value="{{ label.uuid }}">{{ label.title }}</option>
+                            {% endfor %}
+                        </datalist>
+                    </li>
+                </ul>
+                <p class="text-muted fw-bold">Labels</p>
+                {% for label in finding.labels %}
+                    <span class="badge rounded-pill bg-secondary">{{ label }}</span>
+                {% empty %}
+                    <i>No labels</i>
+                {% endfor %}
+            </li>
+            <li class="list-group-item">
+                <p class="text-muted fw-bold">Notes</p>
+                <textarea class="form-control w-100 h-100" style="min-height: 150px" placeholder="Add a quick note..."></textarea>
+            </li>
+            <li class="list-group-item">
+
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock body %}
+
+{% block javascript %}
+    /* Stash some page-level data */
+    $(document.body).data('current_finding', {
+        'finding_uuid': '{{ finding.uuid }}',
+        'project_version_uuid': '{{ finding.project_version.uuid }}',
+        'file_line': '{{ finding.file_line }}',
+        'file_path': '{{ finding.file.path }}',
+        'file_uuid': '{{ finding.file.uuid }}',
+        'finding_title': '{{ finding.title }}'
+    });
+
+    /* Handle clicks of the "New Tool Finding" button */
+    $('#action_new_tooling_bug').on('click', (e) => {
+        let finding_uuid = $('#finding_list').data('finding_uuid');
+        if (finding_uuid !== undefined) {
+            document.location.href = `/tool_defect/new?finding_uuid=${finding_uuid}`;
+        }
+    });
+
+    /**
+     * Responds to the "assign self" link.
+     */
+    $('#assign_self').on('click', (e) => {
+        const finding_uuid = '{{ finding.uuid }}';
+        $.ajax({
+            url: `/api/1/findings/update`,
+            data: {
+                'finding_uuid': finding_uuid,
+                'assigned_to': '$self'
+            },
+            type: 'POST',
+            success: (data) => {
+                if (IS_SUCCESS(data)) {
+                    $('#assigned_to_content').clear();
+                    const anchor = $('<a>');
+                    anchor.attr('href', '#');
+                    anchor.text(data.assigned_to);
+                    $('#assigned_to_content').append(anchor);
+                }
+                else {
+                    console.log('Error: Unsuccessful response from server.');
+                }
+            }
+        });
+    });
+
+    $('#assigned_to').on('change', (e) => {
+        const finding_uuid = '{{ finding.uuid }}';
+        $.ajax({
+            url: `/api/1/findings/update`,
+            data: {
+                'finding_uuid': finding_uuid,
+                'assigned_to': $(e.target).val()
+            },
+            type: 'POST',
+            success: (data) => {
+                if (IS_SUCCESS(data)) {
+                    $('#assigned_to_content').clear();
+                    const anchor = $('<a>');
+                    anchor.attr('href', '#');
+                    anchor.text(data.assigned_to);
+                    $('#assigned_to_content').append(anchor);
+                }
+                else {
+                    console.log('Error: Unsuccessful response from server.');
+                }
+            }
+        });
+    });
+    $('#estimated_impact').on('keypress', (e) => {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $('#estimated_impact').trigger('change');
+        }
+    });
+    $('#estimated_impact').on('change', (e) => {
+        const finding_uuid = '{{ finding.uuid }}';
+        $.ajax({
+            url: `/api/1/findings/update`,
+            data: {
+                'finding_uuid': finding_uuid,
+                'estimated_impact': $(e.target).val()
+            },
+            type: 'POST',
+            success: (data) => {
+                if (IS_SUCCESS(data)) {
+                    $('#estimated_impact_content').text($(e.target).val());
+                }
+                else {
+                    console.log('Error: Unsuccessful response from server.');
+                }
+            }
+        });
+        $('ul.dropdown-menu.show').hide();
+    });
+
+    $(document).ready(() => {
+        load_file_listing({"project_version_uuid": "{{ finding.project_version.uuid }}"});
+        $('#data').on({
+            "loaded.jstree": function (event, data) {
+                $('#data').jstree('select_node', '{{ finding.file.path }}', false);
+
+            }
+        });
+
+        /* Resize the file and editor */
+        $(window).on('resize', (e) => {
+            $('#editor').css('height', $(window).height() - $('#editor').offset().top - 10);
+            $('#data').css('height', $(window).height() - $('#data').offset().top - 10);
+        });
+        $(window).trigger('resize');
+    });
+
+    var update_finding = (options) => {
+        $.ajax({
+            url: `/api/1/findings/update`,
+            type: 'POST',
+            data: options,
+            success: (data) => {
+                console.log(data);
+            }
+        });
+    };
+
+    $('#severity_button_group input').on('click', (e) => {
+        let severity = $(e.target).val();
+        update_finding({
+            'finding_uuid': '{{ finding.uuid }}',
+            'analyst_severity_level': severity
+        });
+    });
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "./base.html" %}
+
+{% block body %}
+    {% block main %}
+<style>
+</style>
+
+<div class="row" style="margin-top: 5px">
+    <div class="col-12">
+        <label for="tool_defects_query" class="visually-hidden">Search Query</label>
+        <form action="/tool_defect" method="get">
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" name="q" class="form-control" id="tool_defects_query" placeholder="Search Query..." spellcheck="false" autocomplete="off" value="{{ query }}"/>
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Queries</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Shared Queries</h6></li>
+                    <li><a class="dropdown-item" href="/tool_defects?q=status:active">Active Defects</a></li>
+                    <li><a class="dropdown-item" href="/tool_defects?q=assigned_to:@me">Assigned to Me</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header">My Queries</h6></li>
+                    <li><a class="dropdown-item" href="/tool_defects?q=assigned_to:@me">Assigned to Me</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Save Current Query As...</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/wiki/Query_Syntax_Info">Query Syntax Info</a></li>                    
+                </ul>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row" style="margin-top: 8px">
+    <div class="col-lg-12">
+        <h4>Tool Defects</h4>
+        <table id="tool_defect_list" class="table table-sm table-hover" style="overflow-y:auto">
+            <thead>
+                <tr>
+                    <th>Tool Defect ID</th>
+                    <th class="text-nowrap">Title</th>
+                    <th class="text-nowrap">Tool</th>
+                    <th class="text-nowrap">Assigned To</th>
+                    <th class="text-nowrap">Status</th>
+                    <th class="text-nowrap">Created</th>
+                </tr>
+            </thead>
+            <tbody style="word-break: break-word;white-space:normal;word-wrap:break-word">
+                {% for tool_defect in tool_defects %}
+                <tr class="data_row" data-tool_defect_uuid="{{ tool_defect.uuid }}" style="cursor:pointer">
+                        <td>{{ tool_defect.pk }}</td>
+                        <td>{{ tool_defect.title }}</td>
+                        <td>{{ tool_defect.tool.name }}</td>
+                        <td>{{ tool_defect.assigned_to|default:"<i>No one</i>" }}</td>
+                        <td>{{ tool_defect.get_state_display }}</td>
+                        <td>{{ tool_defect.created_at|timesince }} ago</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center"><i>No defects found.</i></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    {% endblock main %}
+{% endblock body %}
+
+{% block javascript %}
+    /* Handle row clicks */ 
+    $('tr.data_row').on('click', (e) => {
+        let tool_defect_uuid = $(e.target).closest('tr').data('tool_defect_uuid')
+        if (tool_defect_uuid !== undefined) {
+            document.location.href = `/tool_defect/${tool_defect_uuid}`;
+        }
+    });
+{% endblock %}

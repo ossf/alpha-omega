@@ -1,0 +1,24 @@
+{% extends "./base.html" %}
+{% load wiki %}
+{% block body %}
+    <form action="/article/save" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="wiki_article_uuid" value="{{ wiki_article.uuid }}"/>
+
+        <div class="row mt-2">
+            <div class="col-12">
+                <div class="float-end">
+                    <a class="btn btn-sm btn-primary" href="{{ wiki_article.get_absolute_edit_url }}"><i class="far fa-edit me-2"></i>Edit</a>
+                    <a class="btn btn-sm btn-secondary" href="/wiki/new"><i class="fas fa-plus me-2"></i>New</a>
+                    <a class="btn btn-sm btn-secondary" href="/wiki/special:list"><i class="fas fa-list me-2"></i>View All</a>
+                </div>
+
+                <h4 class="border-bottom pb-2">{{ wiki_article.current.title }}</h4>
+            </div>
+
+            <div class="col-12">
+                {{ wiki_article.current.content|wiki_markdown|safe }}
+            </div>
+        </div>
+    </form>
+{% endblock body %}

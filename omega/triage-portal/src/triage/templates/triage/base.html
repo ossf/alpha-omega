@@ -1,0 +1,155 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="icon" href="https://openssf.org/wp-content/uploads/sites/132/2021/09/cropped-favicon-192x192.png" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/bootstrap/dist/css/bootstrap.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/@fortawesome/fontawesome-free/css/all.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/datatables.net-bs5/css/dataTables.bootstrap5.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/datatables.net-keytable-bs5/css/keyTable.bootstrap5.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/jstree/dist/themes/default/style.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/jstree-bootstrap-theme/dist/themes/proton/style.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/select2/dist/css/select2.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "triage/resources/source-code-pro/source-code-pro.css" %}" />
+    <style type="text/css">
+      @font-face {
+        font-family: 'Inconsolata';
+        src:  url('{% static "triage/resources/inconsolata/inconsolata.woff" %}') format('woff');
+      }
+      body { background-color: #fcfefd!important;}
+      a.navbar-brand { font-size: 50px; font-weight: bold; color: #222!important; text-shadow: 0 0 5px #ddd; margin-left: 12px; padding-top: 0 }
+      button.navbar-toggler { margin-left: 8px }
+      li.nav-item { margin-left: 12px }
+      a { color: #0f0f8a; text-decoration: none }
+      a:hover { color: #5C5CD7 }
+
+      #editor-title, #note-title, #file-listing-title { color:#fff;font-size:0.85em;padding-top:4px;padding-bottom:4px;padding-left: 7px; margin-bottom:2px;}
+      #issue_list tr { cursor: pointer; }
+      #issue_list td { padding-top:0; padding-bottom:0; padding-left: 3px; padding-right: 3px; }
+      tr.active, tr.selected { background-color: #CDE8FF !important}
+      .upload-sarif-form input { font-size: 0.8rem !important; }
+      #issue_list_filter input[type="search"] { margin: 0; font-size: 0.6rem;}
+      #issue_list_filter label{ font-size: 0.8rem; color: #888; margin-bottom: 0;}
+      a.code-links { color: #ffe; margin-right: 10px; margin-left: 10px; text-decoration: none; }
+      div.note-meta { text-align:right; font-style: italic; font-size: 0.80rem; color: #888;}
+      .jstree-proton { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";}
+      .jstree-proton .jstree-node { margin-left: 9px; color: #666; font-size: 0.80rem;}
+      .jstree-proton .jstree-leaf { font-weight: bold; color: #002}
+      .select2, .select2-container { font-size: 0.8rem; line-height: 15px; }
+      div.keyboard-onscreen-help { font-size: 0.66rem; color:#ccc; float:left; margin-top:11px;}
+      div.keyboard-onscreen-help a { text-decoration: none; color: #ccc;}
+      div.note-name { font-weight: bold; font-size: 1.15rem;}
+      div.note-content { font-size: 0.9rem; color: #446; }
+      #search { font-size: 0.8rem; padding: 0; margin: 0; width: 110px; line-height: 10px; color: #446; }
+      #search_next { margin-left: 4px; color: #fff; text-decoration: none}
+      #search_prev { margin-left: 4px; margin-right: 14px; color: #fff; text-decoration: none}
+    </style>
+
+    {% block style_include %}
+    {% endblock style_include %}
+
+    {% block header %}
+    {% endblock header %}
+
+    <style type="text/css">
+    {% block style %}
+    {% endblock style %}
+    </style>
+
+    <title>{{ page_title|default:"Omega | Open Source Security Foundation" }}</title>
+  </head>
+  <body>
+    {% block full_body %}
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="line-height:38px">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Open Navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="/">&#x1D6C0;</a>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            {% block topbar %}
+            {% endblock topbar %}
+          </ul>
+          <ul class="navbar-nav ml-auto" style="font-size: 1.18rem">
+            <li class="nav-item">
+              {% if '/findings/' in request.path %}
+                <a class="nav-link active" href="/findings/">Findings</a>
+              {% else %}
+                <a class="nav-link" href="/findings/">Findings</a>
+              {% endif %}
+            </li>
+            <li class="nav-item">
+              {% if '/filter/' in request.path %}
+                <a class="nav-link active" href="/filter/">Filters</a>
+              {% else %}
+                <a class="nav-link" href="/filter/">Filters</a>
+              {% endif %}
+            </li>            
+            <li class="nav-item">
+              {% if '/cases/' in request.path %}
+                <a class="nav-link active" href="/cases/">Cases</a>
+              {% else %}
+                <a class="nav-link" href="/cases/">Cases</a>
+              {% endif %}
+            </li>
+            <li class="nav-item">
+              {% if '/tool_defect' in request.path %}
+                <a class="nav-link active" href="/tool_defect">Tool Defects</a>
+              {% else %}
+                <a class="nav-link" href="/tool_defect">Tool Defects</a>
+              {% endif %}
+            </li>
+            <li class="nav-item">
+              {% if '/wiki/' in request.path %}
+                <a class="nav-link active" href="/wiki">Wiki</a>
+              {% else %}
+                <a class="nav-link" href="/wiki">Wiki</a>
+              {% endif %}
+            </li>                  
+          </ul>
+      </div>
+    </nav>
+
+    <main class="container-fluid">
+      {% block body %}
+      {% endblock body %}
+    </main>
+
+    {% endblock full_body %}
+
+    {% block footer %}
+    {% endblock footer %}
+
+    <script type="text/javascript" src="{% static "triage/resources/jquery/dist/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/@popperjs/core/dist/umd/popper.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net/js/jquery.dataTables.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net-bs5/js/dataTables.bootstrap5.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net-fixedheader-bs5/js/fixedHeader.bootstrap5.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net-keytable/js/dataTables.keyTable.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net-keytable-bs5/js/keyTable.bootstrap5.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/datatables.net-select/js/dataTables.select.min.js" %}"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.11.3/features/scrollResize/dataTables.scrollResize.min.js"></script>
+    <script type="text/javascript" src="{% static "triage/resources/tablesorter/dist/js/jquery.tablesorter.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/tablesorter/dist/js/jquery.tablesorter.widgets.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/ace-builds/src-min-noconflict/ace.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/ace-builds/src-min-noconflict/ext-settings_menu.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/ace-builds/src-min-noconflict/ext-modelist.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/ace-builds/src-min-noconflict/ext-beautify.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/jstree/dist/jstree.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "triage/resources/select2/dist/js/select2.min.js" %}"></script>
+    
+    <script type="text/javascript" src="{% static "triage/omega.js" %}"></script>
+    <script type="text/javascript">
+      {% block javascript %}
+      {% endblock javascript %}
+    </script>
+    {% block javascript_include %}
+    {% endblock javascript_include %}
+  </body>
+</html>
