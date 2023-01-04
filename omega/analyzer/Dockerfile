@@ -1,5 +1,4 @@
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:22.04
-
 # Copyright (C) Microsoft Corporation, All rights reserved.
 
 LABEL schema-version="1.0"
@@ -16,10 +15,11 @@ ARG OSSGADGET_VERSION="0.1.365"
 ARG GO_VERSION="1.19.3"
 ARG BRAKEMAN_VERSION="v5.4.0"
 ARG SCC_VERSION="3.0.0"
-ARG NODE_VERSION="18.x"
+ARG NODE_VERSION="19.x"
 ARG DEVSKIM_VERSION="0.8.4-alpha"
 ARG RADARE2_VERSION="5.7.8"
-ARG CODEQL_VERSION="v2.11.4"
+ARG CODEQL_VERSION="v2.11.6"
+ARG UBUNTU_VERSION="22.04"
 
 # Initialize some things
 ARG DEBIAN_FRONTEND=noninteractive
@@ -114,8 +114,8 @@ RUN apt-get update && \
 # License: https://github.com/dotnet/core/blob/main/LICENSE.TXT
 # License: https://github.com/PowerShell/PowerShell/blob/master/LICENSE.txt
 # Workaround with /etc/apt/preferences based on https://github.com/dotnet/core/issues/7699
-RUN cd /tmp && \
-    wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+RUN cd /tmp
+RUN wget -q -a -O https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     rm packages-microsoft-prod.deb && \
     touch /etc/apt/preferences && \
@@ -124,8 +124,10 @@ RUN cd /tmp && \
     echo "Pin-Priority: 1001" >> /etc/apt/preferences && \
     add-apt-repository universe && \
     apt update && \
-    apt-get install -y dotnet-sdk-${DOTNET_VERSION} && \
-    apt-get install -y powershell
+    apt-get install -y dotnet-sdk-${DOTNET_VERSION}
+
+# TODO remove once determined it is no longer needed
+ #   apt-get install -y powershell
 
 # Install Go
 # License: https://github.com/golang/go/blob/master/LICENSE
