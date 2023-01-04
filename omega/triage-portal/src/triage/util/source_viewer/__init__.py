@@ -38,7 +38,7 @@ def path_to_graph(files: QuerySet, package_url, separator="/", root=None):
     if root:
         result.append(
             {
-                "id": root,  # TODO minimize this via a lookup table
+                "id": root,
                 "full_path": "#",
                 "text": root,
                 "parent": "#",
@@ -75,7 +75,7 @@ def path_to_graph(files: QuerySet, package_url, separator="/", root=None):
             if node_name and node_id not in seen_nids:
                 result.append(
                     {
-                        "id": node_id,  # TODO minimize this via a lookup table
+                        "id": node_id,
                         "full_path": node_id,
                         "text": node_name,
                         "parent": parent_id,
