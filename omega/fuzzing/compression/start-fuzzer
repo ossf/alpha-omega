@@ -1,0 +1,29 @@
+#!/bin/bash
+
+COMPRESSOR="$1"
+if [ -z "$COMPRESSOR" ]; then
+    echo "Usage: start-fuzzer <NAME>"
+    echo " where <NAME> is one of: gzip, xd, lz4, zstd, bzip2, or pigz."
+    exit 1
+fi
+
+MAX_TRIALS="${2:-0}"
+
+if [[ "$COMPRESSOR" == "gzip" ]]; then
+    ./fuzz-compressor gzip "" gzip -dc $MAX_TRIALS
+elif [[ "$COMPRESSOR" == "xd" ]]; then
+    ./fuzz-compressor xd -z xd -dc $MAX_TRIALS
+elif [[ "$COMPRESSOR" == "lz4" ]]; then
+    ./fuzz-compressor lz4 "" lz4 -dc $MAX_TRIALS
+elif [[ "$COMPRESSOR" == "zstd" ]]; then
+    ./fuzz-compressor zstd "" zstd -dc $MAX_TRIALS
+elif [[ "$COMPRESSOR" == "bzip2" ]]; then
+    ./fuzz-compressor bzip2 -z bzip2 -dc $MAX_TRIALS
+elif [[ "$COMPRESSOR" == "pigz" ]]; then
+    ./fuzz-compressor pigz "" pigz -dc $MAX_TRIALS
+else
+    echo "Invalid compressor specified, options are gzip, xd, zstd, bzip2, pigz"
+    exit 1
+fi
+[ $? -ne 0 ] && exit 1 || exit 0
+

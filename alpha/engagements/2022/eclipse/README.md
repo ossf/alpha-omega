@@ -8,12 +8,12 @@ The purpose of this Alpha engagement is to provide security resources to the Ecl
 
 ### Timeline
 
-This engagement started in  2022 and is expected to continue through at least November 2023.
-June
+This engagement started in August 2022.
+
 ### Monthly Updates
 
 * [August 2022](update-2022-08.md)
-* [October 2022](update-2022-10.md)
+* [November 2022](update-2022-11.md)
 
 ### Primary Contacts
 
@@ -23,4 +23,3 @@ June
 
 * <https://openssf.org/blog/2022/06/20/openssf-funds-python-and-eclipse-foundations-and-acquires-sos-dev-through-alpha-omega-project/>
 * <https://eclipse-foundation.blog/2022/06/19/open-source-security-at-the-eclipse-foundation/>
-

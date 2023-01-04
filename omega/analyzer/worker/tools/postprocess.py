@@ -51,7 +51,8 @@ class PostProcessor:
 
             # Ignore certain files
             if func_name in ['process_codeql_db_basic', 'process_codeql_db_installed', 'process_codeql_db_installed_codeflow',
-                             'process_codeql_db_installed_codeflow_sinks', 'process_strings', 'process_binwalk', 'process_radare2_rabin2']:
+                             'process_codeql_db_installed_codeflow_sinks', 'process_strings', 'process_binwalk', 'process_radare2_rabin2',
+                             'process_metadata_depsdev', 'process_metadata_native']:
                 return
 
             if hasattr(self.__class__, func_name) and callable(getattr(self.__class__, func_name)):
@@ -753,8 +754,14 @@ class PostProcessor:
 
             for finding in findings:
                 parts = finding.split(':', 1)
-                filename = parts[0].split('/', 3)[-1]
-                snippet = parts[1]
+                if len(parts) == 2:
+                    filename = parts[0].split('/', 3)[-1]
+                    snippet = parts[1]
+                elif len(parts) == 1:
+                    filename = parts[0].split('/', 3)[-1]
+                    snippet = '(No snippet available)'
+                else:
+                    continue
 
                 self.add_result(**{
                     'tool_name': 'oss-defog',

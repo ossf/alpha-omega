@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2059
 
 ###############################################################################
 # Open Source Security Foundation (OpenSSF)
@@ -7,16 +8,20 @@
 #
 # This script can be used to analyze a given package using a set of analyzers.
 #
-# Usage: runtools.sh PACKAGE_URL
+# Usage: runtools.sh PACKAGE_URL [PREVIOUS VERSION]
+#
+# If the PACKAGE_URL contains a qualifier of "local=true", then instead of
+# downloading the package, the script will look for it in /opt/local_source.
+# Example: pkg:generic/foo@1.0.0?local=true
 #
 # Output:
-#  Output is writted to /opt/export
+#  Output is written to /opt/export
 #
 # Copyright (c) Microsoft Corporation. Licensed under the Apache License.
 ###############################################################################
 tabs 4
 
-# Specify the package to analyze either through a parameter or environment variable
+# Specify the package to analyze
 if [ "$#" -lt 1 ]; then
     echo "Usage: runtools.sh PACKAGE_URL [PREVIOUS VERSION]"
     exit 1
@@ -72,7 +77,7 @@ if [ -z "${NO_COLOR}" ]; then
     DARKGRAY='\033[30;1m'
     RED='\033[0;31m'
     GREEN='\033[0;32m'
-    YELLOW='\033[0;33m'
+    YELLOW='\033[1;33m'
     BLUE='\033[0;34m'
     BG_RED='\033[41m'
     NC='\033[0m'
@@ -87,9 +92,12 @@ else
     NC=''
 fi
 
+VERY_SHORT_ANALYZER_TIMEOUT="30s"
+SHORT_ANALYZER_TIMEOUT="10m"
 LONG_ANALYZER_TIMEOUT="60m"
 
 BUILD_SCRIPT_ROOT="/opt/buildscripts"
+LOCAL_SOURCE_DIRECTORY="/opt/local_source"
 
 PACKAGE_PURL_PARSED=$(python /opt/toolshed/parse_purl.py "${PURL}")
 PACKAGE_PURL_TYPE=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_TYPE:" | cut -d: -f2-)
@@ -98,23 +106,36 @@ PACKAGE_PURL_NAME_ENCODED=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAME_E
 PACKAGE_PURL_NAMESPACE_NAME=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAMESPACE_NAME:" | cut -d: -f2-)
 PACKAGE_PURL_NAMESPACE_NAME_ENCODED=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAMESPACE_NAME_ENCODED:" | cut -d: -f2-)
 PACKAGE_PURL_VERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_VERSION:" | cut -d: -f2-)
-PACKAGE_PURL_OVERRIDE_URL=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_QUALIFIERS_URL:" | cut -d: -f2-)
+PACKAGE_PURL_OVERRIDE_URL=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_QUALIFIER_URL:" | cut -d: -f2-)
 PACKAGE_PURL=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_PURL:" | cut -d: -f2-)
 PACKAGE_DIR=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR:" | cut -d: -f2-)
 PACKAGE_DIR_NOVERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR_NOVERSION:" | cut -d: -f2-)
+PACKAGE_PURL_LOCAL_SOURCE=$(echo "${PACKAGE_PURL_PARSED}" | grep -qi "PACKAGE_QUALIFIER_LOCAL_SOURCE:true" && echo true || echo false)
 
 # if destination dir specified in env, take that instead of /opt/export
 if ([ -n "${DESTINATION_DIR}" ] && [ -d "${DESTINATION_DIR}" ]); then
     EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
 else
-    # check for parameter substitution
-    if ([ -n "${DESTINATION_DIR}" ] && [ -d "${!DESTINATION_DIR}" ]); then
-        EXPORT_DIR="${!DESTINATION_DIR}/${PACKAGE_DIR}"
-    else
-        EXPORT_DIR="/opt/export/${PACKAGE_DIR}"
-    fi
+    DESTINATION_DIR="/opt/export"
+    EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
 fi
 mkdir -p "$EXPORT_DIR"
+if [ ! -d "$EXPORT_DIR" ]; then
+    printf "${BG_RED}${WHITE}Unable to create export directory: ${EXPORT_DIR}${NC}\n"
+    exit 1
+fi
+
+
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    if [ ! -d "${LOCAL_SOURCE_DIRECTORY}" ]; then
+        printf "${BG_RED}${WHITE}Unable to find local source directory: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
+        exit 1
+    fi
+    if [ -z "$(ls -A ${LOCAL_SOURCE_DIRECTORY})" ]; then
+        printf "${BG_RED}${WHITE}Local source directory is empty: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
+        exit 1
+    fi
+fi
 
 # Fix the OSSGadget Package URL when we have scoped namespaces
 PACKAGE_PURL_OSSGADGET="${PURL}"
@@ -124,18 +145,18 @@ fi
 
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
-ANALYZER_VERSION="0.8.3"
+ANALYZER_VERSION="0.8.5"
 ANALYSIS_DATE=$(date)
 
 # ASCII Art generated using http://patorjk.com/software/taag/#p=display&h=0&v=0&c=echo&f=THIS&t=Toolshed
 printf "\n"
 printf "${BLUE}The Open Source Security Foundation - Alpha-Omega${NC}\n";
-printf "${YELLOW} ▄▀▀▀█▀▀▄  ▄▀▀▀▀▄   ▄▀▀▀▀▄   ▄▀▀▀▀▄      ▄▀▀▀▀▄  ▄▀▀▄ ▄▄   ▄▀▀█▄▄▄▄  ▄▀▀█▄▄  \n";
-printf "${YELLOW}█    █  ▐ █      █ █      █ █    █      █ █   ▐ █  █   ▄▀ ▐  ▄▀   ▐ █ ▄▀   █ \n";
-printf "${YELLOW}▐   █     █      █ █      █ ▐    █         ▀▄   ▐  █▄▄▄█    █▄▄▄▄▄  ▐ █    █ \n";
-printf "${YELLOW}   █      ▀▄    ▄▀ ▀▄    ▄▀     █       ▀▄   █     █   █    █    ▌    █    █ \n";
-printf "${YELLOW} ▄▀         ▀▀▀▀     ▀▀▀▀     ▄▀▄▄▄▄▄▄▀  █▀▀▀     ▄▀  ▄▀   ▄▀▄▄▄▄    ▄▀▄▄▄▄▀ \n";
-printf "${YELLOW}█ ${BLUE}omega-help${YELLOW}@${BLUE}openssf.org${YELLOW}      █          ▐       █   █     █    ▐   █     ▐  \n";
+printf "${YELLOW} ▄▀▀▀█▀▀▄  ▄▀▀▀▀▄   ▄▀▀▀▀▄   ▄▀▀▀▀▄      ▄▀▀▀▀▄  ▄▀▀▄ ▄▄   ▄▀▀█▄▄▄▄  ▄▀▀█▄▄  ${NC}\n";
+printf "${YELLOW}█    █  ▐ █      █ █      █ █    █      █ █   ▐ █  █   ▄▀ ▐  ▄▀   ▐ █ ▄▀   █ ${NC}\n";
+printf "${YELLOW}▐   █     █      █ █      █ ▐    █         ▀▄   ▐  █▄▄▄█    █▄▄▄▄▄  ▐ █    █ ${NC}\n";
+printf "${YELLOW}   █      ▀▄    ▄▀ ▀▄    ▄▀     █       ▀▄   █     █   █    █    ▌    █    █ ${NC}\n";
+printf "${YELLOW} ▄▀         ▀▀▀▀     ▀▀▀▀     ▄▀▄▄▄▄▄▄▀  █▀▀▀     ▄▀  ▄▀   ▄▀▄▄▄▄    ▄▀▄▄▄▄▀ ${NC}\n";
+printf "${YELLOW}█                             █          ▐       █   █     █    ▐   █     ▐  ${NC}\n";
 printf "${YELLOW}▐                             ▐                  ▐   ▐     ▐        ▐ ${DARKGRAY}v${ANALYZER_VERSION}${NC}\n\n";
 
 printf "${BLUE}Starting at: ${YELLOW}${ANALYSIS_DATE}${NC}\n"
@@ -151,12 +172,18 @@ printf " ${DARKGRAY}/ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL_VERSION}"
 printf "${BLUE}...${NC}\n"
 
+if [[ "$PACKAGE_PURL_LOCAL_SOURCE" == true ]]; then
+    printf "${BLUE}Using local source from: ${YELLOW}${LOCAL_SOURCE_DIRECTORY}${DARKGRAY}.${NC}\n"
+fi
+
 TOP_ROOT="/opt/src/${PACKAGE_DIR_NOVERSION}"
 CUR_ROOT="/opt/src/${PACKAGE_DIR}"
 mkdir -p /opt/result "$TOP_ROOT" "$CUR_ROOT" "$CUR_ROOT/reference-binaries" "$CUR_ROOT/src" "$CUR_ROOT/installed"
 
 PREVIOUS_VERSIONS=""
-if [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    printf "${DARKGRAY}Skipping previous version check for local source.${NC}\n"
+elif [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
     PREVIOUS_VERSIONS=$(get_previous_version)
     if [ -n "$PREVIOUS_VERSIONS" ]; then
         printf "${GREEN}Found previous versions: ${PREVIOUS_VERSIONS//$'\n'/}${NC}\n"
@@ -167,7 +194,9 @@ fi
 printf "${RED}Downloading binaries...${NC}\n"
 event start download-binaries
 cd "$CUR_ROOT/reference-binaries"
-if [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    tar cvfz ./source-code.tar.gz "${LOCAL_SOURCE_DIRECTORY}" >>/opt/result/admin-download.log 2>&1
+elif [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
     oss-download "$PACKAGE_PURL_OSSGADGET" >>/opt/result/admin-download.log 2>&1
 else
     oss-download "pkg:url/$PACKAGE_PURL_NAME_ENCODED@$PACKAGE_PURL_VERSION?url=$PACKAGE_PURL_OVERRIDE_URL" >>/opt/result/admin-download.log 2>&1
@@ -184,12 +213,15 @@ cp -R reference-binaries /opt/result
 printf "${RED}Extracting binaries...${NC}\n"
 cd "$CUR_ROOT/src"
 event start download-and-extract-binaries
-if [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    cp -R "${LOCAL_SOURCE_DIRECTORY}" .
+elif [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
     oss-download -e "$PACKAGE_PURL_OSSGADGET" >>/opt/result/admin-download.log 2>&1
 else
     oss-download -e "pkg:url/$PACKAGE_PURL_NAME_ENCODED@$PACKAGE_PURL_VERSION?url=$PACKAGE_PURL_OVERRIDE_URL" >>/opt/result/admin-download.log 2>&1
 fi
-# Previous versions (only if override url isn't set)
+
+# Previous versions (if possible)
 for PREVIOUS_VERSION in $PREVIOUS_VERSIONS; do
     printf "${RED}Extracting previous version: ${PREVIOUS_VERSION}${NC}\n"
     mkdir -p "$TOP_ROOT/$PREVIOUS_VERSION/src"
@@ -240,6 +272,16 @@ for PREVIOUS_VERSION in $PREVIOUS_VERSIONS; do
 done
 event stop tool-application-inspector
 
+# Metadata
+printf "${RED}Extracting metadata...${NC}\n"
+event start extract-metadata
+if [ -z "$LIBRARIES_IO_API_KEY" ]; then
+    oss-metadata -s libraries.io "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-metadata-librariesio.json 2>/opt/result/tool-metadata-librariesio.error
+fi
+oss-metadata -s deps.dev "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-metadata-depsdev.json 2>/opt/result/tool-metadata-depsdev.error
+oss-metadata -s native "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-metadata-native.json 2>/opt/result/tool-metadata-native.error
+event stop extract-metadata
+
 # String Diff
 printf "${RED}Identifying new strings from previous version...${NC}\n"
 find "$CUR_ROOT" -type f | xargs -I{} grep -Eoa '\w+(\w\.)*\w+' {} | tr '[:upper:]' '[:lower:]' | sort | uniq >"/opt/result/tool-strings.$PACKAGE_PURL_VERSION.txt"
@@ -278,33 +320,48 @@ fi
 # Cryptography Detection
 printf "${RED}Detecting cryptography...${NC}\n"
 event start tool-oss-detect-cryptography
-NO_COLOR=1 oss-detect-cryptography "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-oss-detect-cryptography.txt 2>/opt/result/tool-oss-detect-cryptography.error
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    NO_COLOR=1 oss-detect-cryptography "$CUR_ROOT/src" >/opt/result/tool-oss-detect-cryptography.txt 2>/opt/result/tool-oss-detect-cryptography.error
+else
+    NO_COLOR=1 oss-detect-cryptography "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-oss-detect-cryptography.txt 2>/opt/result/tool-oss-detect-cryptography.error
+fi
 event stop tool-oss-detect-cryptography
 
 # Backdoor Detection
 printf "${RED}Detecting backdoors...${NC}\n"
 event start tool-oss-detect-backdoor
-ApplicationInspector.CLI analyze -s "$CUR_ROOT" -i -r /opt/OSSGadget/Resources/BackdoorRules/ --scan-unknown-filetypes --no-show-progress -o /opt/result/tool-oss-detect-backdoor.json -f json --file-timeout 10000 >/opt/result/tool-oss-detect-backdoor.error 2>&1
+oss-detect-backdoor -o /opt/result/tool-oss-detect-backdoor.sarif -f sarifv2 "$CUR_ROOT" 2>&1 | tail +11 >/opt/result/tool-oss-detect-backdoor.error
 event stop tool-oss-detect-backdoor
 
 # Defogger
 printf "${RED}Detecting obfuscated code...${NC}\n"
 event start tool-oss-defog
-oss-defog "$PACKAGE_PURL_OSSGADGET" >/dev/null 2>/opt/result/tool-oss-defog.txt
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    timeout $SHORT_ANALYZER_TIMEOUT oss-defog "$CUR_ROOT/src" >/dev/null 2>/opt/result/tool-oss-defog.txt
+else
+    timeout $SHORT_ANALYZER_TIMEOUT oss-defog "$PACKAGE_PURL_OSSGADGET" >/dev/null 2>/opt/result/tool-oss-defog.txt
+fi
+if [ $? -eq 124 ]; then
+    echo "oss-defog timed out after $SHORT_ANALYZER_TIMEOUT." >>/opt/result/tool-oss-defog.txt
+fi
 event stop tool-oss-defog
 
 # Find Source
 printf "${RED}Finding source repository...${NC}\n"
 event start tool-oss-find-source
-oss-find-source -f sarifv2 -o /opt/result/tool-oss-find-source.sarif "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-oss-find-source.stdout 2>/opt/result/tool-oss-find-source.stderr
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    printf "${RED}Local source code used, skipping oss-find-source.${NC}\n"
+else
+    oss-find-source -f sarifv2 -o /opt/result/tool-oss-find-source.sarif "$PACKAGE_PURL_OSSGADGET" >/opt/result/tool-oss-find-source.stdout 2>/opt/result/tool-oss-find-source.stderr
+fi
 event stop tool-oss-find-source
 
 # DevSkim
 printf "${RED}Running DevSkim...${NC}\n"
 event start tool-devskim
-devskim analyze --file-format sarif -d "$CUR_ROOT" >/opt/result/tool-devskim.sarif-noformat 2>/opt/result/tool-devskim.error
-cat /opt/result/tool-devskim.sarif-noformat | jq > /opt/result/tool-devskim.sarif
-rm /opt/result/tool-devskim.sarif-noformat
+devskim analyze -o sarif -O /opt/result/tool-devskim-noformat.sarif -I "$CUR_ROOT" 2>/opt/result/tool-devskim.error
+cat /opt/result/tool-devskim-noformat.sarif | jq > /opt/result/tool-devskim.sarif
+rm /opt/result/tool-devskim-noformat.sarif
 event stop tool-devskim
 
 # CheckSec
@@ -342,11 +399,16 @@ chmod -x /opt/result/tool-secretscanner.json
 event stop tool-secretscanner
 
 # Binary to Source Validation
+
 if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
     printf "${RED}Validating reproducibility - tbv...${NC}\n"
     event start tool-tbv
-    timeout "$LONG_ANALYZER_TIMEOUT" tbv verify "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-tbv.txt 2>/opt/result/tool-tbv.error
-    sed -i 's/\x1b\[[0-9;]*m//g' /opt/result/tool-tbv.error
+    if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+        printf "${RED}Local source code used, skipping tbv.${NC}\n"
+    else
+        timeout "$LONG_ANALYZER_TIMEOUT" tbv verify "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-tbv.txt 2>/opt/result/tool-tbv.error
+        sed -i 's/\x1b\[[0-9;]*m//g' /opt/result/tool-tbv.error
+    fi
     event stop tool-tbv
 fi
 
@@ -371,7 +433,10 @@ if [[ "$FILE_TYPES" =~ ( )(c|h|hpp|c\+\+|cpp)( ) ]]; then
     cd "$CUR_ROOT/src"
     printf "${RED}Running CppCheck...${NC}\n"
     event start tool-cppcheck
-    cppcheck --enable=all --quiet --template='{file}~!~{line}~!~{severity}~!~{message}~!~{code}~!~{id}~!~{cwe}' "$CUR_ROOT/src" >/opt/result/tool-cppcheck.json 2>/opt/result/tool-cppcheck.error
+    timeout $SHORT_ANALYZER_TIMEOUT cppcheck --addon=threadsafety --addon=y2038 --template='{file}~!~{line}~!~{severity}~!~{message}~!~{code}~!~{id}~!~{cwe}' "$CUR_ROOT/src" >/opt/result/tool-cppcheck.json 2>/opt/result/tool-cppcheck.error
+    if [ $? -eq 124 ]; then
+        echo "CppCheck timed out after $SHORT_ANALYZER_TIMEOUT." >>/opt/result/tool-cppcheck.error
+    fi
     event stop tool-cppcheck
 fi
 
@@ -427,13 +492,17 @@ for LANGUAGE in "${LANGUAGES[@]}"; do
     cd "$CUR_ROOT"
     event start tool-codeql-basic-create
     if [ "$PACKAGE_PURL_TYPE" = "ubuntu" ]; then
-        _UBUNTU_VERSION=$(apt show "$PACKAGE_PURL_NAME" 2>/dev/null | grep "$PACKAGE_PURL_VERSION" | grep Version: | cut -d" " -f2)
-        mkdir "$CUR_ROOT/ubuntu-src"
-        cd "$CUR_ROOT/ubuntu-src"
-        apt source "$PACKAGE_PURL_NAME=$_UBUNTU_VERSION"
-        _UBUNTU_SRC=$(find . -maxdepth 1 -type d | grep "$PACKAGE_PURL_NAME" | head -1 | xargs readlink -f)
-        apt build-dep -y "$PACKAGE_PURL_NAME=$_UBUNTU_VERSION"
-        timeout $LONG_ANALYZER_TIMEOUT codeql database create --language="$LANGUAGE" --source-root="$_UBUNTU_SRC" --threads=0 --command="debuild -b -uc -us" tool-codeql-db-basic.$LANGUAGE >>/opt/result/tool-codeql-db-basic.$LANGUAGE.log 2>&1
+        if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+            printf "${RED}Using local source, Ubuntu analysis is disabled.${NC}\n"
+        else
+            _UBUNTU_VERSION=$(apt show "$PACKAGE_PURL_NAME" 2>/dev/null | grep "$PACKAGE_PURL_VERSION" | grep Version: | cut -d" " -f2)
+            mkdir "$CUR_ROOT/ubuntu-src"
+            cd "$CUR_ROOT/ubuntu-src"
+            apt source "$PACKAGE_PURL_NAME=$_UBUNTU_VERSION"
+            _UBUNTU_SRC=$(find . -maxdepth 1 -type d | grep "$PACKAGE_PURL_NAME" | head -1 | xargs readlink -f)
+            apt build-dep -y "$PACKAGE_PURL_NAME=$_UBUNTU_VERSION"
+            timeout $LONG_ANALYZER_TIMEOUT codeql database create --language="$LANGUAGE" --source-root="$_UBUNTU_SRC" --threads=0 --command="debuild -b -uc -us" tool-codeql-db-basic.$LANGUAGE >>/opt/result/tool-codeql-db-basic.$LANGUAGE.log 2>&1
+        fi
     else
         timeout $LONG_ANALYZER_TIMEOUT codeql database create --language="$LANGUAGE" --source-root="$CUR_ROOT/src" --threads=0 tool-codeql-db-basic.$LANGUAGE >>/opt/result/tool-codeql-db-basic.$LANGUAGE.log 2>&1
     fi
@@ -460,109 +529,122 @@ done
 for LANGUAGE in "${LANGUAGES[@]}"; do
     if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
         printf "${RED}Running CodeQL after install...${NC}\n"
-        cd "${CUR_ROOT}/installed"
-
-        event start tool-codeql-installed-install
-        npm i "${PACKAGE_PURL_NAMESPACE_NAME}@${PACKAGE_PURL_VERSION}" >>/opt/result/tool-codeql-db-installed.log 2>&1
-        event stop tool-codeql-installed-install
-
-        # Don't ignore any files
-        export LGTM_INDEX_FILTERS="include:**/*"
-
-        cd "${CUR_ROOT}"
-        event start tool-codeql-installed-create
-        timeout $LONG_ANALYZER_TIMEOUT codeql database create --language="$LANGUAGE" --source-root="$CUR_ROOT/installed" --threads=0 tool-codeql-db-installed >>/opt/result/tool-codeql-db-installed.log 2>&1
-        if [ $? -eq 124 ]; then
-            event stop tool-codeql-installed-create
-            echo "CodeQL [create database] timed out after $LONG_ANALYZER_TIMEOUT." >>/opt/result/tool-codeql-db-installed.error
+        if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+            printf "${RED}Using local source, installed analysis is disabled.${NC}\n"
         else
-            event stop tool-codeql-installed-create
-            # Normal Rules
-            codeql database upgrade tool-codeql-db-installed >>/opt/result/tool-codeql-db-installed.log 2>&1
-            codeql database bundle tool-codeql-db-installed --output /opt/result/tool-codeql-db-installed.zip >>/opt/result/tool-codeql-db-installed.log 2>&1
-            event start tool-codeql-installed-analyze
-            timeout "$LONG_ANALYZER_TIMEOUT" codeql database analyze --format=sarifv2.1.0 --additional-packs=/opt/codeql-queries/misc --output=/opt/result/tool-codeql-installed.sarif --sarif-add-snippets --threads=0 tool-codeql-db-installed ${CODEQL_SUITES[@]} 2>>/opt/result/tool-codeql-installed.error >>/opt/result/tool-codeql-db-installed.log
+            cd "${CUR_ROOT}/installed"
+
+            event start tool-codeql-installed-install
+            npm i "${PACKAGE_PURL_NAMESPACE_NAME}@${PACKAGE_PURL_VERSION}" >>/opt/result/tool-codeql-db-installed.log 2>&1
+            event stop tool-codeql-installed-install
+
+            # Don't ignore any files
+            export LGTM_INDEX_FILTERS="include:**/*"
+
+            cd "${CUR_ROOT}"
+            event start tool-codeql-installed-create
+            timeout $LONG_ANALYZER_TIMEOUT codeql database create --language="$LANGUAGE" --source-root="$CUR_ROOT/installed" --threads=0 tool-codeql-db-installed >>/opt/result/tool-codeql-db-installed.log 2>&1
             if [ $? -eq 124 ]; then
-                echo "CodeQL [analyze] timed out after $LONG_ANALYZER_TIMEOUT." >>/opt/result/tool-codeql-db-installed.error
+                event stop tool-codeql-installed-create
+                echo "CodeQL [create database] timed out after $LONG_ANALYZER_TIMEOUT." >>/opt/result/tool-codeql-db-installed.error
             else
-                dos2unix /opt/result/tool-codeql-installed.sarif >/dev/null 2>&1
+                event stop tool-codeql-installed-create
+                # Normal Rules
+                codeql database upgrade tool-codeql-db-installed >>/opt/result/tool-codeql-db-installed.log 2>&1
+                codeql database bundle tool-codeql-db-installed --output /opt/result/tool-codeql-db-installed.zip >>/opt/result/tool-codeql-db-installed.log 2>&1
+                event start tool-codeql-installed-analyze
+                timeout "$LONG_ANALYZER_TIMEOUT" codeql database analyze --format=sarifv2.1.0 --additional-packs=/opt/codeql-queries/misc --output=/opt/result/tool-codeql-installed.sarif --sarif-add-snippets --threads=0 tool-codeql-db-installed ${CODEQL_SUITES[@]} 2>>/opt/result/tool-codeql-installed.error >>/opt/result/tool-codeql-db-installed.log
+                if [ $? -eq 124 ]; then
+                    echo "CodeQL [analyze] timed out after $LONG_ANALYZER_TIMEOUT." >>/opt/result/tool-codeql-db-installed.error
+                else
+                    dos2unix /opt/result/tool-codeql-installed.sarif >/dev/null 2>&1
+                fi
+                event stop tool-codeql-installed-analyze
             fi
-            event stop tool-codeql-installed-analyze
-        fi
 
-        # Control Flow Analysis: Re-use the installed database
-        if [ -f "/opt/toolshed/etc/codeql-controlflow-$LANGUAGE.template" ]; then
-            CODEQL_CONTROLFLOW_QUERY="/opt/codeql-queries/$LANGUAGE/ql/src/controlflow-query.ql"
-            mkdir -p $(dirname ${CODEQL_CONTROLFLOW_QUERY})
-            sed "s|_SOURCE_|$PACKAGE_PURL_NAME|gi" /opt/toolshed/etc/codeql-controlflow-$LANGUAGE.template >"$CODEQL_CONTROLFLOW_QUERY"
+            # Control Flow Analysis: Re-use the installed database
+            if [ -f "/opt/toolshed/etc/codeql-controlflow-$LANGUAGE.template" ]; then
 
-            # Write the qlpack.yml file
-            echo "name: custom-controlflow-$LANGUAGE" >/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
-            echo "version: 0.0.0" >>/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
-            echo "libraryPathDependencies: codeql-$LANGUAGE" >>/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml
-        else
-            printf "${BG_RED}${WHITE}Missing CodeQL control flow template for ${LANGUAGE}.${NC}\n"
-        fi
+                CODEQL_CONTROLFLOW_QUERY="/opt/codeql-queries/$LANGUAGE/ql/src/controlflow-query.ql"
+                mkdir -p $(dirname ${CODEQL_CONTROLFLOW_QUERY})
+                sed "s|_SOURCE_|$PACKAGE_PURL_NAME|gi" /opt/toolshed/etc/codeql-controlflow-$LANGUAGE.template >"$CODEQL_CONTROLFLOW_QUERY"
 
-        printf "${RED}Running CodeQL control flow analysis...${NC}\n"
-        cd "${CUR_ROOT}"
-        event start tool-codeql-installed-codeflow-analyze
-        codeql query run --database tool-codeql-db-installed --output=/opt/result/tool-codeql-db-installed-codeflow.bqrs "$CODEQL_CONTROLFLOW_QUERY" >/opt/result/tool-codeql-db-installed-codeflow.log 2>/opt/result/tool-codeql-db-installed-codeflow.error
-        codeql bqrs info /opt/result/tool-codeql-db-installed-codeflow.bqrs >>/opt/result/tool-codeql-db-installed-codeflow.log 2>>/opt/result/tool-codeql-db-installed-codeflow.error
-        codeql bqrs decode --format=csv --no-titles --output=/opt/result/tool-codeql-db-installed-codeflow.csv --result-set=#select /opt/result/tool-codeql-db-installed-codeflow.bqrs >>/opt/result/tool-codeql-db-installed-codeflow.log 2>>/opt/result/tool-codeql-db-installed-codeflow.error
-        # Cut the sinks out of the CSV file (taking into account NPM scopes)
-        if [ -f "/opt/result/tool-codeql-db-installed-codeflow.csv" ]; then
-            csvtool col 3 /opt/result/tool-codeql-db-installed-codeflow.csv |
-                grep -Eo 'node_modules/([^/]+|@[^/]+\/[^/]+)/' |
-                sed 's/^node_modules\///' |
-                sed 's/\/$//' |
-                sed 's/@/%40/g' |
-                sed 's/\//%2F/g' |
-                sed 's/^/pkg:npm\//g' |
-                sort |
-                uniq > /opt/result/tool-codeql-db-installed-codeflow-sinks.txt
-        else
-            echo "Unable to generate control flow graph." >/opt/result/tool-codeql-db-installed-codeflow.error
+                # Write the qlpack.yml file
+                echo "name: custom-controlflow-$LANGUAGE" >"/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml"
+                echo "version: 0.0.0" >>"/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml"
+                echo "libraryPathDependencies: codeql-$LANGUAGE" >>"/opt/codeql-queries/$LANGUAGE/ql/qlpack.yml"
+            else
+                printf "${BG_RED}${WHITE}Missing CodeQL control flow template for ${LANGUAGE}.${NC}\n"
+            fi
+
+            printf "${RED}Running CodeQL control flow analysis...${NC}\n"
+            cd "${CUR_ROOT}"
+            event start tool-codeql-installed-codeflow-analyze
+            codeql query run --database tool-codeql-db-installed --output=/opt/result/tool-codeql-db-installed-codeflow.bqrs "$CODEQL_CONTROLFLOW_QUERY" >/opt/result/tool-codeql-db-installed-codeflow.log 2>/opt/result/tool-codeql-db-installed-codeflow.error
+            codeql bqrs info /opt/result/tool-codeql-db-installed-codeflow.bqrs >>/opt/result/tool-codeql-db-installed-codeflow.log 2>>/opt/result/tool-codeql-db-installed-codeflow.error
+            codeql bqrs decode --format=csv --no-titles --output=/opt/result/tool-codeql-db-installed-codeflow.csv --result-set=#select /opt/result/tool-codeql-db-installed-codeflow.bqrs >>/opt/result/tool-codeql-db-installed-codeflow.log 2>>/opt/result/tool-codeql-db-installed-codeflow.error
+            # Cut the sinks out of the CSV file (taking into account NPM scopes)
+            if [ -f "/opt/result/tool-codeql-db-installed-codeflow.csv" ]; then
+                csvtool col 3 /opt/result/tool-codeql-db-installed-codeflow.csv |
+                    grep -Eo 'node_modules/([^/]+|@[^/]+\/[^/]+)/' |
+                    sed 's/^node_modules\///' |
+                    sed 's/\/$//' |
+                    sed 's/@/%40/g' |
+                    sed 's/\//%2F/g' |
+                    sed 's/^/pkg:npm\//g' |
+                    sort |
+                    uniq > /opt/result/tool-codeql-db-installed-codeflow-sinks.txt
+            else
+                echo "Unable to generate control flow graph." >/opt/result/tool-codeql-db-installed-codeflow.error
+            fi
+            event stop tool-codeql-installed-codeflow-analyze
         fi
-        event stop tool-codeql-installed-codeflow-analyze
     fi
 done
 
 # Trace syscalls during installation
 printf "${RED}Checking syscalls during installation...${NC}\n"
-rm -rf "$CUR_ROOT/installed_syscall" && mkdir -p "$CUR_ROOT/installed_syscall" && cd "$CUR_ROOT/installed_syscall"
 event start tool-strace
-if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
-    strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.javascript.txt npm i "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
-elif [ "$PACKAGE_PURL_TYPE" == "pypi" ]; then
-    strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.python.txt pip3 install --no-compile --root /tmp/pip-build-temp "$PACKAGE_PURL_NAME==$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
-    rm -rf /tmp/pip-build-temp
-elif [ "$PACKAGE_PURL_TYPE" == "nuget" ]; then
-    dotnet new console -o /tmp/nuget-build-temp >/opt/result/tool-strace.log 2>&1
-    strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.csharp.txt dotnet add /tmp/nuget-build-temp package "$PACKAGE_PURL_NAME" --version "$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
-    rm -rf /tmp/nuget-build-temp
-fi
-if [ -n "$(ls -A /opt/result/tool-strace.*.txt.* 2>/dev/null)" ]; then
-    cat /opt/result/tool-strace.*.txt.* >/opt/result/tool-strace.txt
-    rm /opt/result/tool-strace.*.txt.*
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    printf "${RED}Skipping syscall tracing for local source.${NC}\n"
+else
+    rm -rf "$CUR_ROOT/installed_syscall" && mkdir -p "$CUR_ROOT/installed_syscall" && cd "$CUR_ROOT/installed_syscall"
+    if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
+        strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.javascript.txt npm i "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
+    elif [ "$PACKAGE_PURL_TYPE" == "pypi" ]; then
+        strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.python.txt pip3 install --no-compile --root /tmp/pip-build-temp "$PACKAGE_PURL_NAME==$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
+        rm -rf /tmp/pip-build-temp
+    elif [ "$PACKAGE_PURL_TYPE" == "nuget" ]; then
+        dotnet new console -o /tmp/nuget-build-temp >/opt/result/tool-strace.log 2>&1
+        strace -f -ff -e trace=network,file,process -s 128 -D -o /opt/result/tool-strace.csharp.txt dotnet add /tmp/nuget-build-temp package "$PACKAGE_PURL_NAME" --version "$PACKAGE_PURL_VERSION" >/opt/result/tool-strace.log 2>&1
+        rm -rf /tmp/nuget-build-temp
+    fi
+    if [ -n "$(ls -A /opt/result/tool-strace.*.txt.* 2>/dev/null)" ]; then
+        cat /opt/result/tool-strace.*.txt.* >/opt/result/tool-strace.txt
+        rm /opt/result/tool-strace.*.txt.*
+    fi
 fi
 event stop tool-strace
 
 # NPM Audit
 if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
     printf "${RED}Checking NPM Audit...${NC}\n"
-    rm -rf "$CUR_ROOT/installed" && mkdir -p "$CUR_ROOT/installed" && cd "$CUR_ROOT/installed"
     event start tool-npm-audit
-    npm init -y >/opt/result/tool-npm-audit.log 2>&1
-    npm i "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >>/opt/result/tool-npm-audit.log 2>&1
-    npm audit --json >/opt/result/tool-npm-audit.json 2>>/opt/result/tool-npm-audit.log
+    if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+        printf "${RED}Skipping NPM Audit for local source.${NC}\n"
+    else
+        rm -rf "$CUR_ROOT/installed" && mkdir -p "$CUR_ROOT/installed" && cd "$CUR_ROOT/installed"
+        npm init -y >/opt/result/tool-npm-audit.log 2>&1
+        npm i "$PACKAGE_PURL_NAMESPACE_NAME@$PACKAGE_PURL_VERSION" >>/opt/result/tool-npm-audit.log 2>&1
+        npm audit --json >/opt/result/tool-npm-audit.json 2>>/opt/result/tool-npm-audit.log
+    fi
     event stop tool-npm-audit
 fi
 
 # Manalyze - https://github.com/JusticeRage/Manalyze
 printf "${RED}Checking Manalyze...${NC}\n"
 event start tool-manalyze
-find "$CUR_ROOT/src" -type f -print0 | xargs -0 file | grep "PE32" | cut -d: -f1 | xargs -I{} -n1 bash -c 'F="{}"; FN=$(echo $F | shasum -a256 | cut -d" " -f1); manalyze -d all --plugins=compilers,peid,strings,findcrypt,packer,imports,resources,mitigation,overlay,authenticode -o json --pe "$F" >"/opt/result/tool-manalyze.$FN.json" 2>>/opt/result/tool-manalyze.log'
+find "$CUR_ROOT/src" -type f -print0 | xargs -0 file | grep "PE32" | cut -d: -f1 | xargs -I{} -n1 bash -c 'F="{}"; FN=$(echo $F | shasum -a256 | cut -d" " -f1); timeout $VERY_SHORT_ANALYZER_TIMEOUT manalyze -d all --plugins=compilers,peid,strings,findcrypt,packer,imports,resources,mitigation,overlay,authenticode -o json --pe "$F" >"/opt/result/tool-manalyze.$FN.json" 2>>/opt/result/tool-manalyze.log'
 if [ -n "$(ls -A /opt/result/tool-manalyze.*.json 2>/dev/null)" ]; then
     cat /opt/result/tool-manalyze.*.json | jq -s > /opt/result/tool-manalyze.json
     rm /opt/result/tool-manalyze.*.json
@@ -570,14 +652,14 @@ fi
 event stop tool-manalyze
 
 # Snyk Code - https://snyk.io
-if [ -z $SNYK_TOKEN ]; then
+if [ -z "$SNYK_TOKEN" ]; then
     printf "${RED}Skipping Snyk Code (SNYK_TOKEN environment variable not defined)...${NC}\n"
 else
     printf "${RED}Checking Snyk Code...${NC}\n"
     event start tool-snyk-code
-    snyk code test --sarif-file-output=/opt/result/tool-snyk-code.sarif --severity-threshold=low "${CUR_ROOT}/src" >/opt/result/tool-snyk-code.log 2>&1
+    timeout $SHORT_ANALYZER_TIMEOUT snyk code test --sarif-file-output=/opt/result/tool-snyk-code.sarif --severity-threshold=low "${CUR_ROOT}/src" >/opt/result/tool-snyk-code.log 2>&1
     SNYK_ERR=$?
-    if [ $SNYK_ERR -eq 2 -o $SYNK_ERR -eq 3 ]; then
+    if [[ $SNYK_ERR == 2 || $SNYK_ERR == 3 || $SNYK_ERR == 124 ]]; then
         echo "Snyk Code failed to run, error code: $SNYK_ERR" >/opt/result/tool-snyk-code.error
     fi
     event stop tool-snyk-code
@@ -601,7 +683,7 @@ printf "${BLUE}Analysis Summary: ${DARKGRAY}[ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL}"
 printf "${DARKGRAY}]${NC}\n${BLUE}"
 printf -- "-%.0s" $(seq 1 $(( 21 + ${#PACKAGE_PURL} )))
-printf "\n${NC}${DARKGRAY}"
+printf "${NC}\n${DARKGRAY}"
 if [ -f /opt/result/summary-console.txt ]; then
     cat /opt/result/summary-console.txt | sort | uniq
 fi
@@ -610,5 +692,8 @@ printf "${NC}\n\n"
 event stop runtools
 
 cp /tmp/events.txt "$EXPORT_DIR/summary-telemetry-events.txt"
+
+# Fix permissions to match the export directory
+chown -R nonroot:1000 $DESTINATION_DIR/*
 
 exit 0

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+echo "Compressor Fuzzer v0.1.0 - Michael Scovetta - OpenSSF Alpha-Omega"
+echo
+
+COMPRESSOR="$1"
+COMPRESSOR_ARGS="$2"
+DECOMPRESSOR="$3"
+DECOMPRESSOR_ARGS="$4"
+MAX_TRIALS="$5"
+if [ -z $MAX_TRIALS ]; then
+    MAX_TRIALS=0
+fi
+
+TESTCASE_SIZE=256
+NUM_TRIALS_REPORT=150
+CRASHES_DIR="crashes"
+
+[ -z "$COMPRESSOR" ] && COMPRESSOR=gzip
+[ -z "$COMPRESSOR_ARGS" ] && COMPRESSOR_ARGS=""
+[ -z "$DECOMPRESSOR" ] && DECOMPRESSOR=gzip
+[ -z "$DECOMPRESSOR_ARGS" ] && DECOMPRESSOR_ARGS="-dc"
+
+WORK_DIR=$(mktemp -d)
+mkdir -p "${CRASHES_DIR}"
+
+dd if=/dev/urandom bs=${TESTCASE_SIZE} count=1 status=none | ${COMPRESSOR} ${COMPRESSOR_ARGS} 1>"${WORK_DIR}/sample.gz" 2>/dev/null
+NUM_TRIALS=1
+
+echo "Testing ${COMPRESSOR} [${COMPRESSOR_ARGS}] -> ${DECOMPRESSOR} [${DECOMPRESSOR_ARGS}] via Radamsa..."
+
+START_TIME=$EPOCHSECONDS
+
+function handler() {
+    cleanup
+    exit 1
+}
+
+function cleanup() {
+    echo
+    echo "Cleaning up work directories..."
+    [ -d "$WORK_DIR" ] && rm -rf "$WORK_DIR"
+
+    echo "There are $(ls $CRASHES_DIR | wc -l) crashes in directory: $CRASHES_DIR".
+}
+
+trap handler SIGINT
+
+while true
+do
+  NUM_TRIALS=$((NUM_TRIALS+1))
+
+  if (( $MAX_TRIALS > 0 && $NUM_TRIALS >= $MAX_TRIALS )); then
+    echo
+    echo "Reached max trials ($MAX_TRIALS), exiting..."
+    cleanup
+    break
+  fi
+
+  if (( $NUM_TRIALS % $NUM_TRIALS_REPORT == 0 )); then
+    RECENT_DURATION=$(( $EPOCHSECONDS - $START_TIME ))
+    RATE=$(echo $NUM_TRIALS $RECENT_DURATION | awk '{print $1/$2}' 2>/dev/null)
+    TOTAL_DURATION=$(( $EPOCHSECONDS - $START_TIME ))
+    echo -ne "                                                                                                                      "\\r
+    echo -ne "Processed ${NUM_TRIALS} trials in ${TOTAL_DURATION} seconds (${RATE} trials/sec)"\\r
+  fi
+
+  radamsa "$WORK_DIR/sample.gz" > "${WORK_DIR}/fuzzed.gz"
+  ${DECOMPRESSOR} ${DECOMPRESSOR_ARGS} "${WORK_DIR}/fuzzed.gz" > /dev/null 2>&1
+  if (( $? > 127 )); then
+    NEW_FILENAME="${CRASHES_DIR}/${COMPRESSOR}-fuzzed-$(uuidgen -r).gz"
+    mv "$WORK_DIR/fuzzed.gz" "${NEW_FILENAME}"
+    echo "!!! Found a crash, saving to: ${NEW_FILENAME}"
+  else
+    rm "${WORK_DIR}/fuzzed.gz"
+  fi
+done
+
+exit 0

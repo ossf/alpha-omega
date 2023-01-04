@@ -1,0 +1,8 @@
+#!/bin/bash
+
+COMPRESSORS=(gzip xd lz4 zstd bzip2 pigz)
+while true; do
+    echo
+    ./start-fuzzer ${COMPRESSORS[RANDOM % 6]} 250000
+    [ $? -ne 0 ] && exit 1
+done
