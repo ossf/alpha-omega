@@ -4,7 +4,7 @@ azure-core==1.26.1
 azure-storage-blob==12.14.1
 bandit==1.7.4
 black==22.10.0
-certifi==2022.9.24
+certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.1.1
 click==8.1.3
