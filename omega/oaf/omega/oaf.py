@@ -73,6 +73,7 @@ class OAF:
             required=False,
         )
         p_generate.add_argument("--expiration", help="Expiration date", type=str, required=False)
+        p_generate.add_argument("--extra-args", help="Extra parameters (key=value)", type=str, required=False)
 
         # Consume Assertions
         p_consume = subparsers.add_parser("consume", help="Consume assertions")
@@ -265,6 +266,14 @@ class OAF:
 
                 additional_args = vars(additional_args)
                 additional_args.pop("subject")
+
+                # Append extra arguments, but do not overwrite
+                if 'extra_args' in additional_args:
+                    extra_args = OAF.Generate.parse_kv_args(additional_args.get('extra_args'))
+                    for key, value in extra_args.items():
+                        if key not in additional_args:
+                            additional_args[key] = value
+
                 assertion = cls(subject, **additional_args)  # type: BaseAssertion
                 try:
                     assertion.process()
@@ -281,6 +290,20 @@ class OAF:
             )
             return None
 
+        @staticmethod
+        def parse_kv_args(args):
+            """Parses a key=value string or a list of key=value strings into a dict."""
+            results = {}
+            if not args:
+                return results
+
+            if not isinstance(args, list):
+                args = [args]
+
+            for arg in args:  # type: str
+                k, v = arg.split('=', 1)
+                results[k.strip()] = v.strip()
+            return results
 
 if __name__ == "__main__":
     oaf = OAF()
