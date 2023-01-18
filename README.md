@@ -67,6 +67,13 @@ We're grateful to the Linux Foundation and OpenSSF for providing additional supp
 * Jennifer Bly
 * Khahil White
 
+#### Core Components
+
+The three components and good starting points of Omega Toolchain are the following:
+
+* Analyzer -> omega/analyzer
+* Fuzzing (In PoC) -> omega/fuzzing
+* Omega Assertion Framework -> omega/oaf
 
 #### Get Involved
 
