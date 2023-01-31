@@ -56,7 +56,7 @@ scope and governance of this project's activities.
 The Alpha-Omega core team members include:
 
 * [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
-* [Michael Winser](https://www.linkedin.com/in/michaelw) (Google)
+* [Bob Callaway](https://www.linkedin.com/in/bobcallaway) (Google)
 * [Yesenia Yser](https://www.linkedin.com/in/yser/) (Alpha-Omega)
 * [Jonathan Leitschuh](https://www.linkedin.com/in/jonathan-leitschuh-94553661/) (Alpha-Omega)
 * [Annapurna Veeramachaneni](https://www.linkedin.com/in/annapurna-veeramachaneni-2907a615b/) (Citi)
@@ -72,9 +72,11 @@ We're grateful to the Linux Foundation and OpenSSF for providing additional supp
 
 The three components and good starting points of Omega Toolchain are the following:
 
-* Analyzer -> omega/analyzer
-* Fuzzing (In PoC) -> omega/fuzzing
-* Omega Assertion Framework -> omega/oaf
+* [Omega Analyzer](/omega/analyzer)
+* [Omega Assertion Framework](/omega/oaf)
+* [Omega Triage Portal](https://github.com/ossf/omega-triage-portal)
+* [Fuzzing (PoC)](/omega/fuzzing)
+
 
 #### Get Involved
 
