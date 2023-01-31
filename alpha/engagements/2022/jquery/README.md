@@ -1,4 +1,4 @@
-## Alpha Engagemnt: jQuery 
+## Alpha Engagement: jQuery 
 
 The purpose of this Alpha engagement is to provide security resources to the jQuery project
 in key areas, including:
