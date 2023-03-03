@@ -34,6 +34,13 @@ class BaseRepository:
 
             return DirectoryRepository(directory)
 
+        if scheme.startswith("flatdir:"):
+            _, directory = scheme.split(":", 1)
+            # pylint: disable=import-outside-toplevel; circular import
+            from .flatdirectory import FlatDirectoryRepository
+
+            return FlatDirectoryRepository(directory)
+
         if scheme.startswith("webapi:"):
             _, endpoint = scheme.split(":", 1)
             # pylint: disable=import-outside-toplevel; circular import
