@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+
+<h3>Search Results</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Subject</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr>
+                <td><a href="/assertions/show?subject={{ subject.full|urlencode }}">{{ subject.short }}</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td><i>Sorry, no results were found.</i></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

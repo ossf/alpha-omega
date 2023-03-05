@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% load translate %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+<div class="float-end mt-3">
+    <a class="btn btn-sm btn-primary" href="/assertions/generate-report?subject={{subject.full|urlencode}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Report (pdf)</a>
+</div>
+<div class="float-end mt-3 me-2">
+    <div class="dropdown">
+        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Other Versions
+        </a>
+
+        <ul class="dropdown-menu">
+        {% for version in versions %}
+            <li><a class="dropdown-item" href="/assertions/show?subject={{version.0}}">{{ version.1 }}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<h2>
+    <i class="fa solid fa-shield-cat"></i>&nbsp;&nbsp;{{ subject.short }}
+</h2>
+
+<hr/>
+
+<h3>Policies</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Policy</th>
+            <th>Status</th>
+            <th>Evaluated By</th>
+            <th>Last Executed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for policy in policies %}
+        {% if policy.status %}
+            <tr>
+        {% else %}
+            <tr style="background-color: #ffCCCC">
+        {% endif %}
+            <td>{{ policy.policy|translate }}</td>
+            <td>
+                {% if policy.status %}
+                    <span class="badge rounded-pill text-bg-success">Passed</span>
+                {% else %}
+                    <span class="badge rounded-pill text-bg-danger">Failed</span>
+                {% endif %}
+            </td>
+            <td>
+                OpenSSF / Alpha-Omega
+            </td>
+            <td>
+                {{ policy.updated_dt|date:"SHORT_DATETIME_FORMAT" }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if assertions %}
+<div class="float-end mt-2">
+    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject={{subject.full|urlencode}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Assertions (zip)</a>
+</div>
+    <h3>Assertions</h3>
+    <div style="max-height:500px;overflow-y:scroll; width:100%">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Assertion</th>
+                <th>Generated Date</th>
+                <th>Asserted By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assertion in assertions %}
+            <tr>
+                <td>{{ assertion.generator|translate }}</td>
+                <td>{{ assertion.updated_dt|date:"SHORT_DATETIME_FORMAT" }}</td>
+                <td>OpenSSF / Alpha-Omega
+                    <small><i class="fas fa-check-circle" style="color:green"></i></small>
+                </td>
+                <td>
+                    <a class="view_assertion" data-assertion-id="{{ assertion.uuid }}" href="#" title="View"><i class="fa-solid fa-magnifying-glass"></i></a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a href="/assertions/{{ assertion.uuid }}/download" title="Download"><i class="fa-solid fa-download"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div id="modal" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Assertion Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="white-space: pre; font-family: mono; overflow:scroll">
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-secondary">Download</a>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock %}
