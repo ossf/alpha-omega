@@ -5,20 +5,20 @@ LABEL schema-version="1.0"
 LABEL name="toolshed"
 LABEL maintainer="Open Source Security Foundation - Omega"
 LABEL vendor="OpenSSF"
-LABEL build-date="2022-12-07T00:00:00.00Z"
-LABEL version="0.8.4"
+LABEL build-date="2023-03-05T00:00:00.00Z"
+LABEL version="0.8.5"
 
 # Overridable Arguments
 ARG DOTNET_VERSION="6.0"
-ARG APPLICATION_INSPECTOR_VERSION="1.6.25"
-ARG OSSGADGET_VERSION="0.1.365"
-ARG GO_VERSION="1.19.3"
-ARG BRAKEMAN_VERSION="v5.4.0"
+ARG APPLICATION_INSPECTOR_VERSION="1.7.4"
+ARG OSSGADGET_VERSION="0.1.386"
+ARG GO_VERSION="1.20.1"
+ARG BRAKEMAN_VERSION="v5.4.1"
 ARG SCC_VERSION="3.0.0"
 ARG NODE_VERSION="19.x"
-ARG DEVSKIM_VERSION="0.8.4-alpha"
-ARG RADARE2_VERSION="5.7.8"
-ARG CODEQL_VERSION="v2.11.6"
+ARG DEVSKIM_VERSION="0.8.14-alpha"
+ARG RADARE2_VERSION="5.8.2"
+ARG CODEQL_VERSION="v2.12.3"
 ARG UBUNTU_VERSION="22.04"
 
 # Initialize some things
@@ -202,7 +202,7 @@ RUN cd /opt && \
     git clone --depth 1 https://github.com/eth0izzle/shhgit && \
     PATH="/usr/local/go/bin:$PATH" && \
     cd shhgit && \
-    go build -v -i
+    go build -v
 
 # Install SecretScanner
 # License: MIT

@@ -27,14 +27,12 @@ class WebApiRepository(BaseRepository):
 
     def add_assertion(self, assertion: BaseAssertion) -> bool:
         """Add an assertion to the repository."""
-        subject = str(assertion.subject)
-        assertion_content = assertion.serialize("dict")
-        expiration = assertion.expiration.strftime("%Y-%M") if assertion.expiration else None
+        assertion_content = assertion.serialize("json")
 
-        data = {"subject": subject, "assertion": assertion_content, "expiration": expiration}
-        url = urljoin(self.endpoint, "api/add")
+        data = {"assertion": assertion_content}
+        url = urljoin(self.endpoint, "api/assertion/add")
         res = requests.post(
-            url, json=data, headers={"content-type": "application/json"}, timeout=30
+            url, data=data, headers={"content-type": "application/x-www-form-urlencoded"}, timeout=30
         )
         return res.status_code == 200
 

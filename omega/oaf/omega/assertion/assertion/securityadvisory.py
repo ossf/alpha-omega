@@ -73,6 +73,9 @@ class SecurityAdvisory(BaseAssertion):
             latest_observation_date = max(latest_observation_date, advisory.get("observedAt", 0))
 
             severity_key = advisory.get("severity", "unknown").lower().strip()
+            if severity_key == "unknown":
+                severity_key = advisory.get("gitHubSeverity", "unknown").lower().strip()
+
             self.severity_map[severity_key] += 1
 
         # If no advisories, try to get the version's refresedAt date,

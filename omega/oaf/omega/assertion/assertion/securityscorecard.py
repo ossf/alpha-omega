@@ -98,8 +98,11 @@ class SecurityScorecard(BaseAssertion):
                     target = ["--pypi", f"{purl.name}"]
                 elif purl.type == "gem":
                     target = ["--rubygems", f"{purl.name}"]
-                elif purl.type == "github":
-                    repository = find_repository(purl)
+                else:
+                    # Remove version, since Scorecards are version-agnostic here.
+                    _purl = purl.to_dict()
+                    _purl["version"] = None
+                    repository = find_repository(PackageURL(**_purl))
                     if not repository:
                         raise ValueError("Unable to retrieve repository information from GitHub.")
                     target = ["--repo", repository]
