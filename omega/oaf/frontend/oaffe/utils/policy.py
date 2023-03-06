@@ -1,4 +1,7 @@
 from tempfile import TemporaryDirectory
+import os
+import pathlib
+import sys
 import json
 import subprocess
 from oaffe.models import Assertion, Policy
@@ -31,14 +34,14 @@ def evaluate_policies(subject: dict, clear: bool = False) -> list:
 
         print(subject)
         res = subprocess.run([
-            '../venv/bin/python',
+            sys.executable,
             'oaf.py',
             'consume',
             '--repository',
             f'flatdir:{tmpdir}',
             '--subject',
             subject.get('short')
-        ], cwd='/opt/ssd/repos/alpha-omega/omega/oaf/omega',
+        ], cwd=os.path.join(pathlib.Path().resolve(), '../../../omega'),
         capture_output=True, encoding='utf-8')
 
         if res.returncode == 0:

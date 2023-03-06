@@ -2,6 +2,7 @@
 """
 Executes analysis and creates assertions.
 """
+import fnmatch
 import argparse
 import logging
 import os
@@ -58,6 +59,13 @@ class AnalysisRunner:
             )
             self.work_directory_name = self.work_directory.name
         logging.debug("Output (work) directory: %s", self.work_directory_name)
+
+        os.makedirs(self.work_directory_name, exist_ok=True)
+
+        _wd = self.work_directory if isinstance(self.work_directory, str) else self.work_directory.name
+        if os.listdir(_wd):
+            logging.fatal("Output directory (%s) must be empty.", self.work_directory_name)
+            raise EnvironmentError("Output directory must be empty.")
 
     def __enter__(self):
         return self
@@ -152,10 +160,19 @@ class AnalysisRunner:
             logging.debug("Error:\n%s", res.stderr)
 
     def find_output_file(self, filename: str) -> str:
-        """Finds a file in the output directory."""
+        """Finds the first file in the output directory that matches the given filename/glob."""
         for root, _, files in os.walk(self.work_directory_name):
             if filename in files:
                 return os.path.join(root, filename)
+
+            for file in files:
+                if fnmatch.fnmatch(file, filename):
+                    return os.path.join(root, file)
+
+        for root, _, files in os.walk(self.work_directory_name):
+            if filename in files:
+                return os.path.join(root, filename)
+
         return None
 
     def execute_assertions(self):
@@ -219,6 +236,28 @@ class AnalysisRunner:
                 "assertion": "Characteristic",
                 "subject": self.package_url,
                 "input-file": self.find_output_file("tool-application-inspector.json"),
+                "repository": self.repository,
+                "signer": self.signer
+            }
+        )
+
+        # Cryptographic Implementations
+        self._execute_assertion_noexcept(
+            **{
+                "assertion": "CryptoImplementation",
+                "subject": self.package_url,
+                "input-file": self.find_output_file("tool-oss-detect-cryptography.txt"),
+                "repository": self.repository,
+                "signer": self.signer
+            }
+        )
+
+        # Cryptographic Implementations
+        self._execute_assertion_noexcept(
+            **{
+                "assertion": "ClamAV",
+                "subject": self.package_url,
+                "input-file": self.find_output_file("tool-clamscan.txt"),
                 "repository": self.repository,
                 "signer": self.signer
             }
