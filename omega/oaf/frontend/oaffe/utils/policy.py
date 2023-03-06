@@ -41,7 +41,7 @@ def evaluate_policies(subject: dict, clear: bool = False) -> list:
             f'flatdir:{tmpdir}',
             '--subject',
             subject.get('short')
-        ], cwd=os.path.join(pathlib.Path().resolve(), '../../../omega'),
+        ], cwd=os.path.join(pathlib.Path().resolve(), '../../../omega/oaf/omega'),
         capture_output=True, encoding='utf-8')
 
         if res.returncode == 0:
