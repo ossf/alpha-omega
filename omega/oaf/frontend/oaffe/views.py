@@ -148,3 +148,18 @@ def api_add_assertion(request: HttpRequest) -> JsonResponse:
     refresh_policies(subject=subject_str)
 
     return JsonResponse({"success": True})
+
+def api_get_assertions_by_subject(request: HttpRequest) -> JsonResponse:
+    subject = request.GET.get('subject')
+    if subject.startswith('pkg:'):
+        subject = f'https://github.com/ossf/alpha-omega/subject/package_url/v0.1:{subject}'
+
+    assertions = Assertion.objects.filter(subject=subject).values()
+    return JsonResponse(list(assertions), safe=False)
+
+def api_get_policies_by_subject(request: HttpRequest) -> JsonResponse:
+    subject = request.GET.get('subject')
+    if subject.startswith('pkg:'):
+        subject = f'https://github.com/ossf/alpha-omega/subject/package_url/v0.1:{subject}'
+    policies = Policy.objects.filter(subject=subject).values()
+    return JsonResponse(list(policies), safe=False)

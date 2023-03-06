@@ -25,6 +25,8 @@ from oaffe.views import (
     download_assertions,
     refresh,
     policy_heapmap,
+    api_get_assertions_by_subject,
+    api_get_policies_by_subject
 )
 
 urlpatterns = [
@@ -36,6 +38,8 @@ urlpatterns = [
     path("assertions/<str:assertion_uuid>/download", download_assertion, name="download_assertion"),
     path("api/assertion/add", api_add_assertion, name="api_add_assertion"),
     path("api/assertion/<str:assertion_uuid>", api_get_assertion, name="api_get_assertion"),
+    path("api/assertions/get", api_get_assertions_by_subject, name="api_get_assertions_by_subject"),
+    path("api/policies/get", api_get_policies_by_subject, name="api_get_policies_by_subject"),
     path("heatmap", policy_heapmap, name="policy_heapmap"),
     path("", home),
 ]
