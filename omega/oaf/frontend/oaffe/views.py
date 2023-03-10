@@ -1,12 +1,22 @@
 import zipfile
+from packageurl import PackageURL
+
+import logging
 import io
 import json
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
-from oaffe.models import Assertion, Policy
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    JsonResponse,
+    HttpResponseBadRequest,
+    HttpResponseRedirect,
+    HttpResponseNotFound,
+)
+from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult, AssertionGenerator
 from oaffe.utils.policy import refresh_policies
-from oaffe.utils import normalize_subject
+from django.shortcuts import get_object_or_404
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -27,17 +37,11 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
     """
     query = request.GET.get("q")
     if query:
-        subjects = (
-            Assertion.objects.filter(subject__icontains=query)
-            .order_by("subject")
-            .values_list("subject", flat=True)
-            .distinct()
-        )
+        subjects = Subject.objects.filter(identifier__icontains=query)
+        c = {"subjects": subjects}
+        return render(request, "search.html", c)
     else:
         return HttpResponseRedirect("/")
-
-    c = {"subjects": map(normalize_subject, subjects)}
-    return render(request, "search.html", c)
 
 
 def refresh(request: HttpRequest) -> HttpResponse:
@@ -46,29 +50,34 @@ def refresh(request: HttpRequest) -> HttpResponse:
 
 
 def download_assertion(request: HttpRequest, assertion_uuid: str) -> HttpResponse:
+    """
+    Downloads a specific assertion (by UUID).
+    """
     assertion = Assertion.objects.get(uuid=assertion_uuid)
     response = HttpResponse(json.dumps(assertion.content, indent=2), content_type="application/json")
-    response["Content-Disposition"] = f'attachment; filename="{assertion_uuid}.json"'
+    response["Content-Disposition"] = f'attachment; filename="oaf-{assertion_uuid}.json"'
     return response
 
 
 def download_assertions(request: HttpRequest) -> HttpResponse:
     """Downloads all assertions as a zip file for the given subject."""
-    subject = request.GET.get("subject")
-    if not subject:
-        return HttpResponseBadRequest("Missing subject.")
+    subject_uuid = request.GET.get("subject_uuid")
+    if not subject_uuid:
+        return HttpResponseBadRequest("Missing subject uuid.")
 
-    assertions = Assertion.objects.filter(subject=subject)
+    assertions = Assertion.objects.filter(subject__uuid=subject_uuid)
+    if assertions.exists():
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "a", zipfile.ZIP_DEFLATED, False) as zf:
+            for assertion in assertions:
+                content = json.dumps(assertion.content, indent=2)
+                zf.writestr(f"{assertion.uuid}.json", content)
 
-    buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "a", zipfile.ZIP_DEFLATED, False) as zf:
-        for assertion in assertions:
-            content = json.dumps(assertion.content, indent=2)
-            zf.writestr(f"{assertion.uuid}.json", content)
-
-    response = HttpResponse(buffer.getvalue(), content_type="application/zip")
-    response["Content-Disposition"] = f'attachment; filename="{subject}.zip"'
-    return response
+        response = HttpResponse(buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = f'attachment; filename="oaf-{subject_uuid}.zip"'
+        return response
+    else:
+        return HttpResponseNotFound()
 
 
 def policy_heapmap(request: HttpRequest) -> HttpResponse:
@@ -89,77 +98,104 @@ def policy_heapmap(request: HttpRequest) -> HttpResponse:
 
 
 def show_assertions(request: HttpRequest) -> HttpResponse:
-    subject = request.GET.get("subject")
-    if subject:
+    subject_uuid = request.GET.get("subject_uuid")
+    if subject_uuid:
+        subject = get_object_or_404(Subject, pk=subject_uuid)
         assertions = Assertion.objects.filter(subject=subject)
-        policies = Policy.objects.filter(subject=subject)
-        distinct_subjects = (
-            Assertion.objects.filter(subject__startswith=subject.split("@")[0] + "@")
-            .values_list("subject", flat=True)
-            .distinct()
-        )
-        versions = [(ds, ds.split("@")[1]) for ds in distinct_subjects]
+        policies = PolicyEvaluationResult.objects.filter(subject=subject)
+
+        other_subjects = []
+
+        if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
+            purl = PackageURL.from_string(subject.identifier).to_dict()
+            purl["version"] = None
+            purl = PackageURL(**purl)
+
+            related_subjects = Subject.objects.filter(
+                subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL,
+                identifier__startswith=str(purl),
+            ).exclude(identifier=subject.identifier)
+
+        c = {
+            "subject": subject,
+            "assertions": assertions,
+            "policies": policies,
+            "related_subjects": sorted(related_subjects, key=lambda x: x.identifier),
+        }
+        return render(request, "view.html", c)
+
     else:
         return HttpResponseRedirect("/")
-
-    c = {
-        "subject": normalize_subject(subject),
-        "assertions": assertions,
-        "policies": policies,
-        "versions": sorted(versions, key=lambda x: x[1]),
-    }
-    return render(request, "view.html", c)
 
 
 @csrf_exempt
 def api_add_assertion(request: HttpRequest) -> JsonResponse:
-    print(request.POST)
+    try:
+        data = json.loads(request.POST.get("assertion"))
+    except:
+        return HttpResponseBadRequest("Invalid assertion.")
 
-    assertion = json.loads(request.POST.get("assertion"))
+    # Extract generator
+    generator_name = data.get("predicate", {}).get("generator", {}).get("name") or ""
+    generator_version = data.get("predicate", {}).get("generator", {}).get("version") or ""
+    generator, _ = AssertionGenerator.objects.get_or_create(name=generator_name, version=generator_version)
 
-    # Pull the generator out
-    generator_str = assertion.get("predicate", {}).get("generator", {}).get("name") or "unknown"
-    created_dt = assertion.get("predicate", {}).get("operational", {}).get("timestamp")
-
-    # Pull the subject out
-    subject = assertion.get("subject", {})
-    if subject:
-        subject_type = subject.get("type")
-        if subject_type == "https://github.com/ossf/alpha-omega/subject/package_url/v0.1":
-            purl = subject.get("purl")
-            subject_str = f"{subject_type}:{purl}"
-        elif subject_type == "https://github.com/ossf/alpha-omega/subject/github_url/v0.1":
-            github_url = subject.get("github_url")
-            subject_str = f"{subject_type}:{github_url}"
-        else:
-            return HttpResponseBadRequest("Invalid subject type.")
+    # Extract subject
+    subject_type = data.get("subject", {}).get("type") or ""
+    if subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
+        subject_identifier = data.get("subject", {}).get("purl")
+    elif subject_type == Subject.SUBJECT_TYPE_GITHUB_URL:
+        subject_identifier = data.get("subject", {}).get("github_url")
     else:
-        return HttpResponseBadRequest("No subject provided.")
+        return HttpResponseBadRequest("Invalid subject.")
+    subject, _ = Subject.objects.get_or_create(subject_type=subject_type, identifier=subject_identifier)
 
-    ao = Assertion()
+    # Extract created date
+    created_date = data.get("predicate", {}).get("operational", {}).get("timestamp")
 
-    ao.generator = generator_str
-    ao.subject = subject_str
-    ao.content = assertion
-    ao.updated_dt = created_dt
+    assertion = Assertion()
+    assertion.generator = generator
+    assertion.subject = subject
+    assertion.content = data
+    assertion.created_date = created_date
+    assertion.save()
 
-    ao.save()
-
-    refresh_policies(subject=subject_str)
+    refresh_policies(subject)
 
     return JsonResponse({"success": True})
 
-def api_get_assertions_by_subject(request: HttpRequest) -> JsonResponse:
-    subject = request.GET.get('subject')
-    if subject.startswith('pkg:'):
-        subject = f'https://github.com/ossf/alpha-omega/subject/package_url/v0.1:{subject}'
 
-    assertions = Assertion.objects.filter(subject=subject).values()
-    return JsonResponse(list(assertions), safe=False)
+def api_get_assertions_by_subject(request: HttpRequest) -> JsonResponse:
+    """Retrieves all assertions for a specific subject."""
+    subject = request.GET.get("subject")
+    logging.debug("Retrieving assertions for subject[%s]", subject)
+
+    if subject and subject.startswith("pkg:"):
+        subject_obj = Subject.objects.filter(
+            subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL, identifier=subject
+        ).first()
+        if subject_obj:
+            assertions = Assertion.objects.filter(subject=subject_obj).values()
+            return JsonResponse(list(assertions), safe=False)
+        else:
+            return HttpResponseNotFound("No subject found.")
+    else:
+        return HttpResponseBadRequest("Invalid subject.")
+
 
 def api_get_policies_by_subject(request: HttpRequest) -> JsonResponse:
-    subject = request.GET.get('subject')
-    if subject.startswith('pkg:'):
-        subject = f'https://github.com/ossf/alpha-omega/subject/package_url/v0.1:{subject}'
-    policies = Policy.objects.filter(subject=subject).values()
-    return JsonResponse(list(policies), safe=False)
+    """Retrieve policies based on a provided subject."""
+    subject = request.GET.get("subject")
+    logging.debug("Retrieving assertions for subject[%s]", subject)
+
+    if subject and subject.startswith("pkg:"):
+        subject_obj = Subject.objects.filter(
+            subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL, identifier=subject
+        ).first()
+        if subject_obj:
+            policies = Policy.objects.filter(subject=subject_obj).values()
+            return JsonResponse(list(policies), safe=False)
+        else:
+            return HttpResponseNotFound("No subject found.")
+    else:
+        return HttpResponseBadRequest("Invalid subject.")

@@ -2,8 +2,6 @@
 
 {% load translate %}
 
-{% block title %}Home{% endblock %}
-
 {% block body %}
 <div class="float-end mt-3">
     <a class="btn btn-sm btn-primary" href="/assertions/generate-report?subject={{subject.full|urlencode}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Report (pdf)</a>
@@ -29,7 +27,7 @@
 <hr/>
 
 <h3>Policies</h3>
-<table class="table">
+<table class="table table-sm table-hover">
     <thead>
         <tr>
             <th>Policy</th>
@@ -40,12 +38,14 @@
     </thead>
     <tbody>
         {% for policy in policies %}
-        {% if policy.status %}
-            <tr>
-        {% else %}
-            <tr style="background-color: #ffCCCC">
-        {% endif %}
+            {% if policy.status %}
+                <tr>
+            {% else %}
+                <tr class="bg-warning">
+            {% endif %}
+
             <td>{{ policy.policy|translate }}</td>
+
             <td>
                 {% if policy.status %}
                     <span class="badge rounded-pill text-bg-success">Passed</span>
@@ -54,7 +54,7 @@
                 {% endif %}
             </td>
             <td>
-                OpenSSF / Alpha-Omega
+                {{ policy.evaluated_by|default:"-" }}
             </td>
             <td>
                 {{ policy.updated_dt|date:"SHORT_DATETIME_FORMAT" }}
@@ -64,13 +64,12 @@
     </tbody>
 </table>
 
-{% if assertions %}
 <div class="float-end mt-2">
-    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject={{subject.full|urlencode}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Assertions (zip)</a>
+    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Assertions (zip)</a>
 </div>
     <h3>Assertions</h3>
     <div style="max-height:500px;overflow-y:scroll; width:100%">
-    <table class="table">
+    <table class="table table-sm table-hover">
         <thead>
             <tr>
                 <th>Assertion</th>
@@ -97,7 +96,6 @@
         </tbody>
     </table>
 </div>
-{% endif %}
 
 <div id="modal" class="modal" tabindex="-1">
     <div class="modal-dialog modal-xl">

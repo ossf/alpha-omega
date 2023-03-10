@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
-
 {% block body %}
 
 <h3>Search Results</h3>
-    <table class="table">
+    <table class="table table-sm">
         <thead>
             <tr>
                 <th>Subject</th>
@@ -14,7 +12,7 @@
         <tbody>
             {% for subject in subjects %}
             <tr>
-                <td><a href="/assertions/show?subject={{ subject.full|urlencode }}">{{ subject.short }}</a></td>
+                <td><a href="/assertions/show?subject_uuid={{ subject.uuid }}">{{ subject }}</a></td>
             </tr>
             {% empty %}
             <tr>

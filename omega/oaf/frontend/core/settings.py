@@ -74,10 +74,12 @@ DATABASES = {
         "USER": get_env_variable("DATABASE_USER"),
         "PASSWORD": get_env_variable("DATABASE_PASSWORD"),
         "HOST": get_env_variable("DATABASE_HOST"),
-        "PORT": get_env_variable("DATABASE_PORT"),
-        "OPTIONS": {"options": "-c statement_timeout=5000"},
+        "PORT": get_env_variable("DATABASE_PORT")
     }
 }
+
+if DATABASES.get('default', {}).get('ENGINE') == 'django.db.backends.postgresql_psycopg2':
+    DATABASES['default']['OPTIONS'] = {"options": "-c statement_timeout=5000"}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

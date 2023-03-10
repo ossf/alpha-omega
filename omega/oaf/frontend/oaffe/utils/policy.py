@@ -4,35 +4,36 @@ import pathlib
 import sys
 import json
 import subprocess
-from oaffe.models import Assertion, Policy
-from oaffe.utils import normalize_subject
+from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult
 
 import logging
 
-def refresh_policies(subject: str = None):
-    if subject:
-        logging.debug("Refreshing policies for %s", subject)
-        qs = Assertion.objects.filter(subject=subject)
-    else:
+def refresh_policies(subject: Subject = None, clear_first: bool = False):
+    """Re-evaluates policies.
+    """
+    # Always evaluate one at a time
+    if not subject:
         logging.debug("Refreshing policies for all subjects")
-        qs = Assertion.objects.all()
+        for subject in Subject.objects.all():
+            refresh_policies(subject, clear_first)
+        return
 
-    for subject in qs.values_list('subject', flat=True).distinct():
-        evaluate_policies(normalize_subject(subject), clear=True)
+    # Single policy
+    logging.debug("Refreshing policies for %s", subject)
 
-def evaluate_policies(subject: dict, clear: bool = False) -> list:
-    logging.debug("Evaluating policies for %s", subject)
-    if clear:
-        Policy.objects.filter(subject=subject.get('full')).delete()
+    if subject.subject_type != Subject.SUBJECT_TYPE_PACKAGE_URL:
+        logging.warning('Invalid subject type: %s', subject.subject_type)
+        return
 
-    assertions = Assertion.objects.filter(subject=subject.get('full'))
+    if clear_first:
+        PolicyEvaluationResult.objects.filter(subject=subject).delete()
 
     with TemporaryDirectory() as tmpdir:
-        for assertion in assertions:
-            with open(f'{tmpdir}/{assertion.uuid}.json', 'w') as f:
+        for assertion in Assertion.objects.filter(subject=subject):
+            with open(os.path.join(tmpdir, f'{assertion.uuid}.json'), 'w') as f:
                 f.write(json.dumps(assertion.content, indent=2))
 
-        print(subject)
+        # Run the policy execution tool (out of process)
         res = subprocess.run([
             sys.executable,
             'oaf.py',
@@ -40,23 +41,42 @@ def evaluate_policies(subject: dict, clear: bool = False) -> list:
             '--repository',
             f'flatdir:{tmpdir}',
             '--subject',
-            subject.get('short')
+            subject.identifier
         ], cwd=os.path.join(pathlib.Path().resolve(), '../../../omega/oaf/omega'),
         capture_output=True, encoding='utf-8')
 
         if res.returncode == 0:
-            print(res.stdout)
-            results = json.loads(res.stdout)
+            try:
+                results = json.loads(res.stdout)
+            except Exception as msg:
+                logging.warning("Error parsing oaf output: %s", msg)
+                return
 
             for result in results:
+                policy_identifier = result.get('policy_identifier')
                 policy_name = result.get('policy_name')
-                state = result.get('state')
-                message = result.get('message')
-                logging.debug("Policy %s for %s is %s: %s", policy_name, subject.get('full'), state, message)
-                b_state = True if state == 'pass' else False
 
-                Policy.objects.update_or_create(subject=subject.get('full'), policy=policy_name, defaults={'status': b_state})
+                policy, _ = Policy.objects.get_or_create(identifier=policy_identifier, name=policy_name)
+
+                _status = result.get('state', '').lower().strip()
+                if _status == 'pass':
+                    status = PolicyEvaluationResult.Status.PASSED
+                elif _status in ['fail', 'failed']:
+                    status = PolicyEvaluationResult.Status.FAILED
+                elif _status != '':
+                    status = PolicyEvaluationResult.Status.INDETERMINATE
+                else:
+                    status = PolicyEvaluationResult.Status.UNKNOWN
+
+                evaluated_by = 'org.openssf.alpha-omega.oaf'
+
+                logging.debug("Policy %s for %s is %s: %s", policy, subject, status)
+
+                PolicyEvaluationResult.objects.update_or_create(policy=policy,
+                                                                subject=subject,
+                                                                status=status,
+                                                                evaluated_by=evaluated_by)
         else:
-            print(res.stdout)
-            print(res.stderr)
-            logging.warning("Error from oaf.py. Return code: %s", res.returncode)
+            logging.warning("Error evaluating assertion, return code: %d", res.returncode)
+            logging.warning("STDOUT: %s", res.stdout)
+            logging.warning("STDERR: %s", res.stderr)

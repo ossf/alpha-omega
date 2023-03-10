@@ -84,7 +84,6 @@ class RegoPolicy(BasePolicy):
 
             cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.applies"]
             logging.debug("Executing: [%s]", " ".join(cmd))
-
             res = subprocess.run(  # nosec B603
                 cmd, check=False, capture_output=True, text=True, input=assertion_str
             )
@@ -110,6 +109,10 @@ class RegoPolicy(BasePolicy):
         # Now execute the policy
         cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.pass"]
         logging.debug("Executing: [%s]", " ".join(cmd))
+
+        with open('a', 'w') as f:
+            f.write(json.dumps(eval_assertions, indent=2))
+
         res = subprocess.run(  # nosec B603
             cmd, check=False, text=True, capture_output=True, input=json.dumps(eval_assertions)
         )
