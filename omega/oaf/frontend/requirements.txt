@@ -8,6 +8,7 @@ cryptography==39.0.2
 Django==4.1.7
 django-dotenv==1.4.2
 idna==3.4
+Markdown==3.4.1
 mypy-extensions==1.0.0
 packageurl-python==0.10.4
 packaging==23.0
