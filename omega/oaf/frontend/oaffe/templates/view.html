@@ -1,95 +1,113 @@
 {% extends "base.html" %}
 
 {% load translate %}
+{% load static %}
 
 {% block body %}
 <div class="float-end mt-3">
-    <a class="btn btn-sm btn-primary" href="/assertions/generate-report?subject={{subject.full|urlencode}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Report (pdf)</a>
+    <a class="btn btn-outline-secondary" href="/assertions/generate-report?subject_uuid={{ subject.uuid }}" onclick="javascript:alert('Not implemented');return false"><i class="fa-solid fa-download"></i></a>
 </div>
 <div class="float-end mt-3 me-2">
     <div class="dropdown">
-        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Other Versions
+        <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Related Packages
         </a>
-
         <ul class="dropdown-menu">
-        {% for version in versions %}
-            <li><a class="dropdown-item" href="/assertions/show?subject={{version.0}}">{{ version.1 }}</a></li>
+        {% for related_subject in related_subjects %}
+            <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version" }}</a></li>
         {% endfor %}
         </ul>
     </div>
 </div>
 
 <h2>
-    <i class="fa solid fa-shield-cat"></i>&nbsp;&nbsp;{{ subject.short }}
+    {% if "pkg:npm/" in subject.identifier %}
+        <img style="height: 76px" src="{% static "oaffe/icon_npm.png" %}"/>
+    {% elif "pkg:pypi/" in subject.identifier %}
+        <img style="height: 76px" src="{% static "oaffe/icon_pypi.svg" %}"/>
+    {% elif "pkg:nuget/" in subject.identifier %}
+        <img style="height: 76px" src="{% static "oaffe/icon_nuget.png" %}"/>
+    {% elif "pkg:gem/" in subject.identifier %}
+        <img style="height: 76px" src="{% static "oaffe/icon_rubygems.png" %}"/>
+    {% endif %}
+    &nbsp;
+    {{ subject|format_subject:"full_name"}}
+    <span class="text-muted">@</span>
+    {{ subject|format_subject:"version" }}
 </h2>
 
 <hr/>
 
 <h3>Policies</h3>
-<table class="table table-sm table-hover">
+<div style="max-height:500px;overflow:scroll; width:100%">
+<table class="table table-sm table-hover policy-evaluation-result-table">
     <thead>
         <tr>
             <th>Policy</th>
-            <th>Status</th>
-            <th>Evaluated By</th>
-            <th>Last Executed</th>
+            <th class="text-center">Status</th>
+            <th class="text-center">Evaluated By</th>
+            <th class="text-center">Last Executed</th>
         </tr>
     </thead>
     <tbody>
-        {% for policy in policies %}
-            {% if policy.status %}
-                <tr>
+        {% for policy_evaluation_result in policy_evaluation_results %}
+            {% if policy_evaluation_result.status == "FA" %}
+                <tr class="bg-warning" data-policy-uuid="{{ policy_evaluation_result.policy.uuid }}" data-policy-evaluation-result-uuid="{{ policy_evaluation_result.uuid }}">
             {% else %}
-                <tr class="bg-warning">
+                <tr data-policy-uuid="{{ policy_evaluation_result.policy.uuid }}" data-policy-evaluation-result-uuid="{{ policy_evaluation_result.uuid }}">
             {% endif %}
 
-            <td>{{ policy.policy|translate }}</td>
-
-            <td>
-                {% if policy.status %}
-                    <span class="badge rounded-pill text-bg-success">Passed</span>
+            <td title="{{ policy_evaluation_result.policy.identifier }}">
+                {% if policy_evaluation_result.policy.name %}
+                    {{ policy_evaluation_result.policy.name }}
                 {% else %}
-                    <span class="badge rounded-pill text-bg-danger">Failed</span>
+                    {{ policy_evaluation_result.policy.identifier|translate }}
                 {% endif %}
             </td>
-            <td>
-                {{ policy.evaluated_by|default:"-" }}
+
+            <td class="text-center">
+                {% if policy_evaluation_result.status == "PA" %}
+                    <span class="badge text-bg-success">Passed</span>
+                {% elif policy_evaluation_result.status == "IN" %}
+                     <span class="badge text-bg-success">Indeterminate</span>
+                {% elif policy_evaluation_result.status == "UK" %}
+                    <span class="badge text-bg-success">Unknown</span>
+                {% elif policy_evaluation_result.status == "FA" %}
+                    <span class="badge text-bg-dark">Failed</span>
+                {% endif %}
             </td>
-            <td>
-                {{ policy.updated_dt|date:"SHORT_DATETIME_FORMAT" }}
+            <td class="text-center" title="{{ policy_evaluation_result.evaluated_by }}">
+                {{ policy_evaluation_result.evaluated_by|translate|default:"-" }}
+            </td>
+            <td class="text-center" title="{{ policy_evaluation_result.evaluation_date }}">
+                {{ policy_evaluation_result.evaluation_date|date:"SHORT_DATETIME_FORMAT" }}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 
 <div class="float-end mt-2">
     <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Assertions (zip)</a>
 </div>
     <h3>Assertions</h3>
     <div style="max-height:500px;overflow-y:scroll; width:100%">
-    <table class="table table-sm table-hover">
+    <table class="table table-sm table-hover assertion-table">
         <thead>
             <tr>
                 <th>Assertion</th>
-                <th>Generated Date</th>
-                <th>Asserted By</th>
-                <th>Actions</th>
+                <th class="text-center">Generated Date</th>
+                <th class="text-center">Asserted By</th>
             </tr>
         </thead>
         <tbody>
             {% for assertion in assertions %}
-            <tr>
-                <td>{{ assertion.generator|translate }}</td>
-                <td>{{ assertion.updated_dt|date:"SHORT_DATETIME_FORMAT" }}</td>
-                <td>OpenSSF / Alpha-Omega
+            <tr data-assertion-uuid="{{ assertion.uuid }}" data-assertion-generator-uuid="{{ assertion.generator.uuid }}">
+                <td title="{{ assertion.generator.name }}">{{ assertion.generator.name_readable|default:assertion.generator.name }}</td>
+                <td class="text-center">{{ assertion.created_date|date:"SHORT_DATETIME_FORMAT" }}</td>
+                <td class="text-center">OpenSSF / Alpha-Omega
                     <small><i class="fas fa-check-circle" style="color:green"></i></small>
-                </td>
-                <td>
-                    <a class="view_assertion" data-assertion-id="{{ assertion.uuid }}" href="#" title="View"><i class="fa-solid fa-magnifying-glass"></i></a>
-                    &nbsp;&nbsp;&nbsp;
-                    <a href="/assertions/{{ assertion.uuid }}/download" title="Download"><i class="fa-solid fa-download"></i></a>
                 </td>
             </tr>
             {% endfor %}
@@ -104,14 +122,15 @@
             <h5 class="modal-title">Assertion Details</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body" style="white-space: pre; font-family: monospace; overflow:scroll">
+        <div class="modal-body">
         </div>
         <div class="modal-footer">
-            <a class="btn btn-secondary">Download</a>
+            <a class="btn btn-secondary assertion-download" href="#"><i class="fa-solid fa-download"></i>&nbsp;Download</a>
+            <button type="button" class="btn btn-secondary assertion-more-info"><i class="fa-regular fa-circle-question"></i>&nbsp;More Information</button>
             <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
         </div>
         </div>
     </div>
-    </div>
+</div>
 
 {% endblock %}

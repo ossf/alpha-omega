@@ -54,6 +54,7 @@ class RegoPolicy(BasePolicy):
         assertions = filter(lambda s: s, assertions)
 
         policy_name = self.metadata.get("name")
+        identifier = self.metadata.get("identifier")
         logging.debug("Processing policy: %s", policy_name)
 
         eval_assertions = []
@@ -134,7 +135,7 @@ class RegoPolicy(BasePolicy):
             )
             return None
 
-        return ExecutionResult(policy_name, result_state, f"{stdout}\n{stderr}".strip())
+        return ExecutionResult(policy_name, identifier, result_state, f"{stdout}\n{stderr}".strip())
 
     def get_policy_metadata(self) -> dict | None:
         """Returns the metadata from a policy file."""
@@ -142,6 +143,8 @@ class RegoPolicy(BasePolicy):
         yaml_lines = []
         for _line in self.policy.splitlines():
             line = _line.strip()
+            if line.startswith('package '):
+                identifier = line.split(' ')[1]
 
             if not line.startswith("#"):
                 continue
@@ -155,7 +158,9 @@ class RegoPolicy(BasePolicy):
 
         if yaml_lines:
             try:
-                return yaml.safe_load("\n".join(yaml_lines))
+                results = yaml.safe_load("\n".join(yaml_lines))
+                results['identifier'] = identifier
+                return results
             except Exception as msg:
                 logging.debug("Failed to parse metadata: %s", msg)
                 return None
@@ -164,4 +169,10 @@ class RegoPolicy(BasePolicy):
         return None
 
     def __str__(self):
-        return self.metadata.get('name', 'unknown')
+        s = self.metadata.get('name')
+        if s: return s
+
+        s = self.metadata.get('identifier')
+        if s: return s
+
+        return 'unknown'

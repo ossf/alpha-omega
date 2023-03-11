@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <!doctype html>
 <html lang="en">
@@ -9,34 +10,38 @@
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/bootstrap/dist/css/bootstrap.min.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/@fortawesome/fontawesome-free/css/all.css" %}" />
     <style type="text/css">
-      body { background-color: #fcfefd!important;}
+      body { background-color: #fcfdfe}
       main { margin-top: 30px; }
-      a.navbar-brand { font-size: 32px; font-weight: bold; margin-left: 12px; padding-top: 0 }
+
+      @media(min-width: 768px) {
+        #lf-header { padding-left: 8px; padding-top: 2px; background: #252525; width: 100%;}
+        #lf-header img { max-width: 270px; }
+      }
+      @media(max-width: 767px) {
+        #lf-header { display: none; }
+      }
+      nav.navbar {
+        background-color: rgba(10, 59, 97, 100);
+      }
+
+      a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-top: 0}
+      a.navbar-brand img { height: 50px; margin-top: -8px; margin-bottom: -8px }
+
+      .monospace {
+        white-space: pre;
+        font-family: monospace;
+        overflow:scroll
+      }
+
       button.navbar-toggler { margin-left: 8px }
       li.nav-item { margin-left: 12px }
       a { color: #0f0f8a; text-decoration: none }
       a:hover { color: #5C5CD7 }
 
-      #editor-title, #note-title, #file-listing-title { color:#fff;font-size:0.85em;padding-top:4px;padding-bottom:4px;padding-left: 7px; margin-bottom:2px;}
-      #issue_list tr { cursor: pointer; }
-      #issue_list td { padding-top:0; padding-bottom:0; padding-left: 3px; padding-right: 3px; }
-      tr.active, tr.selected { background-color: #CDE8FF !important}
-      .upload-sarif-form input { font-size: 0.8rem !important; }
-      #issue_list_filter input[type="search"] { margin: 0; font-size: 0.6rem;}
-      #issue_list_filter label{ font-size: 0.8rem; color: #888; margin-bottom: 0;}
-      a.code-links { color: #ffe; margin-right: 10px; margin-left: 10px; text-decoration: none; }
-      div.note-meta { text-align:right; font-style: italic; font-size: 0.80rem; color: #888;}
-      .jstree-proton { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";}
-      .jstree-proton .jstree-node { margin-left: 9px; color: #666; font-size: 0.80rem;}
-      .jstree-proton .jstree-leaf { font-weight: bold; color: #002}
-      .select2, .select2-container { font-size: 0.8rem; line-height: 15px; }
-      div.keyboard-onscreen-help { font-size: 0.66rem; color:#ccc; float:left; margin-top:11px;}
-      div.keyboard-onscreen-help a { text-decoration: none; color: #ccc;}
-      div.note-name { font-weight: bold; font-size: 1.15rem;}
-      div.note-content { font-size: 0.9rem; color: #446; }
-      #search { font-size: 0.8rem; padding: 0; margin: 0; width: 110px; line-height: 10px; color: #446; }
-      #search_next { margin-left: 4px; color: #fff; text-decoration: none}
-      #search_prev { margin-left: 4px; margin-right: 14px; color: #fff; text-decoration: none}
+      table.assertion-table tbody tr,
+      table.policy-evaluation-result-table tbody tr {
+        cursor: pointer
+      }
     </style>
 
     {% block style_include %}
@@ -53,19 +58,48 @@
     <title>{{ page_title|default:"Omega | Open Source Security Foundation" }}</title>
   </head>
   <body>
+    <div id="lf-header">
+      <a href="https://www.linuxfoundation.org/projects" target="_blank" rel="openener noreferrer"><img src="{% static "oaffe/logo_lf_projects_horizontal_2018.png" %}" /></a>
+    </div>
+
     {% block full_body %}
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="line-height:38px">
+    <nav class="navbar navbar-expand-md navbar-dark" style="line-height:38px">
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Open Navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand" href="/">Omega Assertion Framework - DEV INSTANCE - NOT FOR GENERAL USE</a>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarCollapse" style="margin-right: 30px">
-        <form class="d-flex" role="search" method="get" action="/assertions" />
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q">
-            <button class="btn btn-outline-success" type="submit">Search...</button>
-          </form>
+      <a class="navbar-brand" href="/">
+        <img src="{% static "oaffe/alpha-omega-logo-icon-color.png" %}" /> Assurance Assertions</a>
+      <div class="collapse navbar-collapse " id="navbarCollapse" style="margin-left: 30px; margin-right: 30px">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/help/api">API</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/help/privacy">Privacy</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/help/about">About</a>
+          </li>
+        </ul>
+
+      <form class="d-flex ms-auto" role="search" method="get" action="/assertions" />
+        <div class="input-group">
+          <input type="text" name="q" class="form-control form-control-sm" name="search" placeholder="Search..." style="max-width: 500px; min-width: 140px;" />
+          <button type="submit" class="btn btn-primary rounded-end"><i class="fas fa-search"></i></button>
+        <div>
+      </form>
+
+
       </div>
     </nav>
+    <div class="alert alert-warning text-center" role="alert">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      This is a proof-of-concept application. Please do not rely on it, as content may change at any time.
+      You can view the source code <a href="https://github.com/ossf/alpha-omega/tree/main/omega/oaf/frontend">here</a>.
+    </div>
 
     <main class="container">
       {% block body %}

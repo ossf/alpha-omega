@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.urls import reverse
 import uuid
+from packageurl import PackageURL
 
 
 class Subject(models.Model):
@@ -16,7 +17,26 @@ class Subject(models.Model):
     def __str__(self):
         return f'{self.identifier}'
 
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'subject_type': self.subject_type,
+            'identifier': self.identifier
+        }
+
+    def get_versions(self):
+        if self.subject_type == self.SUBJECT_TYPE_PACKAGE_URL:
+            # Strip version from PackageURL
+            purl = PackageURL.from_string(self.identifier).to_dict()
+            purl['version'] = None
+            purl = str(PackageURL(**purl)) + '@'
+            subjects = Subject.objects.filter(subject_type=self.SUBJECT_TYPE_PACKAGE_URL, identifier__startswith=purl)
+            return subjects
+        else:
+            return []
+
     class Meta:
+        ordering = ['subject_type', 'identifier']
         indexes = [
             models.Index(fields=['subject_type', 'identifier'])
         ]
@@ -28,9 +48,18 @@ class AssertionGenerator(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=1024)
     version = models.CharField(max_length=64)
+    name_readable = models.CharField(max_length=1024, null=True, blank=True)
+    help_text = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.name}@{self.version}'
+        return f'{self.name}'
+
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'name': self.name,
+            'version': self.version
+        }
 
 class Assertion(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -42,9 +71,35 @@ class Assertion(models.Model):
     def __str__(self):
         return f'{self.generator}:{self.subject}'
 
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'generator': self.generator.to_dict(),
+            'subject': self.subject.to_dict(),
+            'content': self.content,
+            'created_date': self.created_date
+        }
+
+    class Meta:
+        ordering = ['subject']
+
 class Policy(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     identifier = models.CharField(max_length=1024)
     name = models.CharField(max_length=1024)
+    help_text = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def to_dict(self):
+        return {
+            'identifier': self.identifier,
+            'name': self.name
+        }
+
+    class Meta:
+        verbose_name_plural = "Policies"
 
 class PolicyEvaluationResult(models.Model):
     """The result of a policy evaluation."""
@@ -59,6 +114,7 @@ class PolicyEvaluationResult(models.Model):
         INDETERMINATE = 'IN', _('Indeterminate')
         UNKNOWN = 'UK', _('Unknown')
 
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     status = models.CharField(max_length=2, choices=Status.choices, default=Status.UNKNOWN)
@@ -67,3 +123,18 @@ class PolicyEvaluationResult(models.Model):
 
     def __str__(self):
         return f'{self.subject}:{self.policy}=={self.status}'
+
+    def to_dict(self):
+        return {
+            'policy': self.policy.to_dict(),
+            'subject': self.subject.to_dict(),
+            'status': {
+                'identifier': self.status,
+                'value': self.get_status_display()
+            },
+            'evaluated_by': self.evaluated_by,
+            'evaluated_date': self.evaluation_date
+        }
+
+    class Meta:
+        ordering = ['evaluation_date']

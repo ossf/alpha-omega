@@ -1,3 +1,4 @@
+import markdown
 import zipfile
 from packageurl import PackageURL
 
@@ -26,9 +27,7 @@ def home(request: HttpRequest) -> HttpResponse:
 
 def api_get_assertion(request: HttpRequest, assertion_uuid: str) -> JsonResponse:
     assertion = Assertion.objects.get(uuid=assertion_uuid)
-    return JsonResponse(
-        {"uuid": assertion.uuid, "generator": assertion.generator, "content": assertion.content}
-    )
+    return JsonResponse(assertion.to_dict())
 
 
 def search_subjects(request: HttpRequest) -> HttpResponse:
@@ -80,7 +79,7 @@ def download_assertions(request: HttpRequest) -> HttpResponse:
         return HttpResponseNotFound()
 
 
-def policy_heapmap(request: HttpRequest) -> HttpResponse:
+def policy_heatmap(request: HttpRequest) -> HttpResponse:
     policies = Policy.objects.all()
     subjects = set([p.subject for p in policies])
     result = {}
@@ -102,7 +101,7 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
     if subject_uuid:
         subject = get_object_or_404(Subject, pk=subject_uuid)
         assertions = Assertion.objects.filter(subject=subject)
-        policies = PolicyEvaluationResult.objects.filter(subject=subject)
+        policy_evaluation_results = PolicyEvaluationResult.objects.filter(subject=subject)
 
         other_subjects = []
 
@@ -119,13 +118,28 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
         c = {
             "subject": subject,
             "assertions": assertions,
-            "policies": policies,
-            "related_subjects": sorted(related_subjects, key=lambda x: x.identifier),
+            "policy_evaluation_results": policy_evaluation_results,
+            "related_subjects": sorted(subject.get_versions(), key=lambda x: x.identifier),
         }
         return render(request, "view.html", c)
 
     else:
         return HttpResponseRedirect("/")
+
+
+def api_get_help(request: HttpRequest) -> JsonResponse:
+    _type = request.GET.get("type")
+    if _type == "policy":
+        policy_uuid = request.GET.get("policy_uuid")
+        policy = get_object_or_404(Policy, pk=policy_uuid)
+        return HttpResponse(markdown.markdown(policy.help_text or ""))
+
+    elif _type == "assertion_generator":
+        assertion_generator_uuid = request.GET.get("assertion_generator_uuid")
+        generator = get_object_or_404(AssertionGenerator, pk=assertion_generator_uuid)
+        return HttpResponse(markdown.markdown(generator.help_text or ""))
+
+    return HttpResponseBadRequest("Help not found.")
 
 
 @csrf_exempt
@@ -138,7 +152,9 @@ def api_add_assertion(request: HttpRequest) -> JsonResponse:
     # Extract generator
     generator_name = data.get("predicate", {}).get("generator", {}).get("name") or ""
     generator_version = data.get("predicate", {}).get("generator", {}).get("version") or ""
-    generator, _ = AssertionGenerator.objects.get_or_create(name=generator_name, version=generator_version)
+    generator, _ = AssertionGenerator.objects.get_or_create(
+        name=generator_name, version=generator_version, defaults={"name_readable": generator_name}
+    )
 
     # Extract subject
     subject_type = data.get("subject", {}).get("type") or ""
@@ -169,14 +185,15 @@ def api_get_assertions_by_subject(request: HttpRequest) -> JsonResponse:
     """Retrieves all assertions for a specific subject."""
     subject = request.GET.get("subject")
     logging.debug("Retrieving assertions for subject[%s]", subject)
-
+    print(subject)
     if subject and subject.startswith("pkg:"):
         subject_obj = Subject.objects.filter(
             subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL, identifier=subject
         ).first()
+        print(subject)
         if subject_obj:
-            assertions = Assertion.objects.filter(subject=subject_obj).values()
-            return JsonResponse(list(assertions), safe=False)
+            assertions = Assertion.objects.filter(subject=subject_obj)
+            return JsonResponse(list(a.to_dict() for a in assertions), safe=False)
         else:
             return HttpResponseNotFound("No subject found.")
     else:
@@ -193,8 +210,8 @@ def api_get_policies_by_subject(request: HttpRequest) -> JsonResponse:
             subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL, identifier=subject
         ).first()
         if subject_obj:
-            policies = Policy.objects.filter(subject=subject_obj).values()
-            return JsonResponse(list(policies), safe=False)
+            policies = PolicyEvaluationResult.objects.filter(subject=subject_obj)
+            return JsonResponse(list(p.to_dict() for p in policies), safe=False)
         else:
             return HttpResponseNotFound("No subject found.")
     else:
