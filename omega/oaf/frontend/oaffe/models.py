@@ -138,3 +138,13 @@ class PolicyEvaluationResult(models.Model):
 
     class Meta:
         ordering = ['evaluation_date']
+
+class PolicyGroup(models.Model):
+    """A collection of policies."""
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    policies = models.ManyToManyField(Policy)
+    name = models.CharField(max_length=1024)
+
+    def __str__(self):
+        return self.name
+

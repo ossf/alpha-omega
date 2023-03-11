@@ -19,6 +19,7 @@
       }
       @media(max-width: 767px) {
         #lf-header { display: none; }
+        .poc-alert { display: none; }
       }
       nav.navbar {
         background-color: rgba(10, 59, 97, 100);
@@ -63,45 +64,47 @@
     </div>
 
     {% block full_body %}
-    <nav class="navbar navbar-expand-md navbar-dark" style="line-height:38px">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Open Navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <a class="navbar-brand" href="/">
-        <img src="{% static "oaffe/alpha-omega-logo-icon-color.png" %}" /> Assurance Assertions</a>
-      <div class="collapse navbar-collapse " id="navbarCollapse" style="margin-left: 30px; margin-right: 30px">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="/">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/help/api">API</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/help/privacy">Privacy</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/help/about">About</a>
-          </li>
-        </ul>
+    <nav class="navbar navbar-expand-md navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img src="{% static "oaffe/alpha-omega-logo-icon-color.png" %}" />
+          Assurance Assertions
+        </a>
+        <button class="navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <form class="d-flex ms-auto" role="search" method="get" action="/assertions" />
-        <div class="input-group">
-          <input type="text" name="q" class="form-control form-control-sm" name="search" placeholder="Search..." style="max-width: 500px; min-width: 140px;" />
-          <button type="submit" class="btn btn-primary rounded-end"><i class="fas fa-search"></i></button>
-        <div>
-      </form>
-
-
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/help/api">API</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/help/privacy">Privacy</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/help/about">About</a>
+            </li>
+          </ul>
+          <form class="d-flex" role="search" method="get" action="/assertions">
+            <div class="input-group">
+              <input type="text" name="q" class="form-control form-control-sm" name="search" placeholder="Search..." />
+              <button type="submit" class="btn btn-primary rounded-end"><i class="fas fa-search"></i></button>
+            <div>
+          </form>
+        </div>
       </div>
     </nav>
-    <div class="alert alert-warning text-center" role="alert">
+    <div class="alert alert-warning text-center poc-alert" role="alert">
       <i class="fa-solid fa-triangle-exclamation"></i>
       This is a proof-of-concept application. Please do not rely on it, as content may change at any time.
       You can view the source code <a href="https://github.com/ossf/alpha-omega/tree/main/omega/oaf/frontend">here</a>.
     </div>
 
-    <main class="container">
+    <main class="container-lg">
       {% block body %}
       {% endblock body %}
     </main>

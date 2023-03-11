@@ -15,7 +15,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseNotFound,
 )
-from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult, AssertionGenerator
+from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult, AssertionGenerator, PolicyGroup
 from oaffe.utils.policy import refresh_policies
 from django.shortcuts import get_object_or_404
 
@@ -103,6 +103,11 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
         assertions = Assertion.objects.filter(subject=subject)
         policy_evaluation_results = PolicyEvaluationResult.objects.filter(subject=subject)
 
+        policy_group_uuid = request.GET.get('policy_group_uuid')
+        if policy_group_uuid:
+            policy_group = get_object_or_404(PolicyGroup, pk=policy_group_uuid)
+            policy_evaluation_results = policy_evaluation_results.filter(policy__in=policy_group.policies.all())
+
         other_subjects = []
 
         if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
@@ -120,6 +125,8 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
             "assertions": assertions,
             "policy_evaluation_results": policy_evaluation_results,
             "related_subjects": sorted(subject.get_versions(), key=lambda x: x.identifier),
+            "policy_group_uuid": policy_group_uuid,
+            "policy_groups": PolicyGroup.objects.all(),
         }
         return render(request, "view.html", c)
 
