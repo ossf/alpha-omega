@@ -1,0 +1,40 @@
+body { background-color: #fcfdfe; font-family: 'Inter', sans-serif; }
+main { margin-top: 30px; }
+
+@media(min-width: 768px) {
+  #lf-header { padding-left: 8px; padding-top: 2px; background: #252525; width: 100%;}
+  #lf-header img { max-width: 270px; }
+  img.package-icon { height: 64px; }
+}
+@media(max-width: 767px) {
+  #lf-header { display: none; }
+  .poc-alert { display: none; }
+  a.navbar-brand { font-size: 22px !important; }
+  img.package-icon { height: 18px; }
+}
+
+nav.navbar {
+  background-color: rgba(10, 59, 97, 100);
+}
+a.navbar-brand img { height: 50px; margin-top: -8px; margin-bottom: -8px }
+a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-top: 0}
+
+.monospace {
+  white-space: pre;
+  font-family: 'Inconsolata', monospace;
+  overflow:scroll
+}
+h4 {
+    color:rgba(10, 59, 97, 100)
+}
+button.navbar-toggler { margin-left: 8px }
+li.nav-item { margin-left: 12px }
+a { color: #0f0f8a; text-decoration: none }
+a:hover { color: #5C5CD7 }
+
+table.assertion-table tbody tr,
+table.policy-evaluation-result-table tbody tr {
+  cursor: pointer
+}
+
+
