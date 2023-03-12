@@ -15,7 +15,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseNotFound,
 )
-from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult, AssertionGenerator, PolicyGroup
+from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult, AssertionGenerator, PolicyGroup, PackageRequest
 from oaffe.utils.policy import refresh_policies
 from django.shortcuts import get_object_or_404
 
@@ -133,6 +133,18 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
     else:
         return HttpResponseRedirect("/")
 
+def package_request(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        content = request.POST.get('package_list')
+        if content:
+            for _line in content.splitlines():
+                line = _line.strip()
+                if not line or len(line) > 500:
+                    continue
+                PackageRequest(package=line).save()
+            return HttpResponseRedirect('/package_request?action=complete')
+    else:
+        return render(request, "package_request.html", {"complete": request.GET.get('action') == 'complete'})
 
 def api_get_help(request: HttpRequest) -> JsonResponse:
     _type = request.GET.get("type")

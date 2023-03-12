@@ -29,6 +29,7 @@ from oaffe.views import (
     api_get_assertions_by_subject,
     api_get_policies_by_subject,
     api_get_help,
+    package_request,
 )
 
 urlpatterns = [
@@ -48,7 +49,7 @@ urlpatterns = [
     path("api/1/policies/get", api_get_policies_by_subject, name="api_get_policies_by_subject"),
 
     path("api/1/assertions/<str:assertion_uuid>", api_get_assertion, name="api_get_assertion"),
-
+    path("package_request", package_request, name="package_request"),
     path("heatmap", policy_heatmap, name="policy_heatmap"),
     path("help/privacy", TemplateView.as_view(template_name='help_privacy.html')),
     path("help/about", TemplateView.as_view(template_name='help_about.html')),

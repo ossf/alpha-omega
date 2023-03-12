@@ -148,3 +148,23 @@ class PolicyGroup(models.Model):
     def __str__(self):
         return self.name
 
+class PackageRequest(models.Model):
+    """A request to evaluate a package."""
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    package = models.CharField(max_length=1024)
+    active = models.BooleanField(default=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.package}'
+
+    def to_dict(self):
+        return {
+            'uuid': self.uuid,
+            'package': self.package,
+            'active': self.active,
+            'created_date': self.created_date
+        }
+
+    class Meta:
+        ordering = ['created_date']

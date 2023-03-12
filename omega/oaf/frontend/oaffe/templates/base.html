@@ -9,8 +9,13 @@
     <link rel="icon" href="https://openssf.org/wp-content/uploads/sites/132/2021/09/cropped-favicon-192x192.png" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/bootstrap/dist/css/bootstrap.min.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/@fortawesome/fontawesome-free/css/all.css" %}" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
     <style type="text/css">
-      body { background-color: #fcfdfe}
+      body { background-color: #fcfdfe; font-family: 'Inter', sans-serif; }
       main { margin-top: 30px; }
 
       @media(min-width: 768px) {
@@ -77,16 +82,22 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="/">Home</a>
+              <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/help/api">API</a>
+              <a class="nav-link {% if request.path == '/help/api' %}active{% endif %}" href="/help/api">API</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/help/privacy">Privacy</a>
+              <a class="nav-link {% if request.path == '/package_request' %}active{% endif %}" href="/package_request">Request a Package</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/help/about">About</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle {% if request.path == '/help/about' or request.path == '/help/privacy' %}active{% endif %}" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">About</a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/help/about">About Us</a></li>
+                <li><a class="dropdown-item" href="/help/privacy">Privacy</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="https://github.com/ossf/alpha-omega" target="_blank" rel="openener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
+              </ul>
             </li>
           </ul>
           <form class="d-flex" role="search" method="get" action="/assertions">
@@ -101,7 +112,6 @@
     <div class="alert alert-warning text-center poc-alert" role="alert">
       <i class="fa-solid fa-triangle-exclamation"></i>
       This is a proof-of-concept application. Please do not rely on it, as content may change at any time.
-      You can view the source code <a href="https://github.com/ossf/alpha-omega/tree/main/omega/oaf/frontend">here</a>.
     </div>
 
     <main class="container-lg">
