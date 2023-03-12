@@ -28,7 +28,7 @@
                     </a>
                     <ul class="dropdown-menu">
                     {% for related_subject in related_subjects|dictsort:"identifier" %}
-                        {% if related_subject.uuid|stringformat:"%s" != subject.uuid|stringformat:"%s" %}
+                        {% if related_subject.uuid != subject.uuid %}
                             <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version" }}</a></li>
                         {% endif %}
                     {% endfor %}
