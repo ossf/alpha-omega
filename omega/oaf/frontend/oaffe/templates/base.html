@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="icon" href="https://openssf.org/wp-content/uploads/sites/132/2021/09/cropped-favicon-192x192.png" />
+    <link rel="icon" href="{% static "oaffe/alpha-omega-logo-icon-color.png" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/bootstrap/dist/css/bootstrap.min.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/@fortawesome/fontawesome-free/css/all.css" %}" />
 
@@ -25,13 +25,14 @@
       @media(max-width: 767px) {
         #lf-header { display: none; }
         .poc-alert { display: none; }
+        a.navbar-brand { font-size: 22px !important; }
       }
+
       nav.navbar {
         background-color: rgba(10, 59, 97, 100);
       }
-
-      a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-top: 0}
       a.navbar-brand img { height: 50px; margin-top: -8px; margin-bottom: -8px }
+      a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-top: 0}
 
       .monospace {
         white-space: pre;
