@@ -6,50 +6,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="icon" href="{% static "oaffe/alpha-omega-logo-icon-color.png" %}" />
+    <link rel="icon" href="{% static "oaffe/images/alpha-omega-logo-icon-color.png" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/bootstrap/dist/css/bootstrap.min.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/@fortawesome/fontawesome-free/css/all.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "oaffe/oaffe.css" %}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
-
-    <style type="text/css">
-      body { background-color: #fcfdfe; font-family: 'Inter', sans-serif; }
-      main { margin-top: 30px; }
-
-      @media(min-width: 768px) {
-        #lf-header { padding-left: 8px; padding-top: 2px; background: #252525; width: 100%;}
-        #lf-header img { max-width: 270px; }
-      }
-      @media(max-width: 767px) {
-        #lf-header { display: none; }
-        .poc-alert { display: none; }
-        a.navbar-brand { font-size: 22px !important; }
-      }
-
-      nav.navbar {
-        background-color: rgba(10, 59, 97, 100);
-      }
-      a.navbar-brand img { height: 50px; margin-top: -8px; margin-bottom: -8px }
-      a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-top: 0}
-
-      .monospace {
-        white-space: pre;
-        font-family: monospace;
-        overflow:scroll
-      }
-
-      button.navbar-toggler { margin-left: 8px }
-      li.nav-item { margin-left: 12px }
-      a { color: #0f0f8a; text-decoration: none }
-      a:hover { color: #5C5CD7 }
-
-      table.assertion-table tbody tr,
-      table.policy-evaluation-result-table tbody tr {
-        cursor: pointer
-      }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap" rel="stylesheet">
 
     {% block style_include %}
     {% endblock style_include %}
@@ -66,14 +31,14 @@
   </head>
   <body>
     <div id="lf-header">
-      <a href="https://www.linuxfoundation.org/projects" target="_blank" rel="openener noreferrer"><img src="{% static "oaffe/logo_lf_projects_horizontal_2018.png" %}" /></a>
+      <a href="https://www.linuxfoundation.org/projects" target="_blank" rel="openener noreferrer"><img src="{% static "oaffe/images/logo_lf_projects_horizontal_2018.png" %}" /></a>
     </div>
 
     {% block full_body %}
     <nav class="navbar navbar-expand-md navbar-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
-          <img src="{% static "oaffe/alpha-omega-logo-icon-color.png" %}" />
+          <img src="{% static "oaffe/images/alpha-omega-logo-icon-color.png" %}" />
           Assurance Assertions
         </a>
         <button class="navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +60,7 @@
               <a class="nav-link dropdown-toggle {% if request.path == '/help/about' or request.path == '/help/privacy' %}active{% endif %}" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">About</a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="/help/about">About Us</a></li>
-                <li><a class="dropdown-item" href="/help/privacy">Privacy</a></li>
+                <li><a class="dropdown-item" href="https://www.linuxfoundation.org/legal/privacy-policy" target="_blank" rel="openener noreferrer">Privacy</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="https://github.com/ossf/alpha-omega" target="_blank" rel="openener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
               </ul>
@@ -112,7 +77,7 @@
     </nav>
     <div class="alert alert-warning text-center poc-alert" role="alert">
       <i class="fa-solid fa-triangle-exclamation"></i>
-      This is a proof-of-concept application. Please do not rely on it, as content may change at any time.
+      This is a proof-of-concept application. Content may change at any time or become inaccessible.
     </div>
 
     <main class="container-lg">

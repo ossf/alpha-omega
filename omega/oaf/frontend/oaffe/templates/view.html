@@ -4,44 +4,49 @@
 {% load static %}
 
 {% block body %}
-<div class="float-end mt-3">
-    <a class="btn btn-outline-secondary" href="/assertions/generate-report?subject_uuid={{ subject.uuid }}" onclick="javascript:alert('Not implemented');return false"><i class="fa-solid fa-download"></i></a>
-</div>
-<div class="float-end mt-3 me-2">
-    <div class="dropdown">
-        <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Related Packages
-        </a>
-        <ul class="dropdown-menu">
-        {% for related_subject in related_subjects %}
-            <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version" }}</a></li>
-        {% endfor %}
-        </ul>
+
+<div class="d-flex mb-3" style="border-bottom: 2px solid rgba(10, 59, 97, 100)">
+    <div>
+        <h2>
+            {% if "pkg:npm/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_npm.png" %}"/>
+            {% elif "pkg:pypi/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
+            {% elif "pkg:nuget/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_nuget.png" %}"/>
+            {% elif "pkg:gem/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
+            {% endif %}
+            <span class="ms-2">{{ subject|format_subject:"full_name"}}</span>
+            <span class="text-muted">@</span>
+            {% if related_subjects|length == 1 %}
+                {{ subject|format_subject:"version" }}
+            {% else %}
+                <div class="dropdown d-inline">
+                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 2rem">
+                        {{ subject|format_subject:"version" }}
+                    </a>
+                    <ul class="dropdown-menu">
+                    {% for related_subject in related_subjects|dictsort:"identifier" %}
+                        {% if related_subject.uuid|stringformat:"%s" != subject.uuid|stringformat:"%s" %}
+                            <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version" }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Not implemented yet
+                <a class="btn btn-outline-secondary" href="/assertions/generate-report?subject_uuid={{ subject.uuid }}" onclick="javascript:alert('Not implemented');return false"><i class="fa-solid fa-download"></i></a>
+            -->
+        </h2>
     </div>
 </div>
 
-<h2>
-    {% if "pkg:npm/" in subject.identifier %}
-        <img style="height: 76px" src="{% static "oaffe/icon_npm.png" %}"/>
-    {% elif "pkg:pypi/" in subject.identifier %}
-        <img style="height: 76px" src="{% static "oaffe/icon_pypi.svg" %}"/>
-    {% elif "pkg:nuget/" in subject.identifier %}
-        <img style="height: 76px" src="{% static "oaffe/icon_nuget.png" %}"/>
-    {% elif "pkg:gem/" in subject.identifier %}
-        <img style="height: 76px" src="{% static "oaffe/icon_rubygems.png" %}"/>
-    {% endif %}
-    &nbsp;
-    {{ subject|format_subject:"full_name"}}
-    <span class="text-muted">@</span>
-    {{ subject|format_subject:"version" }}
-</h2>
-
-<hr/>
-
-<div class="float-end mt-2">
+<div class="float-end">
     <div class="dropdown">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="policySetMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-          -- Choose a Policy Set --
+          -- Policy Set --
         </button>
         <ul class="dropdown-menu" aria-labelledby="policySetMenuButton">
             <li><a class="dropdown-item {% if not policy_group_uuid %}active{% endif %}" href="/assertions/show?subject_uuid={{ subject.uuid }}">All Policies</a></li>
@@ -53,7 +58,7 @@
         </ul>
       </div>
 </div>
-<h3>Policies</h3>
+<h4>Policies</h4>
 <div style="max-height:500px;overflow:scroll; width:100%">
 <table class="table table-sm table-hover policy-evaluation-result-table">
     <thead>
@@ -104,10 +109,10 @@
 </div>
 
 <div class="float-end mt-2">
-    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Download Assertions (zip)</a>
+    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Assertions (zip)</a>
 </div>
-    <h3>Assertions</h3>
-    <div style="max-height:500px;overflow-y:scroll; width:100%">
+<h4>Assertions</h4>
+<div style="max-height:500px;overflow-y:scroll; width:100%">
     <table class="table table-sm table-hover assertion-table">
         <thead>
             <tr>
