@@ -12,7 +12,13 @@ main { margin-top: 30px; }
   a.navbar-brand { font-size: 22px !important; }
   img.package-icon { height: 18px; }
 }
-
+code {
+  font-family: 'Inconsolata', monospace;
+  font-size: 1.2rem;
+  background-color: rgba(10, 59, 97, 100);
+  color: #fff;
+  user-select: all;
+}
 nav.navbar {
   background-color: rgba(10, 59, 97, 100);
 }

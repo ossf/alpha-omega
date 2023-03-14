@@ -2,7 +2,7 @@ $('table.assertion-table tbody tr').on('click', function() {
     const assertion_uuid = $(this).data('assertion-uuid');
     const assertion_generator_uuid = $(this).data('assertion-generator-uuid');
 
-    fetch(`/api/1/assertions/${assertion_uuid}`)
+    fetch(`/api/1/assertion/${assertion_uuid}`)
         .then(response => response.json())
         .then(data => {
             $('#modal .modal-title').text('Assertion Details');

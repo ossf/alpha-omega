@@ -23,7 +23,7 @@
                 {{ subject|format_subject:"version" }}
             {% else %}
                 <div class="dropdown d-inline">
-                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 2rem">
+                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: calc(1.25rem + .9vw);">
                         {{ subject|format_subject:"version" }}
                     </a>
                     <ul class="dropdown-menu">
@@ -54,8 +54,12 @@
             {% for policy_group in policy_groups %}
             <li><a class="dropdown-item {% if policy_group.uuid|stringformat:"s" == policy_group_uuid %}active{% endif %}" href="/assertions/show?subject_uuid={{ subject.uuid }}&policy_group_uuid={{ policy_group.uuid }}">{{ policy_group.name }}</a></li>
           {% endfor %}
-
         </ul>
+        {% if policy_group_uuid %}
+            <a class="btn btn-sm btn-outline-secondary" href="/api/1/policy_evaluation_result/get?subject_uuid={{ subject.uuid }}&policy_group_uuid={{ policy_group_uuid }}" title="API to retrieve policy evaluation results"><i class="fa-solid fa-code"></i></a>
+        {% else %}
+            <a class="btn btn-sm btn-outline-secondary" href="/api/1/policy_evaluation_result/get?subject_uuid={{ subject.uuid }}" title="API to retrieve policy evaluation results"><i class="fa-solid fa-code"></i></a>
+        {% endif %}
       </div>
 </div>
 <h4>Policies</h4>
@@ -109,7 +113,8 @@
 </div>
 
 <div class="float-end mt-2">
-    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}"><i class="fa-solid fa-download"></i>&nbsp;&nbsp;Assertions (zip)</a>
+    <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}" title="Download all assertions as a .zip file."><i class="fa-solid fa-file-zipper"></i></a>
+    <a class="btn btn-sm btn-outline-secondary" href="/api/1/assertion/get?subject_uuid={{ subject.uuid }}" title="API to retrieve assertions"><i class="fa-solid fa-code"></i></a>
 </div>
 <h4>Assertions</h4>
 <div style="max-height:500px;overflow-y:scroll; width:100%">

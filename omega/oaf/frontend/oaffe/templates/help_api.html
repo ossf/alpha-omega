@@ -5,12 +5,66 @@
 
 <h3>API</h3>
 <p>
-    You can use our API to access both assertions and policy evaluations.
-
-    <pre>
-        /api/1/policies/get?subject=pkg:npm/left-pad@1.2.0
-        /api/1/assertions/get?subject=pkg:npm/left-pad@1.2.0
-    </pre>
+    We intend to provide an open API for simple integrations. However, at the current
+    time, please consider our API unstable and subject to change at any time.
 </p>
+
+<h4>Assertions</h4>
+
+<p>
+    You can retrieve assertions through the <code>/api/1/assertion/get</code> endpoint,
+    with either the <code>subject_uuid</code> or <code>subject_name</code> parameters.
+    The results returned will be a list of assertion objects, with inner objects fully
+    accessible.
+</p>
+<p>
+    You can access a direct download link when viewing assertions by clicking on the
+    buttons toward the right of the screen.
+</p>
+<p>
+    Examples:
+</p>
+<ul>
+    <li>
+        <strong>Assertions by a Subject UUID</strong><br/>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/assertion/get?subject_uuid=786fc169-e2b4-4812-a467-057d2a2422de'</code>
+    </li>
+    <li>
+        <strong>Assertions by a Subject Name</strong><br/>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/assertion/get?subject_name=pkg:npm/left-pad@1.2.0'</code>
+    </li>
+</ul>
+
+<h4>Policy Evaluation Results</h4>
+
+<p>
+    These are the results of a set of policies being evaluated against a subject, and
+    are acccessible through the <code>/api/1/policy_evaluation_result/get</code> endpoint,
+    with either the <code>subject_uuid</code> or <code>subject_name</code> parameters,
+    and optionally, a <code>policy_group_uuid</code> restricting results to those policies
+    included in that particular policy group.
+
+    The results returned will be a list of policy evaluation result objects, with inner
+    objects fully accessible.
+</p>
+<p>
+    Examples:
+</p>
+<ul>
+    <li>
+        <strong>Policy Evaluation Results by a Subject UUID</strong><br/>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_uuid=786fc169-e2b4-4812-a467-057d2a2422de'</code>
+    </li>
+    <li>
+        <strong>Policy Evaluation Results by a Subject Name</strong><br/>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_name=pkg:npm/left-pad@1.2.0'</code>
+    </li>
+    <li>
+        <strong>Policy Evaluation Results by a Subject Name and Policy Group</strong><br/>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_name=pkg:npm/left-pad@1.2.0&policy_group_uuid=6ddd59c9-8c22-45be-9aa7-de08826ec806'</code>
+    </li>
+</ul>
+
+If you'd like additional API functionality, please <a href="https://github.com/ossf/alpha-omega/issues/new">open an issue</a>.
 
 {% endblock %}

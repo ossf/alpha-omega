@@ -1,13 +1,13 @@
 import markdown
 import zipfile
 from packageurl import PackageURL
-
 import logging
 import io
 import json
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import (
+    Http404,
     HttpRequest,
     HttpResponse,
     JsonResponse,
@@ -15,7 +15,15 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseNotFound,
 )
-from oaffe.models import Assertion, Policy, Subject, PolicyEvaluationResult, AssertionGenerator, PolicyGroup, PackageRequest
+from oaffe.models import (
+    Assertion,
+    Policy,
+    Subject,
+    PolicyEvaluationResult,
+    AssertionGenerator,
+    PolicyGroup,
+    PackageRequest,
+)
 from oaffe.utils.policy import refresh_policies
 from django.shortcuts import get_object_or_404
 
@@ -103,10 +111,12 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
         assertions = Assertion.objects.filter(subject=subject)
         policy_evaluation_results = PolicyEvaluationResult.objects.filter(subject=subject)
 
-        policy_group_uuid = request.GET.get('policy_group_uuid')
+        policy_group_uuid = request.GET.get("policy_group_uuid")
         if policy_group_uuid:
             policy_group = get_object_or_404(PolicyGroup, pk=policy_group_uuid)
-            policy_evaluation_results = policy_evaluation_results.filter(policy__in=policy_group.policies.all())
+            policy_evaluation_results = policy_evaluation_results.filter(
+                policy__in=policy_group.policies.all()
+            )
 
         other_subjects = []
 
@@ -133,20 +143,24 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
     else:
         return HttpResponseRedirect("/")
 
+
 def package_request(request: HttpRequest) -> HttpResponse:
+    """Handles interaction with the 'request a package' function."""
     if request.method == "POST":
-        content = request.POST.get('package_list')
+        content = request.POST.get("package_list")
         if content:
             for _line in content.splitlines():
                 line = _line.strip()
                 if not line or len(line) > 500:
                     continue
                 PackageRequest(package=line).save()
-            return HttpResponseRedirect('/package_request?action=complete')
+            return HttpResponseRedirect("/package_request?action=complete")
     else:
-        return render(request, "package_request.html", {"complete": request.GET.get('action') == 'complete'})
+        return render(request, "package_request.html", {"complete": request.GET.get("action") == "complete"})
+
 
 def api_get_help(request: HttpRequest) -> JsonResponse:
+    """Retrieve help text for a given policy or assertion generator."""
     _type = request.GET.get("type")
     if _type == "policy":
         policy_uuid = request.GET.get("policy_uuid")
@@ -200,38 +214,39 @@ def api_add_assertion(request: HttpRequest) -> JsonResponse:
     return JsonResponse({"success": True})
 
 
-def api_get_assertions_by_subject(request: HttpRequest) -> JsonResponse:
-    """Retrieves all assertions for a specific subject."""
-    subject = request.GET.get("subject")
-    logging.debug("Retrieving assertions for subject[%s]", subject)
-    print(subject)
-    if subject and subject.startswith("pkg:"):
-        subject_obj = Subject.objects.filter(
-            subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL, identifier=subject
-        ).first()
-        print(subject)
-        if subject_obj:
-            assertions = Assertion.objects.filter(subject=subject_obj)
-            return JsonResponse(list(a.to_dict() for a in assertions), safe=False)
-        else:
-            return HttpResponseNotFound("No subject found.")
+def _get_subject_from_request(request: HttpRequest) -> Subject:
+    """Retrieve a subject from a request."""
+    if "subject_uuid" in request.GET:
+        subject_uuid = request.GET.get("subject_uuid")
+        logging.debug("Retrieving assertions for subject[%s]", subject_uuid)
+        subject = get_object_or_404(Subject, uuid=subject_uuid)
+    elif "subject_identifier" in request.GET:
+        subject_identifier = request.GET.get("subject_identifier")
+        logging.debug("Retrieving assertions for subject[%s]", subject_identifier)
+        subject = get_object_or_404(Subject, identifier=subject_identifier)
     else:
-        return HttpResponseBadRequest("Invalid subject.")
+        raise ValueError("Invalid subject.")
 
+    if not subject:
+        raise Http404("No subject found.")
 
-def api_get_policies_by_subject(request: HttpRequest) -> JsonResponse:
-    """Retrieve policies based on a provided subject."""
-    subject = request.GET.get("subject")
-    logging.debug("Retrieving assertions for subject[%s]", subject)
+    return subject
 
-    if subject and subject.startswith("pkg:"):
-        subject_obj = Subject.objects.filter(
-            subject_type=Subject.SUBJECT_TYPE_PACKAGE_URL, identifier=subject
-        ).first()
-        if subject_obj:
-            policies = PolicyEvaluationResult.objects.filter(subject=subject_obj)
-            return JsonResponse(list(p.to_dict() for p in policies), safe=False)
-        else:
-            return HttpResponseNotFound("No subject found.")
-    else:
-        return HttpResponseBadRequest("Invalid subject.")
+def api_get_assertions(request: HttpRequest) -> JsonResponse:
+    """Retrieve assertions based on API parameters."""
+    subject = _get_subject_from_request(request)
+    assertions = Assertion.objects.filter(subject=subject)
+    return JsonResponse(list(a.to_dict() for a in assertions), safe=False)
+
+def api_get_policy_evaluation_results(request: HttpRequest) -> JsonResponse:
+    """Retrieve policy evaluations based on API parameters."""
+    subject = _get_subject_from_request(request)
+
+    results = PolicyEvaluationResult.objects.filter(subject=subject)
+
+    # Further filter by policy group
+    if 'policy_group_uuid' in request.GET:
+        policy_group = get_object_or_404(PolicyGroup, uuid=request.GET.get('policy_group_uuid'))
+        results = results.filter(policy__in=policy_group.policies.all())
+
+    return JsonResponse(list(r.to_dict() for r in results), safe=False)
