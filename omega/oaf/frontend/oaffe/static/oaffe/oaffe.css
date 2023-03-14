@@ -28,7 +28,7 @@ a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-
 .monospace {
   white-space: pre;
   font-family: 'Inconsolata', monospace;
-  overflow:scroll
+  overflow:auto
 }
 h4 {
     color:rgba(10, 59, 97, 100)
