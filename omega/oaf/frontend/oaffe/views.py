@@ -236,7 +236,7 @@ def api_get_assertions(request: HttpRequest) -> JsonResponse:
     """Retrieve assertions based on API parameters."""
     subject = _get_subject_from_request(request)
     assertions = Assertion.objects.filter(subject=subject)
-    return JsonResponse(list(a.to_dict() for a in assertions), safe=False)
+    return JsonResponse(list(a.to_dict() for a in assertions), safe=False, json_dumps_params={'indent': 2})
 
 def api_get_policy_evaluation_results(request: HttpRequest) -> JsonResponse:
     """Retrieve policy evaluations based on API parameters."""
@@ -249,4 +249,4 @@ def api_get_policy_evaluation_results(request: HttpRequest) -> JsonResponse:
         policy_group = get_object_or_404(PolicyGroup, uuid=request.GET.get('policy_group_uuid'))
         results = results.filter(policy__in=policy_group.policies.all())
 
-    return JsonResponse(list(r.to_dict() for r in results), safe=False)
+    return JsonResponse(list(r.to_dict() for r in results), safe=False, json_dumps_params={'indent': 2})
