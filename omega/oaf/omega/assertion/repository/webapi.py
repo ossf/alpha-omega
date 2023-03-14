@@ -30,7 +30,7 @@ class WebApiRepository(BaseRepository):
         assertion_content = assertion.serialize("json")
 
         data = {"assertion": assertion_content}
-        url = urljoin(self.endpoint, "api/assertion/add")
+        url = urljoin(self.endpoint, "api/1/assertion/add")
         res = requests.post(
             url, data=data, headers={"content-type": "application/x-www-form-urlencoded"}, timeout=30
         )

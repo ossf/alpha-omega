@@ -126,8 +126,31 @@ def get_package_url_with_version(package_url: PackageURL | str) -> PackageURL:
             logging.debug("Latest version is %s", version)
             purl = PackageURL(**new_purl)
             return purl
-    raise ValueError("Could not get latest version")
 
+    # Try using the libraries.io API
+    # HACK: Libraries.io knows RubyGems as "pkg:rubygems", nor "pkg:gem", so we need
+    #       to convert it to the correct format.
+    if purl.type == "gem":
+        mod_purl = PackageURL(type="rubygems", name=purl.name, version=purl.version)
+
+    res = subprocess.run([
+        "oss-metadata",
+        "-s",
+        "libraries.io",
+        str(mod_purl)
+    ], capture_output=True, timeout=10, check=False)  # nosec B603
+
+    if res.returncode == 0:
+        data = json.loads(res.stdout)
+        latest_version = data.get('latest_release_number')
+        if latest_version:
+            new_purl = purl.to_dict()
+            new_purl["version"] = latest_version
+            logging.debug("Latest version is %s", latest_version)
+            purl = PackageURL(**new_purl)
+            return purl
+
+    raise ValueError("Could not get latest version")
 
 # Source: https://stackoverflow.com/questions/3232943
 #         /update-value-of-a-nested-dictionary-of-varying-depth/3233356#3233356
