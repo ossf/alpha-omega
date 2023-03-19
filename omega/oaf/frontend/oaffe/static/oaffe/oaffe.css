@@ -5,12 +5,14 @@ main { margin-top: 30px; }
   #lf-header { padding-left: 8px; padding-top: 2px; background: #252525; width: 100%;}
   #lf-header img { max-width: 270px; }
   img.package-icon { height: 64px; }
+  img.package-icon-sm { height: 16px; }
 }
 @media(max-width: 767px) {
   #lf-header { display: none; }
   .poc-alert { display: none; }
   a.navbar-brand { font-size: 22px !important; }
   img.package-icon { height: 18px; }
+  img.package-icon-sm { height: 12px; }
 }
 code {
   font-family: 'Inconsolata', monospace;

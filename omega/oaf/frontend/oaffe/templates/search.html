@@ -1,18 +1,37 @@
 {% extends "base.html" %}
+{% load static %}
+{% load translate %}
 
 {% block body %}
 
 <h3>Search Results</h3>
-    <table class="table table-sm">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th>Subject</th>
             </tr>
         </thead>
         <tbody>
-            {% for subject in subjects %}
+            {% for identifier, versions in subjects.items %}
             <tr>
-                <td><a href="/assertions/show?subject_uuid={{ subject.uuid }}">{{ subject }}</a></td>
+                <td>
+                    {% if "pkg:npm/" in identifier %}
+                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_npm.png" %}"/>
+                    {% elif "pkg:pypi/" in identifier %}
+                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
+                    {% elif "pkg:nuget/" in identifier %}
+                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_nuget.png" %}"/>
+                    {% elif "pkg:gem/" in identifier %}
+                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
+                    {% endif %}
+                    {% with latest_version=versions|dictsortreversed:"version"|first %}
+                        <a href="/assertions/show?subject_uuid={{ latest_version.uuid }}"><span class="ms-2 me-4">{{ identifier }}</span></a>
+                    {% endwith %}
+
+                    {% for version in versions|dictsortreversed:"version" %}
+                        <a href="/assertions/show?subject_uuid={{version.uuid}}"><span class="badge bg-dark">{{ version.version }}</span></a>
+                    {% endfor %}
+                    </td>
             </tr>
             {% empty %}
             <tr>

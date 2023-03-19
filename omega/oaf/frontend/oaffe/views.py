@@ -45,7 +45,31 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
     query = request.GET.get("q")
     if query:
         subjects = Subject.objects.filter(identifier__icontains=query)
-        c = {"subjects": subjects}
+        subject_map = {}
+        for subject in subjects:
+            cur_version = None
+
+            if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
+                top_identifier = PackageURL.from_string(subject.identifier).to_dict()
+                cur_version = top_identifier['version']
+                top_identifier['version'] = None
+                top_identifier = PackageURL(**top_identifier)
+            elif subject.subject_type == Subject.SUBJECT_TYPE_GITHUB_URL:
+                top_identifier = subject.identifier
+            else:
+                raise ValueError("Unexpected subject type.")
+
+            top_identifier = str(top_identifier)
+
+            if top_identifier not in subject_map:
+                subject_map[top_identifier] = []
+
+            if cur_version:
+                subject_map[top_identifier].append({
+                    'uuid': str(subject.uuid),
+                    'version': cur_version
+                })
+        c = {"subjects": subject_map}
         return render(request, "search.html", c)
     else:
         return HttpResponseRedirect("/")
