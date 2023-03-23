@@ -25,11 +25,11 @@ from oaffe.views import (
     download_assertion,
     download_assertions,
     refresh,
-    policy_heatmap,
     api_get_policy_evaluation_results,
     api_get_assertions,
     api_get_help,
     package_request,
+    data_dump
 )
 
 urlpatterns = [
@@ -42,10 +42,9 @@ urlpatterns = [
     path("assertions/<str:assertion_uuid>/download", download_assertion, name="download_assertion"),
 
     path("package_request", package_request, name="package_request"),
-    path("heatmap", policy_heatmap, name="policy_heatmap"),
+    path("data_dump", data_dump, name="data_dump"),
     path("help/about", TemplateView.as_view(template_name='help_about.html')),
     path("help/api", TemplateView.as_view(template_name='help_api.html')),
-
 
     # API Endpoints (JSON)
     path("api/1/help", api_get_help, name="api_get_help"),

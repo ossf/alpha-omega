@@ -1,3 +1,6 @@
+from core.settings import STATIC_ROOT
+import os
+from datetime import datetime, timezone
 import markdown
 import zipfile
 from packageurl import PackageURL
@@ -26,17 +29,20 @@ from oaffe.models import (
 )
 from oaffe.utils.policy import refresh_policies
 from django.shortcuts import get_object_or_404
-
+from django.core.paginator import Paginator
 
 def home(request: HttpRequest) -> HttpResponse:
     """Home page view for the OAF UI."""
-    return render(request, "home.html")
+    return render(request, "home.html", {'page_title': 'Assurance Assertions Home'})
 
 
 def api_get_assertion(request: HttpRequest, assertion_uuid: str) -> JsonResponse:
     assertion = Assertion.objects.get(uuid=assertion_uuid)
     return JsonResponse(assertion.to_dict())
 
+def clamp(value, min_value, max_value):
+    """Clamp a value between a minimum and maximum value."""
+    return max(min_value, min(float(value), max_value))
 
 def search_subjects(request: HttpRequest) -> HttpResponse:
     """Searches the database for subjects that match a given query.
@@ -44,7 +50,12 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
     """
     query = request.GET.get("q")
     if query:
+
+        page_size = clamp(request.GET.get("page_size", 20), 10, 500)
+        page = clamp(request.GET.get("page", 1), 1, 1000)
+
         subjects = Subject.objects.filter(identifier__icontains=query)
+
         subject_map = {}
         for subject in subjects:
             cur_version = None
@@ -69,8 +80,20 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
                     'uuid': str(subject.uuid),
                     'version': cur_version
                 })
-        c = {"subjects": subject_map}
-        return render(request, "search.html", c)
+
+        subject_map = [(k, v) for k, v in subject_map.items()]
+        paginator = Paginator(subject_map, page_size)
+
+        query_string = request.GET.copy()
+        if "page" in query_string:
+            query_string.pop("page", None)
+
+        context = {
+            "query": query,
+            "subjects": paginator.get_page(page),
+            "params": query_string.urlencode(),
+        }
+        return render(request, "search.html", context)
     else:
         return HttpResponseRedirect("/")
 
@@ -79,6 +102,22 @@ def refresh(request: HttpRequest) -> HttpResponse:
     refresh_policies()
     return HttpResponseRedirect("/")
 
+def data_dump(request: HttpRequest) -> HttpResponse:
+    dump_path = STATIC_ROOT
+    if not dump_path:
+        dump_path = os.path.abspath(os.path.join(__file__, '../../oaffe/static/oaffe'))
+    filename = os.path.join(dump_path, 'policy_evaluations.csv')
+
+    if os.path.isfile(filename):
+        stat_result = os.stat(filename)
+        _date = datetime.fromtimestamp(stat_result.st_mtime, tz=timezone.utc)
+        c = {
+            'generated_date': _date
+        }
+    else:
+        c = {}
+
+    return render(request, 'data_dump.html', c)
 
 def download_assertion(request: HttpRequest, assertion_uuid: str) -> HttpResponse:
     """

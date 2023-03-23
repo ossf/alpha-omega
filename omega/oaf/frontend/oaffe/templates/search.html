@@ -5,40 +5,76 @@
 {% block body %}
 
 <h3>Search Results</h3>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Subject</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for identifier, versions in subjects.items %}
-            <tr>
-                <td>
-                    {% if "pkg:npm/" in identifier %}
-                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_npm.png" %}"/>
-                    {% elif "pkg:pypi/" in identifier %}
-                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
-                    {% elif "pkg:nuget/" in identifier %}
-                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_nuget.png" %}"/>
-                    {% elif "pkg:gem/" in identifier %}
-                        <img class="package-icon-sm" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
-                    {% endif %}
-                    {% with latest_version=versions|dictsortreversed:"version"|first %}
-                        <a href="/assertions/show?subject_uuid={{ latest_version.uuid }}"><span class="ms-2 me-4">{{ identifier }}</span></a>
-                    {% endwith %}
+<div class="row">
+    <div class="col-12">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ subjects.objects_list }}
+                {% for identifier, versions in subjects %}
+                <tr>
+                    <td>
+                        {% if "pkg:npm/" in identifier %}
+                            <img class="package-icon-sm" src="{% static "oaffe/images/icon_npm.png" %}"/>
+                        {% elif "pkg:pypi/" in identifier %}
+                            <img class="package-icon-sm" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
+                        {% elif "pkg:nuget/" in identifier %}
+                            <img class="package-icon-sm" src="{% static "oaffe/images/icon_nuget.png" %}"/>
+                        {% elif "pkg:github/" in identifier %}
+                            <img class="package-icon-sm" src="{% static "oaffe/images/icon_github.png" %}"/>
+                        {% elif "pkg:gem/" in identifier %}
+                            <img class="package-icon-sm" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
+                        {% endif %}
+                        {% with latest_version=versions|dictsortreversed:"version"|first %}
+                            <a href="/assertions/show?subject_uuid={{ latest_version.uuid }}"><span class="ms-2 me-4">{{ identifier }}</span></a>
+                        {% endwith %}
 
-                    {% for version in versions|dictsortreversed:"version" %}
-                        <a href="/assertions/show?subject_uuid={{version.uuid}}"><span class="badge bg-dark">{{ version.version }}</span></a>
-                    {% endfor %}
-                    </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td><i>Sorry, no results were found.</i></td>
-            </tr>
+                        {% for version in versions|dictsortreversed:"version" %}
+                            <a href="/assertions/show?subject_uuid={{version.uuid}}"><span class="badge bg-dark">{{ version.version|shorten_version }}</span></a>
+                        {% endfor %}
+                        </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td><i>Sorry, no results were found.</i></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 pagination">
+        <ul class="pagination mt-2 ms-auto me-auto">
+            {% if subjects.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ params }}&page=1" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">begin</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% for i in subjects.paginator.page_range %}
+                {% if subjects.number == i %}
+                    <li class="page-item active"><a class="page-link">{{ i }}</a><span class="sr-only">(current)</span></li>
+                {% elif i > subjects.number|add:'-7' and i < subjects.number|add:'7' %}
+                    <li class="page-item"><a class="page-link" href="?{{ params }}&page={{ i }}">{{ i }}</a></li>
+                {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
 
+            {% if subjects.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{{ params }}&page={{ subjects.paginator.num_pages }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">end</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
 {% endblock %}

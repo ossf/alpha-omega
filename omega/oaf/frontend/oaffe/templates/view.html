@@ -20,16 +20,16 @@
             <span class="ms-2">{{ subject|format_subject:"full_name"}}</span>
             <span class="text-muted">@</span>
             {% if related_subjects|length == 1 %}
-                {{ subject|format_subject:"version" }}
+                {{ subject|format_subject:"version"|shorten_version }}
             {% else %}
                 <div class="dropdown d-inline">
                     <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 1em">
-                        {{ subject|format_subject:"version" }}
+                        {{ subject|format_subject:"version"|shorten_version }}
                     </a>
                     <ul class="dropdown-menu">
                     {% for related_subject in related_subjects|dictsort:"identifier" %}
                         {% if related_subject.uuid != subject.uuid %}
-                            <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version" }}</a></li>
+                            <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version"|shorten_version }}</a></li>
                         {% endif %}
                     {% endfor %}
                     </ul>

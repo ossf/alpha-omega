@@ -13,7 +13,7 @@
 
 <p>
     You can retrieve assertions through the <code>/api/1/assertion/get</code> endpoint,
-    with either the <code>subject_uuid</code> or <code>subject_name</code> parameters.
+    with either the <code>subject_uuid</code> or <code>subject_identifier</code> parameters.
     The results returned will be a list of assertion objects, with inner objects fully
     accessible.
 </p>
@@ -31,7 +31,7 @@
     </li>
     <li>
         <strong>Assertions by a Subject Name</strong><br/>
-        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/assertion/get?subject_name=pkg:npm/left-pad@1.2.0'</code>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/assertion/get?subject_identifier=pkg:npm/left-pad@1.2.0'</code>
     </li>
 </ul>
 
@@ -40,7 +40,7 @@
 <p>
     These are the results of a set of policies being evaluated against a subject, and
     are acccessible through the <code>/api/1/policy_evaluation_result/get</code> endpoint,
-    with either the <code>subject_uuid</code> or <code>subject_name</code> parameters,
+    with either the <code>subject_uuid</code> or <code>subject_identifier</code> parameters,
     and optionally, a <code>policy_group_uuid</code> restricting results to those policies
     included in that particular policy group.
 
@@ -57,11 +57,11 @@
     </li>
     <li>
         <strong>Policy Evaluation Results by a Subject Name</strong><br/>
-        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_name=pkg:npm/left-pad@1.2.0'</code>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_identifier=pkg:npm/left-pad@1.2.0'</code>
     </li>
     <li>
         <strong>Policy Evaluation Results by a Subject Name and Policy Group</strong><br/>
-        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_name=pkg:npm/left-pad@1.2.0&policy_group_uuid=6ddd59c9-8c22-45be-9aa7-de08826ec806'</code>
+        <code>curl {{request.scheme}}://{{ request.get_host }}/api/1/policy_evaluation_result/get?subject_identifier=pkg:npm/left-pad@1.2.0&policy_group_uuid=6ddd59c9-8c22-45be-9aa7-de08826ec806'</code>
     </li>
 </ul>
 

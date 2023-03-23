@@ -77,7 +77,7 @@ def refresh_policies(subject: Subject = None, clear_first: bool = False):
 
                 evaluated_by = "org.openssf.alpha-omega.oaf"
 
-                logging.debug("Policy %s for %s is %s: %s", policy, subject, status)
+                logging.debug("Policy %s for %s is %s", policy, subject, status)
 
                 PolicyEvaluationResult.objects.update_or_create(
                     policy=policy, subject=subject, status=status, evaluated_by=evaluated_by

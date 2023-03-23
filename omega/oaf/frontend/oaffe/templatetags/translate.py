@@ -29,3 +29,9 @@ def format_subject(subject: Subject, arg):
             return getattr(purl, arg)
 
     return str(subject)
+
+@register.filter
+def shorten_version(text):
+    if len(text) == 40:
+        return text[0:6]
+    return text
