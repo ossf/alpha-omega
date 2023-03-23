@@ -19,7 +19,7 @@ class Command(BaseCommand):
         # Handle where to put the static file
         dump_path = STATIC_ROOT
         if not dump_path:
-            dump_path = os.path.abspath(os.path.join(__file__, '../../../static/oaffe'))
+            dump_path = os.path.abspath(os.path.join(__file__, '../../../static'))
 
         # Stabile map of policies to indexes
         policy_map = {}

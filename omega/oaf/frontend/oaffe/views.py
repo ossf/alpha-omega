@@ -265,12 +265,28 @@ def api_add_assertion(request: HttpRequest) -> JsonResponse:
     # Extract created date
     created_date = data.get("predicate", {}).get("operational", {}).get("timestamp")
 
-    assertion = Assertion()
-    assertion.generator = generator
-    assertion.subject = subject
-    assertion.content = data
-    assertion.created_date = created_date
-    assertion.save()
+    try:
+        assertion, _ = Assertion.objects.get_or_create(
+            generator = generator,
+            subject = subject,
+            content = data,
+            created_date = created_date
+        )
+    except Assertion.MultipleObjectsReturned:
+        Assertion.objects.filter(
+            generator = generator,
+            subject = subject,
+            content = data,
+            created_date = created_date
+        ).delete()
+
+        assertion = Assertion(
+            generator = generator,
+            subject = subject,
+            content = data,
+            created_date = created_date
+        )
+        assertion.save()
 
     refresh_policies(subject)
 

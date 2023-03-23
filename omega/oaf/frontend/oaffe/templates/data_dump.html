@@ -13,7 +13,7 @@
 
 <ul>
     {% if generated_date %}
-        <li><a href="{% static "oaffe/policy_evaluations.csv" %}">Policy Evaluations</a> (last generated {{ generated_date }}</li>
+        <li><a href="{% static "policy_evaluations.csv" %}">Policy Evaluations</a> (last generated {{ generated_date }}</li>
     {% else %}
         <li><i>Sorry, no data is currently available for download.</i></li>
     {% endif %}
