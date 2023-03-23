@@ -1,0 +1,5 @@
+# Alpha Omega Mentorship Program
+
+The Alpha Omega Mentorship Program’s Goals are to accelerate the mission of the Omega in Alpha-Omega project. Each term four entry-level individual contributors (IC) are being requested for a mentorship program. Two of these individuals will assist with the software development and research on the Omega toolchain, led by Yesenia. While the remaining two will assist with developing automated remediation of security vulnerabilities, and open source security research, led by Jonathan. The overall goal will be to provide a 12-week program for undergraduate and graduate students. The targeted students will be newcomers to the open source community, software development, or security researcher assisting to expand knowledge and talent to underrepresented majorities, DEI groups, and increase the diverse talent pool for future employers.
+
+To apply please visit the [Linux Foundation Mentorship Dashboard](https://mentorship.lfx.linuxfoundation.org/#projects_all) 
