@@ -28,6 +28,7 @@ from oaffe.models import (
     PackageRequest,
 )
 from oaffe.utils.policy import refresh_policies
+from oaffe.utils.dependencies import get_dependencies
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 
@@ -166,12 +167,59 @@ def policy_heatmap(request: HttpRequest) -> HttpResponse:
 
     return render(request, "heatmap.html", c)
 
+def calculate_dependency_PERs(dependency_map: dict[str, list[str]]) -> list:
+    """Calculates PolicyExecutionResults for each dependency provided."""
+    results = {
+        'direct': {},
+        'indirect': {},
+        'policies': []
+    }
+
+    if not dependency_map:
+        return results
+
+    policy_map = {}
+    index = 0
+
+    # Gather up all of the policies
+    for policy in Policy.objects.all():
+        if policy not in policy_map:
+            policy_map[policy] = index
+            index += 1
+    results['policies'] = policy_map.keys()
+
+    # Replace all subjects with objects when known
+    for _type in ['direct', 'indirect']:
+        subjects = set(dependency_map.get(_type, []))
+        subject_objs = Subject.objects.filter(identifier__in=subjects)
+        for subject_obj in subject_objs:
+            subjects.discard(subject_obj.identifier)
+        subjects = subjects.union(subject_objs)
+        dependency_map[_type] = subjects
+
+    # Generate the map structure
+    for _type in ['direct', 'indirect']:
+        subjects = dependency_map.get(_type, [])
+        for subject in subjects:
+            results[_type][subject] = [None] * index
+
+        # Now populate the grid where we have data
+        for per in PolicyEvaluationResult.objects.filter(subject__identifier__in=subjects):
+            subject = per.subject
+            results[_type][subject][policy_map[per.policy]] = per
+
+    import pprint
+    pprint.pprint(results)
+
+    return results
 
 def show_assertions(request: HttpRequest) -> HttpResponse:
     subject_uuid = request.GET.get("subject_uuid")
     if subject_uuid:
         subject = get_object_or_404(Subject, pk=subject_uuid)
         assertions = Assertion.objects.filter(subject=subject)
+        dependencies = {}
+
         policy_evaluation_results = PolicyEvaluationResult.objects.filter(subject=subject)
 
         policy_group_uuid = request.GET.get("policy_group_uuid")
@@ -182,6 +230,8 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
             )
 
         other_subjects = []
+        dep_pers = {}
+        #policy_keys = []
 
         if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
             purl = PackageURL.from_string(subject.identifier).to_dict()
@@ -193,10 +243,17 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
                 identifier__startswith=str(purl),
             ).exclude(identifier=subject.identifier)
 
+            dependencies = get_dependencies(PackageURL.from_string(subject.identifier))
+            if dependencies is not None:
+                dep_pers = calculate_dependency_PERs(dependencies)
+
         c = {
             "subject": subject,
             "assertions": assertions,
+            "dep_pers": dep_pers,
+            #"deps": dependencies,
             "policy_evaluation_results": policy_evaluation_results,
+            #"policy_keys": policy_keys,
             "related_subjects": sorted(subject.get_versions(), key=lambda x: x.identifier),
             "policy_group_uuid": policy_group_uuid,
             "policy_groups": PolicyGroup.objects.all(),

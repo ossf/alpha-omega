@@ -1,0 +1,22 @@
+{% for subject, per in obj.items %}
+<tr>
+    <td>
+        {% if subject.uuid %}
+            <a href="/assertions/show?subject_uuid={{ subject.uuid }}">{{ subject }}</a>
+        {% else %}
+            <span class="text-muted">{{ subject }}</span>
+        {% endif %}
+    </td>
+    {% for item in per %}
+        <td class="text-center" title="{{ item.policy.identifier }}">
+            {% if item.status == "PA" %}
+                <i class="fas fa-check-circle" style="color:green; opacity: 0.50"></i></td>
+            {% elif item.status == 'FA' %}
+                <i class="fa-solid fa-circle-xmark" style="color: red"></i>
+            {% elif item is None %}
+                <i class="fa-solid fa-circle-question" style="color: gray; opacity: 0.20"></i>
+            {% endif %}
+        </td>
+    {% endfor %}
+</tr>
+{% endfor %}
