@@ -208,9 +208,6 @@ def calculate_dependency_PERs(dependency_map: dict[str, list[str]]) -> list:
             subject = per.subject
             results[_type][subject][policy_map[per.policy]] = per
 
-    import pprint
-    pprint.pprint(results)
-
     return results
 
 def show_assertions(request: HttpRequest) -> HttpResponse:
@@ -251,9 +248,7 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
             "subject": subject,
             "assertions": assertions,
             "dep_pers": dep_pers,
-            #"deps": dependencies,
             "policy_evaluation_results": policy_evaluation_results,
-            #"policy_keys": policy_keys,
             "related_subjects": sorted(subject.get_versions(), key=lambda x: x.identifier),
             "policy_group_uuid": policy_group_uuid,
             "policy_groups": PolicyGroup.objects.all(),

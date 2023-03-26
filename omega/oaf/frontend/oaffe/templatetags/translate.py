@@ -17,8 +17,12 @@ def translate(text):
 
 @register.filter
 def format_subject(subject: Subject, arg):
-    if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
-        purl = PackageURL.from_string(subject.identifier)
+    if isinstance(subject, Subject):
+        if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
+            subject = str(subject.identifier)
+
+    if isinstance(subject, str):
+        purl = PackageURL.from_string(subject)
         if arg == "full_name":
             if purl.namespace:
                 return f'{purl.namespace}/{purl.name}'
@@ -35,3 +39,14 @@ def shorten_version(text):
     if len(text) == 40:
         return text[0:6]
     return text
+
+@register.filter
+def abbrev(policy):
+    if not policy:
+        return None
+    text = policy.name
+    if not text:
+        text = policy.identifier
+
+    text = text.replace("-", " ").replace("_", " ").replace('.', ' ')
+    return ''.join([t[0] for t in text.split() if t[0]]).upper()

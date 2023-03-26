@@ -1,20 +1,24 @@
 {% for subject, per in obj.items %}
-<tr>
-    <td>
+<tr class="dependency-table-row">
+    <td title="{{ subject.identifier|default:subject }}">
         {% if subject.uuid %}
-            <a href="/assertions/show?subject_uuid={{ subject.uuid }}">{{ subject }}</a>
+            <a href="/assertions/show?subject_uuid={{ subject.uuid }}">
+                {% include "part_subject.html" with subject=subject.identifier %}
+            </a>
         {% else %}
-            <span class="text-muted">{{ subject }}</span>
+            <span class="text-muted">
+                {% include "part_subject.html" with subject=subject %}
+            </span>
         {% endif %}
     </td>
     {% for item in per %}
         <td class="text-center" title="{{ item.policy.identifier }}">
             {% if item.status == "PA" %}
-                <i class="fas fa-check-circle" style="color:green; opacity: 0.50"></i></td>
+                <i class="fa-solid fa-check" style="color:darkgreen; opacity: 0.70"></i></td>
             {% elif item.status == 'FA' %}
-                <i class="fa-solid fa-circle-xmark" style="color: red"></i>
+                <i class="fa-solid fa-circle-xmark" style="color: darkred; font-size: 1.2em"></i>
             {% elif item is None %}
-                <i class="fa-solid fa-circle-question" style="color: gray; opacity: 0.20"></i>
+                <i class="fa-solid fa-question" style="color: gray; opacity: 0.30"></i>
             {% endif %}
         </td>
     {% endfor %}

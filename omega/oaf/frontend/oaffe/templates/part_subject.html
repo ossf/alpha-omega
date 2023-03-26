@@ -1,0 +1,15 @@
+{% load translate %}
+{% load static %}
+
+{% if "pkg:npm/" in subject %}
+    <img class="package-icon-sm" src="{% static "oaffe/images/icon_npm.png" %}"/>
+{% elif "pkg:pypi/" in subject %}
+    <img class="package-icon-sm" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
+{% elif "pkg:nuget/" in subject %}
+    <img class="package-icon-sm" src="{% static "oaffe/images/icon_nuget.png" %}"/>
+{% elif "pkg:gem/" in subject %}
+    <img class="package-icon-sm" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
+{% endif %}
+<span class="ms-2">{{ subject|format_subject:"full_name"}}</span>
+<span class="text-muted">@</span>
+{{ subject|format_subject:"version"|shorten_version }}
