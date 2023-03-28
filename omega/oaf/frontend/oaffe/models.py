@@ -88,6 +88,7 @@ class Policy(models.Model):
     identifier = models.CharField(max_length=1024)
     name = models.CharField(max_length=1024)
     help_text = models.TextField(null=True, blank=True)
+    icon_class = models.CharField(max_length=64, null=True, blank=True)
 
     def __str__(self):
         return self.name
