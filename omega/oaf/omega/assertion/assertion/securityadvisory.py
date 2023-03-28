@@ -6,11 +6,9 @@ import time
 import typing
 from collections import defaultdict
 
-import requests
-
 from ..evidence import Reproducibility, URLEvidence
 from ..subject import BaseSubject, PackageUrlSubject
-from ..utils import get_complex
+from ..utils import get_complex, get_requests_session
 from .base import BaseAssertion
 
 
@@ -51,7 +49,7 @@ class SecurityAdvisory(BaseAssertion):
                 f"{package_url.version}"
             )
 
-        res = requests.get(url, timeout=30)
+        res = get_requests_session().get(url, timeout=30)
 
         if res.status_code != 200:
             logging.warning(

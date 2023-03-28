@@ -7,8 +7,9 @@ import logging
 import subprocess  # nosec: B404
 import typing
 from urllib.parse import urlparse
-
+from urllib3 import Retry
 import requests
+from requests.adapters import HTTPAdapter
 from dateutil.parser import ParserError
 from dateutil.parser import parse as _parse_date
 from packageurl import PackageURL
@@ -192,6 +193,17 @@ def encode_path_safe(directory: str) -> str:
             result.append(char)
     return "".join(result)
 
+def get_requests_session() -> requests.Session:
+    """Returns a requests session with a user agent."""
+    retry_strategy = Retry(
+        total=3,
+        status_forcelist=[429, 500, 502, 503, 504],
+        method_whitelist=["HEAD", "GET", "OPTIONS", "POST"]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
+    session.mount("https://", adapter)
+    return session
 
 class ComplexJSONEncoder(json.JSONEncoder):
     """Handles encoding of complex objects into JSON."""

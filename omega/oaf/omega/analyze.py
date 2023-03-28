@@ -94,6 +94,10 @@ class AnalysisRunner:
             str(self.package_url),
         ]
 
+        # Limit CPU usage if OMEGA_DOCKER_CPUS is set
+        if os.environ.get('OMEGA_DOCKER_CPUS'):
+            cmd.insert(cmd.index('-t'), f'--cpus={os.environ.get("OMEGA_DOCKER_CPUS")}')
+
         # Write the command to a file so we can capture it later
         self.docker_cmdline = shlex.join(cmd)
         with open(f"{self.work_directory_name}/top-execute-cmd.txt", "w", encoding="utf-8") as f:

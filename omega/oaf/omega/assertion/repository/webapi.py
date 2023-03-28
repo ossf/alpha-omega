@@ -5,11 +5,9 @@ import json
 import logging
 from urllib.parse import urljoin
 
-import requests
-
 from ..assertion.base import BaseAssertion
 from ..subject import BaseSubject
-from ..utils import is_valid_url
+from ..utils import is_valid_url, get_requests_session
 from .base import BaseRepository
 
 
@@ -31,8 +29,8 @@ class WebApiRepository(BaseRepository):
 
         data = {"assertion": assertion_content}
         url = urljoin(self.endpoint, "api/1/assertion/add")
-        res = requests.post(
-            url, data=data, headers={"content-type": "application/x-www-form-urlencoded"}, timeout=30
+        res = get_requests_session().post(
+            url, data=data, headers={"content-type": "application/x-www-form-urlencoded"}, timeout=30,
         )
         return res.status_code == 200
 
@@ -40,7 +38,7 @@ class WebApiRepository(BaseRepository):
         """Find assertions for the given subject."""
         subject = str(subject)
         url = urljoin(self.endpoint, "api/find")
-        res = requests.get(url, params={"subject": subject}, timeout=30)
+        res = get_requests_session().get(url, params={"subject": subject}, timeout=30)
         if res.status_code == 200:
             data = res.json()
             results = []
