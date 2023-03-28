@@ -60,4 +60,7 @@ table.policy-evaluation-result-table tbody tr {
   cursor: pointer
 }
 
+table.dependency-table thead tr th {
+  color:rgba(10, 59, 97, 100)
+}
 

@@ -135,8 +135,14 @@
             <thead>
                 <tr>
                     <th>Projects</th>
-                    {% for policy_key in dep_pers.policies %}
-                        <th style="max-width: 30px" class="text-center" title="{% if policy_key.name %}{{ policy_key.name }}{% else %}{{ policy_key.identifier|translate }}{% endif %}">{{ policy_key|abbrev}}</th>
+                    {% for policy in dep_pers.policies %}
+                        <th style="max-width: 30px" class="text-center" title="{% if policy.name %}{{ policy.name }}{% else %}{{ policy.identifier|translate }}{% endif %}">
+                            {% if policy.icon_class %}
+                                <i class="{{ policy.icon_class }}"></i>
+                            {% else %}
+                                {{ policy|abbrev}}
+                            {% endif %}
+                        </th>
                     {% endfor %}
                 </tr>
             </thead>
