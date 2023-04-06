@@ -23,16 +23,22 @@ This engagement started in September 2022 and is expected to continue through at
 
 ## Monthly Updates
 
+* [April 2023](update-2023-04.md)
 * [March 2023](update-2023-03.md)
 * [February 2023](update-2023-02.md)
 * [January 2023](update-2023-01.md)
 
 ## Primary Contacts
 
-* Joel Marcey - Rust Foundation
+* Joel Marcey - Director of Technology, Rust Foundation
+* Walter Pearce - Security Engineer, Rust Foundation
 
 ## Announcements / News
 
 * [OSSF Announcement](https://openssf.org/blog/2022/09/13/alpha-omega-project-announces-over-1-5m-in-grants-to-critical-open-source-projects-and-new-omega-analysis-toolchain/)
 * [Rust Foundation Security Initiative Announcement](https://foundation.rust-lang.org/news/2022-09-13-rust-foundation-establishes-security-team/)
 * [Initial Press Release](https://thenewstack.io/alpha-omega-dishes-out-cash-to-secure-open-source-projects/)
+* [Announcing Security Engineer](https://foundation.rust-lang.org/news/welcoming-our-new-security-engineer-walter-pearce/)
+* [Announcing Software Engineer](https://foundation.rust-lang.org/news/welcoming-software-engineer-adam-harvey-to-the-rust-foundation-team/)
+* [Rewarding Resilience: Rust & the U.S. National Cybersecurity Strategy](https://foundation.rust-lang.org/news/rewarding-resilience-rust-the-u-s-national-cybersecurity-strategy/)
+* [Rust added to NIST list of safer languages](https://foundation.rust-lang.org/news/rust-identified-as-safer-coding-tool-by-nist/)
