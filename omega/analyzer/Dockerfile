@@ -50,61 +50,62 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-            build-essential \
-            fakeroot \
-            devscripts \
-            curl \
-            git \
-            make \
-            wget \
-            mc \
-            unzip \
-            nano \
-            vim \
-            dos2unix \
-            sed \
-            gcc \
-            libpq-dev \
-            make \
-            apt-transport-https \
-            python3 \
-            python3-pip \
-            python3-setuptools \
-            python3-dev \
-            python3-wheel \
-            python-is-python3 \
-            jq \
-            gnupg \
-            g++ \
-            make \
-            gcc \
-            apt-utils \
-            file \
-            gettext \
-            sqlite3 \
-            software-properties-common \
-            splint \
-            cppcheck \
-            checksec \
-            clamav \
-            shellcheck \
-            yara \
-            strace \
-            libboost-regex-dev \
-            libboost-program-options-dev \
-            libboost-system-dev \
-            libboost-filesystem-dev \
-            libssl-dev \
-            cmake \
-            binwalk \
-            python3-matplotlib \
-            csvtool \
-            libhyperscan-dev \
-            less \
-            pkg-config \
-            sudo \
-            openssh-client \
-            openjdk-17-jdk
+    build-essential \
+    fakeroot \
+    devscripts \
+    curl \
+    git \
+    make \
+    wget \
+    mc \
+    unzip \
+    nano \
+    vim \
+    dos2unix \
+    sed \
+    gcc \
+    libpq-dev \
+    make \
+    apt-transport-https \
+    python3 \
+    python3-pip \
+    python3-setuptools \
+    python3-dev \
+    python3-wheel \
+    python-is-python3 \
+    jq \
+    gnupg \
+    g++ \
+    make \
+    gcc \
+    apt-utils \
+    file \
+    gettext \
+    sqlite3 \
+    software-properties-common \
+    splint \
+    cppcheck \
+    checksec \
+    clamav \
+    shellcheck \
+    yara \
+    strace \
+    libboost-regex-dev \
+    libboost-program-options-dev \
+    libboost-system-dev \
+    libboost-filesystem-dev \
+    libssl-dev \
+    cmake \
+    binwalk \
+    python3-matplotlib \
+    csvtool \
+    libhyperscan-dev \
+    less \
+    pkg-config \
+    sudo \
+    openssh-client \
+    openjdk-17-jdk \
+    maven
 
 ##################################
 ####### Install Core Tools #######
@@ -127,7 +128,7 @@ RUN wget -q -a -O https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}
     apt-get install -y dotnet-sdk-${DOTNET_VERSION}
 
 # TODO remove once determined it is no longer needed
- #   apt-get install -y powershell
+#   apt-get install -y powershell
 
 # Install Go
 # License: https://github.com/golang/go/blob/master/LICENSE
@@ -157,7 +158,7 @@ RUN groupadd -r nonroot && \
     mkdir -p /home/nonroot/workdir && \
     chown -R nonroot:nonroot /home/nonroot && \
     usermod -a -G sudo nonroot && echo 'nonroot:nonroot' | chpasswd && \
-            echo "nonroot ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/nonroot && \
+    echo "nonroot ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/nonroot && \
     mkdir /opt/radare2 && \
     chown nonroot:nonroot /opt/radare2
 USER nonroot
@@ -275,17 +276,17 @@ RUN freshclam
 
 # Install Scanner Dependencies
 RUN pip3 --disable-pip-version-check install \
-        azure-storage-queue \
-        requests \
-        PyGithub \
-        requests-cache \
-        packageurl-python \
-        bandit \
-        semgrep \
-        detect-secrets \
-        python-Levenshtein \
-        jschema_to_python \
-        sarif_om
+    azure-storage-queue \
+    requests \
+    PyGithub \
+    requests-cache \
+    packageurl-python \
+    bandit \
+    semgrep \
+    detect-secrets \
+    python-Levenshtein \
+    jschema_to_python \
+    sarif_om
 
 # R2C Semgrep (with many rules)
 # License: LGPLv2.1 - https://github.com/returntocorp/semgrep/blob/develop/LICENSE
