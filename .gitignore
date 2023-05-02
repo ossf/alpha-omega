@@ -8,5 +8,4 @@
 *.db
 *.pem
 oss-gadget.log
-**/.idea/workspace.xml
-**/.idea/tasks.xml
+/.idea/*
