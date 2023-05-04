@@ -70,12 +70,13 @@ We're grateful to the Linux Foundation and OpenSSF for providing additional supp
 
 #### Core Components
 
-The three components and good starting points of Omega Toolchain are the following:
+The core components and good starting points of Omega Toolchain are the following:
 
 * [Omega Analyzer](/omega/analyzer)
 * [Omega Assertion Framework](/omega/oaf)
 * [Omega Triage Portal](https://github.com/ossf/omega-triage-portal)
 * [Fuzzing (PoC)](/omega/fuzzing)
+* [Moderne Campaign Client](https://github.com/ossf/omega-moderne-client)
 
 
 #### Get Involved

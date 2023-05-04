@@ -17,13 +17,13 @@ Applications for the Summer Mentorship Program are open as of April 10th, 2023. 
 
 # Program Details
 
-1. [Security Engineer](#A-O: Security Engineer Mentee)
-2. [Security Research](#A-O: Security Research Mentee)
+1. [Security Engineer](#A-O Security Engineer Mentee)
+2. [Security Research](#A-O Security Research Mentee)
 
 ---
 
 
-## A-O: Security Engineer Mentee
+## A-O Security Engineer Mentee
 
 
 ### Relevant Knowledge
@@ -97,7 +97,7 @@ This is a high level outline of expected tasks to be completed. This phase will 
     * Offboarding call with mentor
 
 
-## A-O: Security Research Mentee
+## A-O Security Research Mentee
 
 ### Relevant Knowledge
 
