@@ -4,7 +4,7 @@ from . import BaseEvidence, Reproducibility
 
 class URLEvidence(BaseEvidence):
     """Evidence about the execution of a command."""
-    def __init__(self, url: str, output: str, reproducibility: Reproducibility):
+    def __init__(self, url: str, output: any, reproducibility: Reproducibility):
         self._type = 'https://github.com/ossf/alpha-omega/types/evidence/url/v0.1'
         self.reproducibility = reproducibility
         self.url = url

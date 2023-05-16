@@ -19,6 +19,16 @@ def get_env_variable(var_name, optional=False):
         ) from ex
 
 
-def to_bool(option: str) -> bool:
-    """Convert a string to a boolean."""
-    return option and option.lower().strip() in ["true", "1"]
+def to_bool(option: any, default_value: bool = False) -> bool:
+    """Convert a value to a bool."""
+    if option is None:
+        return default_value
+
+    if isinstance(option, bool):
+        return option
+
+    try:
+        clean = str(option).lower().strip()
+        return clean in ["true", "1", "yes", "on"]
+    except:
+        return default_value

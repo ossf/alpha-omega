@@ -52,6 +52,11 @@ class SarifHelper:
                     rules_map[rule.get("id")][_property] = rule.get("properties", {}).get(_property)
 
         for run in self.sarif.get("runs", []):
+            tool_name = ":".join(
+                get_complex(run, 'driver.organization'),
+                get_complex(run, 'driver.name')
+            ) + '@' + get_complex(run, 'driver.semanticVersion')
+            
             for result in run.get("results", []):
                 rule = rules_map.get(result.get("ruleId"))
                 if not rule:

@@ -204,16 +204,13 @@ class SecurityScorecard(BaseAssertion):
                 return False
 
             data = res.json()
-            import pprint
-
-            pprint.pprint(data)
             project = get_complex(data, "version.projects", [])
             if not project or not len(project):
                 return False
 
             if "scorecardV2" in project[0]:
                 self.data = project[0].get("scorecardV2")
-                self.evidence = URLEvidence(url, res.content, Reproducibility.TEMPORAL)
+                self.evidence = URLEvidence(url, data, Reproducibility.TEMPORAL)
                 return True
             else:
                 logging.warning("Data missing 'scorecardV2', unable to process.")

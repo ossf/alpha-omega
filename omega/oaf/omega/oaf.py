@@ -65,7 +65,7 @@ class OAF:
             required=False,
         )
 
-        p_generate.add_argument("--signer", help="Signature to use", type=str, required=False)
+        p_generate.add_argument("--signer", help="Signature to use [scitt:URL | keypair:FILE]", type=str, required=False)
         p_generate.add_argument(
             "--repository",
             help="Repository to use (e.g. sqlite:assertions.db)",
@@ -84,7 +84,7 @@ class OAF:
             required=False,
         )
         p_consume.add_argument(
-            "--signer", help="Signature to use (e.g. public key file)", type=str, required=False
+            "--signer", help="Key(s) to use to verify assertion signatures (RSA or SSH public key) (file path or URL)", type=str, required=False, nargs='*'
         )
         p_consume.add_argument("--expiration", help="Expiration date", type=str, required=False)
         p_consume.add_argument(

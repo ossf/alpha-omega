@@ -30,9 +30,10 @@ class CryptoImplementation(BaseAssertion):
         with open(self.input_file, "r", encoding="utf-8") as f:
             try:
                 _data = f.read()
-                self.evidence = FileEvidence(self.input_file, _data, Reproducibility.UNKNOWN)
+                _lines = _data.splitlines()
+                self.evidence = FileEvidence(self.input_file, _lines, Reproducibility.UNKNOWN)
                 section = None
-                for line in _data.splitlines():
+                for line in _lines:
                     if section is None and line.startswith("Cryptographic Implementations:"):
                         section = "crypto"
                         continue

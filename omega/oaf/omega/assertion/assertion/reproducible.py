@@ -70,7 +70,7 @@ class Reproducible(BaseAssertion):
                     self.reproducible = len(self.data) > 0 and self.data[0].get("IsReproducible")
 
                 self.evidence = CommandEvidence(
-                    cmd_safe, _data, Reproducibility.HIGH
+                    cmd_safe, self.data, Reproducibility.HIGH
                 )
         except Exception as msg:
             logging.warning("Error running oss-reproducible: %s", msg, exc_info=True)

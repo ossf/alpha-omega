@@ -124,3 +124,36 @@ STATIC_ROOT = get_env_variable('STATIC_ROOT')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OSSGADGET_PATH = get_env_variable("OSSGADGET_PATH")
+
+# Configure application logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": u"[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)s] %(message)s",
+            "datefmt": "%d/%b/%Y %H:%M:%S",
+        },
+        "simple": {"format": u"%(levelname)s %(message)s"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose", "level": "DEBUG"}
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": True,
+        },
+        "django": {
+            "level": "WARNING",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "django.db": {
+            "level": "WARNING",
+            "handlers": ["console"],
+            "propagate": True,
+        }
+    }
+}

@@ -219,7 +219,8 @@ class AnalysisRunner:
                     "subject": self.package_url,
                     "input-file": self.find_output_file(_filename),
                     "repository": self.repository,
-                    "signer": self.signer
+                    "signer": self.signer,
+                    "extra-args": "include_evidence=false"
                 }
             )
 
