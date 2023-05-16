@@ -104,7 +104,8 @@ RUN apt-get update && \
             pkg-config \
             sudo \
             openssh-client \
-            openjdk-17-jdk
+            openjdk-17-jdk \
+            maven
 
 ##################################
 ####### Install Core Tools #######

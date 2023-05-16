@@ -1,3 +1,5 @@
+[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7115/badge)](https://bestpractices.coreinfrastructure.org/projects/7115)
+
 ## Omega
 
 The purpose of Omega is to run leading-edge security analysis against the top 10,000 (or more)

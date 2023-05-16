@@ -45,11 +45,11 @@ The following two options are available to work around this issue:
 
 ## Running
 
-To run the image, navigate to the `worker` directory and run the `run-analysis.ps1`
+To run the image, navigate to the `worker` directory and run the `run-analysis-complete.ps1`
 script with relevant parameters:
 
 ```powershell
-run-analysis.ps1 -PackageUrl "pkg:npm/left-pad@1.3.0"
+run-analysis-complete.ps1 -PackageUrl "pkg:npm/left-pad@1.3.0"
                  -PreviousVersion "1.2.0"
                  -OutputDirectoryName "output"
 ```
