@@ -26,24 +26,30 @@ from oaffe.models import (
     AssertionGenerator,
     PolicyGroup,
     PackageRequest,
+    PolicyEvaluationQueue,
 )
 from oaffe.utils.policy import refresh_policies
 from oaffe.utils.dependencies import get_dependencies
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 
+logger = logging.getLogger(__name__)
+
+
 def home(request: HttpRequest) -> HttpResponse:
     """Home page view for the OAF UI."""
-    return render(request, "home.html", {'page_title': 'Assurance Assertions Home'})
+    return render(request, "home.html", {"page_title": "Assurance Assertions Home"})
 
 
 def api_get_assertion(request: HttpRequest, assertion_uuid: str) -> JsonResponse:
     assertion = Assertion.objects.get(uuid=assertion_uuid)
     return JsonResponse(assertion.to_dict())
 
+
 def clamp(value, min_value, max_value):
     """Clamp a value between a minimum and maximum value."""
     return max(min_value, min(float(value), max_value))
+
 
 def search_subjects(request: HttpRequest) -> HttpResponse:
     """Searches the database for subjects that match a given query.
@@ -51,7 +57,6 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
     """
     query = request.GET.get("q")
     if query:
-
         page_size = clamp(request.GET.get("page_size", 20), 10, 500)
         page = clamp(request.GET.get("page", 1), 1, 1000)
 
@@ -63,8 +68,8 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
 
             if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
                 top_identifier = PackageURL.from_string(subject.identifier).to_dict()
-                cur_version = top_identifier['version']
-                top_identifier['version'] = None
+                cur_version = top_identifier["version"]
+                top_identifier["version"] = None
                 top_identifier = PackageURL(**top_identifier)
             elif subject.subject_type == Subject.SUBJECT_TYPE_GITHUB_URL:
                 top_identifier = subject.identifier
@@ -77,10 +82,7 @@ def search_subjects(request: HttpRequest) -> HttpResponse:
                 subject_map[top_identifier] = []
 
             if cur_version:
-                subject_map[top_identifier].append({
-                    'uuid': str(subject.uuid),
-                    'version': cur_version
-                })
+                subject_map[top_identifier].append({"uuid": str(subject.uuid), "version": cur_version})
 
         subject_map = [(k, v) for k, v in subject_map.items()]
         paginator = Paginator(subject_map, page_size)
@@ -103,22 +105,22 @@ def refresh(request: HttpRequest) -> HttpResponse:
     refresh_policies()
     return HttpResponseRedirect("/")
 
+
 def data_dump(request: HttpRequest) -> HttpResponse:
     dump_path = STATIC_ROOT
     if not dump_path:
-        dump_path = os.path.abspath(os.path.join(__file__, '../../oaffe/static/oaffe'))
-    filename = os.path.join(dump_path, 'policy_evaluations.csv')
+        dump_path = os.path.abspath(os.path.join(__file__, "../../oaffe/static/oaffe"))
+    filename = os.path.join(dump_path, "policy_evaluations.csv")
 
     if os.path.isfile(filename):
         stat_result = os.stat(filename)
         _date = datetime.fromtimestamp(stat_result.st_mtime, tz=timezone.utc)
-        c = {
-            'generated_date': _date
-        }
+        c = {"generated_date": _date}
     else:
         c = {}
 
-    return render(request, 'data_dump.html', c)
+    return render(request, "data_dump.html", c)
+
 
 def download_assertion(request: HttpRequest, assertion_uuid: str) -> HttpResponse:
     """
@@ -151,29 +153,49 @@ def download_assertions(request: HttpRequest) -> HttpResponse:
         return HttpResponseNotFound()
 
 
-def policy_heatmap(request: HttpRequest) -> HttpResponse:
-    policies = Policy.objects.all()
-    subjects = set([p.subject for p in policies])
-    result = {}
-    for subject in subjects:
-        if subject not in result:
-            result[subject] = {}
+from django.db.models import Count, Q
 
-        for policy in policies:
-            if policy.subject == subject:
-                result[subject][policy.policy] = policy.status
 
-    c = {"result": result}
+def policy_summary(request: HttpRequest) -> HttpResponse:
+    policies = Policy.objects.all().annotate(
+        is_passed=Count("pk", filter=Q(policyevaluationresult__status="PA")),
+        is_failed=Count("pk", filter=Q(policyevaluationresult__status="FA")),
+    )
+    c = {
+        'policies': policies
+    }
 
-    return render(request, "heatmap.html", c)
+    return render(request, "policy_summary.html", c)
+
+def policy_detail(request: HttpRequest) -> HttpResponse:
+    policy_identifier = request.GET.get("policy_identifier")
+    if not policy_identifier:
+        return HttpResponseBadRequest("Missing policy identifier.")
+
+    policy_filter = request.GET.get("policy_filter")
+    if policy_filter and policy_filter not in PolicyEvaluationResult.Status.values:
+        return HttpResponseBadRequest("Invalid policy evaluation filter status.")
+
+    policy = Policy.objects.filter(identifier=policy_identifier).first()
+    if not policy:
+        return HttpResponseNotFound("Policy not found.")
+
+    evaluation_results = policy.policyevaluationresult_set.all()
+    if policy_filter:
+        evaluation_results = evaluation_results.filter(status=policy_filter)
+
+    c = {
+        'policy': policy,
+        'evaluation_results': evaluation_results,
+        'policy_filter': policy_filter,
+    }
+
+    return render(request, "policy_detail.html", c)
+
 
 def calculate_dependency_PERs(dependency_map: dict[str, list[str]]) -> list:
     """Calculates PolicyExecutionResults for each dependency provided."""
-    results = {
-        'direct': {},
-        'indirect': {},
-        'policies': []
-    }
+    results = {"direct": {}, "indirect": {}, "policies": []}
 
     if not dependency_map:
         return results
@@ -186,10 +208,10 @@ def calculate_dependency_PERs(dependency_map: dict[str, list[str]]) -> list:
         if policy not in policy_map:
             policy_map[policy] = index
             index += 1
-    results['policies'] = policy_map.keys()
+    results["policies"] = policy_map.keys()
 
     # Replace all subjects with objects when known
-    for _type in ['direct', 'indirect']:
+    for _type in ["direct", "indirect"]:
         subjects = set(dependency_map.get(_type, []))
         subject_objs = Subject.objects.filter(identifier__in=subjects)
         for subject_obj in subject_objs:
@@ -198,7 +220,7 @@ def calculate_dependency_PERs(dependency_map: dict[str, list[str]]) -> list:
         dependency_map[_type] = subjects
 
     # Generate the map structure
-    for _type in ['direct', 'indirect']:
+    for _type in ["direct", "indirect"]:
         subjects = dependency_map.get(_type, [])
         for subject in subjects:
             results[_type][subject] = [None] * index
@@ -209,6 +231,7 @@ def calculate_dependency_PERs(dependency_map: dict[str, list[str]]) -> list:
             results[_type][subject][policy_map[per.policy]] = per
 
     return results
+
 
 def show_assertions(request: HttpRequest) -> HttpResponse:
     subject_uuid = request.GET.get("subject_uuid")
@@ -228,7 +251,7 @@ def show_assertions(request: HttpRequest) -> HttpResponse:
 
         other_subjects = []
         dep_pers = {}
-        #policy_keys = []
+        # policy_keys = []
 
         if subject.subject_type == Subject.SUBJECT_TYPE_PACKAGE_URL:
             purl = PackageURL.from_string(subject.identifier).to_dict()
@@ -314,33 +337,28 @@ def api_add_assertion(request: HttpRequest) -> JsonResponse:
         return HttpResponseBadRequest("Invalid subject.")
     subject, _ = Subject.objects.get_or_create(subject_type=subject_type, identifier=subject_identifier)
 
+    logger.debug("Adding assertion, subject=%s", subject)
+
     # Extract created date
     created_date = data.get("predicate", {}).get("operational", {}).get("timestamp")
 
     try:
         assertion, _ = Assertion.objects.get_or_create(
-            generator = generator,
-            subject = subject,
-            content = data,
-            created_date = created_date
+            generator=generator, subject=subject, content=data, created_date=created_date
         )
     except Assertion.MultipleObjectsReturned:
+        logger.debug("Multiple assertions were found, deleting all but one.")
+
         Assertion.objects.filter(
-            generator = generator,
-            subject = subject,
-            content = data,
-            created_date = created_date
+            generator=generator, subject=subject, content=data, created_date=created_date
         ).delete()
 
-        assertion = Assertion(
-            generator = generator,
-            subject = subject,
-            content = data,
-            created_date = created_date
-        )
+        assertion = Assertion(generator=generator, subject=subject, content=data, created_date=created_date)
         assertion.save()
 
-    refresh_policies(subject)
+    # Add subject to the evaluation queue
+    logger.debug("Adding subject[%s] to the evaluation queue.", subject)
+    PolicyEvaluationQueue.objects.get_or_create(subject=subject)
 
     return JsonResponse({"success": True})
 
@@ -349,11 +367,11 @@ def _get_subject_from_request(request: HttpRequest) -> Subject:
     """Retrieve a subject from a request."""
     if "subject_uuid" in request.GET:
         subject_uuid = request.GET.get("subject_uuid")
-        logging.debug("Retrieving assertions for subject[%s]", subject_uuid)
+        logger.debug("Retrieving assertions for subject[%s]", subject_uuid)
         subject = get_object_or_404(Subject, uuid=subject_uuid)
     elif "subject_identifier" in request.GET:
         subject_identifier = request.GET.get("subject_identifier")
-        logging.debug("Retrieving assertions for subject[%s]", subject_identifier)
+        logger.debug("Retrieving assertions for subject[%s]", subject_identifier)
         subject = get_object_or_404(Subject, identifier=subject_identifier)
     else:
         raise ValueError("Invalid subject.")
@@ -363,11 +381,13 @@ def _get_subject_from_request(request: HttpRequest) -> Subject:
 
     return subject
 
+
 def api_get_assertions(request: HttpRequest) -> JsonResponse:
     """Retrieve assertions based on API parameters."""
     subject = _get_subject_from_request(request)
     assertions = Assertion.objects.filter(subject=subject)
-    return JsonResponse(list(a.to_dict() for a in assertions), safe=False, json_dumps_params={'indent': 2})
+    return JsonResponse(list(a.to_dict() for a in assertions), safe=False, json_dumps_params={"indent": 2})
+
 
 def api_get_policy_evaluation_results(request: HttpRequest) -> JsonResponse:
     """Retrieve policy evaluations based on API parameters."""
@@ -376,8 +396,8 @@ def api_get_policy_evaluation_results(request: HttpRequest) -> JsonResponse:
     results = PolicyEvaluationResult.objects.filter(subject=subject)
 
     # Further filter by policy group
-    if 'policy_group_uuid' in request.GET:
-        policy_group = get_object_or_404(PolicyGroup, uuid=request.GET.get('policy_group_uuid'))
+    if "policy_group_uuid" in request.GET:
+        policy_group = get_object_or_404(PolicyGroup, uuid=request.GET.get("policy_group_uuid"))
         results = results.filter(policy__in=policy_group.policies.all())
 
-    return JsonResponse(list(r.to_dict() for r in results), safe=False, json_dumps_params={'indent': 2})
+    return JsonResponse(list(r.to_dict() for r in results), safe=False, json_dumps_params={"indent": 2})

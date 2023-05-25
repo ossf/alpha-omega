@@ -169,3 +169,24 @@ class PackageRequest(models.Model):
 
     class Meta:
         ordering = ['created_date']
+
+class PolicyEvaluationQueue(models.Model):
+    """An internal queue of packages to be (re-)evaluated against available policies."""
+
+    class Status(models.TextChoices):
+        """The status of an item in the refresh queue."""
+        NEW = 'N', _('New')
+        IN_PROGRESS = 'IP', _('In Progress')
+        COMPLETED = 'CO', _('Completed')
+
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    state = models.CharField(max_length=2, choices=Status.choices, default=Status.NEW)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.subject}'
+
+    class Meta:
+        ordering = ['updated_date']
+        verbose_name_plural = "Refresh Queue Items"

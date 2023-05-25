@@ -25,9 +25,6 @@ def refresh_policies(subject: Subject = None, clear_first: bool = False):
         logging.warning("Invalid subject type: %s", subject.subject_type)
         return
 
-    if clear_first:
-        PolicyEvaluationResult.objects.filter(subject=subject).delete()
-
     with TemporaryDirectory() as tmpdir:
         for assertion in Assertion.objects.filter(subject=subject):
             with open(os.path.join(tmpdir, f"{assertion.uuid}.json"), "w") as f:
@@ -57,6 +54,8 @@ def refresh_policies(subject: Subject = None, clear_first: bool = False):
                 logging.warning("Error parsing oaf output: %s", msg)
                 return
 
+            already_cleared = False
+
             for result in results:
                 policy_identifier = result.get("policy_identifier")
                 policy_name = result.get("policy_name")
@@ -78,6 +77,11 @@ def refresh_policies(subject: Subject = None, clear_first: bool = False):
                 evaluated_by = "org.openssf.alpha-omega.oaf"
 
                 logging.debug("Policy %s for %s is %s", policy, subject, status)
+
+
+                if clear_first and not already_cleared:
+                    already_cleared = True
+                    PolicyEvaluationResult.objects.filter(subject=subject).delete()
 
                 PolicyEvaluationResult.objects.update_or_create(
                     policy=policy, subject=subject, status=status, evaluated_by=evaluated_by

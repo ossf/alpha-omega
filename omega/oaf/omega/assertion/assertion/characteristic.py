@@ -31,8 +31,8 @@ class Characteristic(BaseAssertion):
         with open(self.input_file, "r", encoding="utf-8") as f:
             try:
                 _data = f.read()
-                self.evidence = FileEvidence(self.input_file, _data, Reproducibility.UNKNOWN)
                 self.data = json.loads(_data)
+                self.evidence = FileEvidence(self.input_file, self.data, Reproducibility.UNKNOWN)
                 if "Application Inspector" not in self.data.get("appVersion", ""):
                     raise ValueError("appVersion is not Application Inspector")
             except Exception as msg:

@@ -50,3 +50,9 @@ def abbrev(policy):
 
     text = text.replace("-", " ").replace("_", " ").replace('.', ' ')
     return ''.join([t[0] for t in text.split() if t[0]]).upper()
+
+@register.filter
+def percentage(part, whole=100):
+    if not whole:
+        return 0
+    return 100.0 * float(part)/float(whole)

@@ -29,11 +29,16 @@ from oaffe.views import (
     api_get_assertions,
     api_get_help,
     package_request,
-    data_dump
+    data_dump,
+    policy_summary,
+    policy_detail
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    path("policy", policy_summary, name="policy_summary"),
+    path("policy/detail", policy_detail, name="policy_heatmap"),
 
     path("assertions", search_subjects, name="search_assertions"),
     path("assertions/show", show_assertions, name="show_assertions"),
