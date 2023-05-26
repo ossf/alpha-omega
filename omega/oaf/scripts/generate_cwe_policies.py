@@ -39,14 +39,16 @@ class CodeQLProcessor:
             with open(policy_filename, "w") as f:
                 f.write(template.render(data))
 
-    def load_cwe_data(self):
-        res = requests.get("https://cwe.mitre.org/data/xml/views/699.xml.zip", timeout=30)
+    def load_cwe_data(self, filename):
+        res = requests.get(f"https://cwe.mitre.org/data/xml/views/{filename}", timeout=30)
         res.raise_for_status()
         memory_stream = BytesIO(res.content)
 
         self.cwe_data = {}
+        filename_bare = filename.replace(".zip", "")
+
         with (zipfile.ZipFile(memory_stream) as z,
-            z.open("699.xml") as f):
+              z.open(filename_bare) as f):
             dom = parse_xml(f)
             for weakness in dom.getElementsByTagName('Weakness'):
                 cwe_id = 'cwe-' + weakness.getAttribute("ID")
@@ -60,5 +62,6 @@ class CodeQLProcessor:
                 }
 
 processor = CodeQLProcessor()
-processor.load_cwe_data()
+processor.load_cwe_data('699.xml.zip')
+processor.load_cwe_data('1000.xml.zip')
 processor.create_policies("security_tool_finding__cwe.template")
