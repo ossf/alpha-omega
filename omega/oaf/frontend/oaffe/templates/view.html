@@ -115,10 +115,10 @@
                                 <span class="badge text-bg-dark">Failed</span>
                             {% endif %}
                         </td>
-                        <td class="text-center" title="{{ policy_evaluation_result.evaluated_by }}">
+                        <td class="text-center text-nowrap" title="{{ policy_evaluation_result.evaluated_by }}">
                             {{ policy_evaluation_result.evaluated_by|translate|default:"-" }}
                         </td>
-                        <td class="text-center" title="{{ policy_evaluation_result.evaluation_date }}">
+                        <td class="text-center text-nowrap" title="{{ policy_evaluation_result.evaluation_date }}">
                             {{ policy_evaluation_result.evaluation_date|date:"SHORT_DATETIME_FORMAT" }}
                         </td>
                     </tr>
