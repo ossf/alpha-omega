@@ -115,10 +115,12 @@ class OAF:
 
         if args.verbose:
             logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+            logging.getLogger().setLevel(logging.DEBUG)
         else:
             logging.basicConfig(
                 level=logging.WARNING, format=LOG_FORMAT
             )
+            logging.getLogger().setLevel(logging.WARNING)
 
         if args.command == "generate":
             self.parse_args_generate(args)
