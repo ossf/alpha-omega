@@ -1,5 +1,4 @@
-import timezone
-from datetime import timedelta
+from datetime import timedelta, timezone
 import logging
 
 from django.core.management.base import BaseCommand
