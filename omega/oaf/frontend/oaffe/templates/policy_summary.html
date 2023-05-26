@@ -26,21 +26,23 @@
     <tbody>
         {% for policy in policies %}
         {% with total=policy.is_passed|add:policy.is_failed %}
-            <tr data-policy-identifier="{{ policy.identifier }}">
-                <td>{{ policy.name }}</td>
-                <td class="text-center">{{ total|floatformat:"g" }}</a></td>
-                <td class="text-center">
-                    <div class="progress" role="progressbar" aria-label="Progress bar for {{ policy.identifier }}" aria-valuenow="{{ policy.is_passed }}" aria-valuemin="0" aria-valuemax="{{ total }}" style="height: 22px">
-                        {% if policy.is_passed|percentage:total < 20 %}
-                            <div class="progress-bar bg-danger" style="width: {{ policy.is_passed|percentage:total|floatformat:"0" }}%">{{ policy.is_passed|percentage:total|floatformat:"0" }}%</div>
-                        {% elif policy.is_passed|percentage:total < 60 %}
-                            <div class="progress-bar bg-warning" style="color: #000; width: {{ policy.is_passed|percentage:total|floatformat:"0" }}%">{{ policy.is_passed|percentage:total|floatformat:"0" }}%</div>
-                        {% else %}
-                            <div class="progress-bar bg-success" style="width: {{ policy.is_passed|percentage:total|floatformat:"0" }}%">{{ policy.is_passed|percentage:total|floatformat:"0" }}%</div>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
+            {% if total > 0 %}
+                <tr data-policy-identifier="{{ policy.identifier }}">
+                    <td>{{ policy.name }}</td>
+                    <td class="text-center">{{ total|floatformat:"g" }}</a></td>
+                    <td class="text-center">
+                        <div class="progress" role="progressbar" aria-label="Progress bar for {{ policy.identifier }}" aria-valuenow="{{ policy.is_passed }}" aria-valuemin="0" aria-valuemax="{{ total }}" style="height: 22px">
+                            {% if policy.is_passed|percentage:total < 20 %}
+                                <div class="progress-bar bg-danger" style="width: {{ policy.is_passed|percentage:total|floatformat:"0" }}%">{{ policy.is_passed|percentage:total|floatformat:"0" }}%</div>
+                            {% elif policy.is_passed|percentage:total < 60 %}
+                                <div class="progress-bar bg-warning" style="color: #000; width: {{ policy.is_passed|percentage:total|floatformat:"0" }}%">{{ policy.is_passed|percentage:total|floatformat:"0" }}%</div>
+                            {% else %}
+                                <div class="progress-bar bg-success" style="width: {{ policy.is_passed|percentage:total|floatformat:"0" }}%">{{ policy.is_passed|percentage:total|floatformat:"0" }}%</div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
         {% endwith %}
     </tbody>
     {% endfor %}
