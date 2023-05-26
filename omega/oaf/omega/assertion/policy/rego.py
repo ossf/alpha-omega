@@ -52,7 +52,6 @@ class RegoPolicy(BasePolicy):
             assertions = [assertions]
 
         assertions = filter(lambda s: s, assertions)
-
         policy_name = self.metadata.get("name")
         identifier = self.metadata.get("identifier")
         logging.debug("Processing policy: %s", policy_name)
@@ -94,7 +93,11 @@ class RegoPolicy(BasePolicy):
             logging.debug("Error: [%s]", res.stderr.strip() if res.stderr else "")
 
             if res.returncode != 0:
-                raise ValueError("Rego policy failed to execute.")
+                logging.warning("Error executing policy [%s] against assertion [%s]", policy_name, assertion_str)
+                with open(policy_filename, 'r') as f:
+                    logging.warning(f.read())
+
+                raise ValueError("Rego policy failed to execute [%d]", res.returncode)
 
             if res.stdout is not None and res.stdout.strip().lower() != "true":
                 logging.debug("Policy [%s] did not apply to assertion.", policy_name)
