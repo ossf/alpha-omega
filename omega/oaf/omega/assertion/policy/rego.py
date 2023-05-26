@@ -11,7 +11,6 @@ from ..utils import get_complex, is_command_available, strtobool
 from .base import BasePolicy
 from .result import ExecutionResult, ResultState
 
-
 class RegoPolicy(BasePolicy):
     """A policy that uses Rego to evaluate assertions."""
 
@@ -50,6 +49,10 @@ class RegoPolicy(BasePolicy):
 
         if isinstance(assertions, str):
             assertions = [assertions]
+
+        if self.metadata is None:
+            logging.warning("Policy metadata is not set.")
+            raise ValueError("Policy metadata is not set.")
 
         assertions = filter(lambda s: s, assertions)
         policy_name = self.metadata.get("name")
@@ -166,6 +169,7 @@ class RegoPolicy(BasePolicy):
                 return results
             except Exception as msg:
                 logging.debug("Failed to parse metadata: %s", msg)
+                logging.debug("YAML data: [%s]", yaml_lines)
                 return None
 
         logging.debug("No metadata found.")
