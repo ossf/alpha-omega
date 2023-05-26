@@ -46,7 +46,7 @@ def refresh_policies(subject: Subject = None, clear_first: bool = False):
                 ],
                 cwd=os.path.join(pathlib.Path().resolve(), "../../../omega/oaf/omega"),
                 capture_output=True,
-                timeout=1200,
+                timeout=60*60*2,
                 encoding="utf-8",
             )
 
