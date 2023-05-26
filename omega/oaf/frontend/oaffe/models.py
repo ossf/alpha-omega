@@ -101,6 +101,7 @@ class Policy(models.Model):
 
     class Meta:
         verbose_name_plural = "Policies"
+        ordering = ['name', 'identifier']
 
 class PolicyEvaluationResult(models.Model):
     """The result of a policy evaluation."""
