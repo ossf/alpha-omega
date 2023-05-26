@@ -52,7 +52,7 @@ class RegoPolicy(BasePolicy):
 
         if self.metadata is None:
             logging.warning("Policy metadata is not set.")
-            raise ValueError("Policy metadata is not set.")
+            return
 
         assertions = filter(lambda s: s, assertions)
         policy_name = self.metadata.get("name")
