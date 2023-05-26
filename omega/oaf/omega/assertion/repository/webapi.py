@@ -38,7 +38,7 @@ class WebApiRepository(BaseRepository):
         """Find assertions for the given subject."""
         subject = str(subject)
         url = urljoin(self.endpoint, "api/find")
-        res = get_requests_session().get(url, params={"subject": subject}, timeout=30)
+        res = get_requests_session().get(url, params={"subject": subject}, timeout=90)
         if res.status_code == 200:
             data = res.json()
             results = []
