@@ -2,7 +2,7 @@ attrs==21.4.0
 certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.0.12
-cryptography==39.0.1
+cryptography==41.0.0
 fetchcode==0.1.0
 idna==3.3
 Jinja2==3.1.2
