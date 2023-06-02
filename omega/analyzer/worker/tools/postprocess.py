@@ -52,7 +52,7 @@ class PostProcessor:
             # Ignore certain files
             if func_name in ['process_codeql_db_basic', 'process_codeql_db_installed', 'process_codeql_db_installed_codeflow',
                              'process_codeql_db_installed_codeflow_sinks', 'process_strings', 'process_binwalk', 'process_radare2_rabin2',
-                             'process_metadata_depsdev', 'process_metadata_native']:
+                             'process_metadata_depsdev', 'process_metadata_native', 'process_metadata_librariesio']:
                 return
 
             if hasattr(self.__class__, func_name) and callable(getattr(self.__class__, func_name)):
