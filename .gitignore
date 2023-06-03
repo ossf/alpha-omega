@@ -9,3 +9,4 @@
 *.pem
 oss-gadget.log
 /.idea/*
+*~
