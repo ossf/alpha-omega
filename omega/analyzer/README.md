@@ -19,6 +19,14 @@ hardware.
 
 We're exploring making the pre-built image available.
 
+Alternatively, can use the following command to build from docker
+
+```sh
+docker build -t openssf/omega-toolshed:$(grep -E '^LABEL version.*' Dockerfile | cut -d= -f2 | tr -d '"') . -f Dockerfile
+
+# The command `$(grep -E '^LABEL version.*' Dockerfile | cut -d= -f2 | tr -d '"')` is responsible for searching for the version number on the Dockerfile and using that as the tag on Docker
+```
+
 ### Troubleshooting steps
 
 #### MacOS M1 Chip
@@ -63,6 +71,32 @@ You can also run the image directly (which will not include reproducibility or a
 ```sh
 docker run --rm -it --mount type=bind,source=/tmp/output_dir,target=/opt/export openssf/omega-toolshed:latest pkg:npm/left-pad@1.3.0 1.2.0
 ```
+
+### Standalone
+
+To run this as a standalone from a **built** image, run the following:
+
+```sh
+# Template of command
+docker run --rm -v <LOCAL_COMPUTER_DIR>:/opt/export/<PKG_DIR> --env-file .env openssf/omega-toolshed:latest pkg:<PKG_FORMAT>
+```
+
+```sh
+# Example of command
+docker run --rm -v ./npm/left-pad/:/opt/export/npm/left-pad/1.3.0 --env-file .env openssf/omega-toolshed:latest pkg:npm/left-pad@1.3.0
+```
+The result will be a directory containing all output files from the analysis placed into
+a directory on your local machine (not the container) in `./npm/left-pad`. 
+
+An example of the [.env](./worker/.env.example) should contain `librariesIO` api key to get the packages from the net. Simply create an account on libraries IO to get the API key.
+
+<!--
+```sh
+# For some extra hacking on the container, use this
+docker run --rm --entrypoint /bin/bash --env-file .env openssf/omega-toolshed:latest pkg:<PKG_FORMAT>
+```
+-->
+
 
 ## License
 
