@@ -26,12 +26,36 @@ if [ "$#" -lt 1 ]; then
     echo "Usage: runtools.sh PACKAGE_URL [PREVIOUS VERSION]"
     exit 1
 fi
-PURL="$1"
+
+
+# Checks if a package has been passed (picks the first one) and error checks that it is not an empty string 
+t_PURL="$(echo $@ | tr ' ' '\n' | grep -E '^pkg' | head -n 1)"
+[ -n $t_PURL ] && PURL=$t_PURL || echo "err: missing PACKAGE_URL in QUERY"
 
 # Used to keep duration of individual jobs
 function event()
 {
     echo "$1,$2,$SECONDS" >> /tmp/events.txt
+}
+
+# Show how the script can be invoked
+function usage()
+{
+cat <<EOF
+USAGE:
+	$0 [OPTS] PACKAGE_URL
+
+OPTIONS (OPTS):
+	-h : Help
+	   Shows Usage of the script
+
+	-... more       
+
+OUTPUT:
+	Output is written to /opt/export by default
+ 
+EOF
+exit 0
 }
 
 # Attempts to identify the previous version of a component dynamically
@@ -64,6 +88,13 @@ function get_previous_version()
         fi
     fi
 }
+
+while getopts 'h' opt; do
+    case "$opt" in
+	h) usage;;
+    esac
+done
+
 
 # Start the Script!
 
