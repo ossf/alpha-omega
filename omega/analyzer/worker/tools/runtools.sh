@@ -109,7 +109,7 @@ if [ -z "${NO_COLOR}" ]; then
     RED='\033[0;31m'
     GREEN='\033[0;32m'
     YELLOW='\033[1;33m'
-    BLUE='\033[0;34m'
+    BLUE='\033[1;36m'
     BG_RED='\033[41m'
     NC='\033[0m'
 else
@@ -126,17 +126,18 @@ fi
 VERY_SHORT_ANALYZER_TIMEOUT="30s"
 SHORT_ANALYZER_TIMEOUT="10m"
 LONG_ANALYZER_TIMEOUT="60m"
+OPTION_DYNAMIC_VERSION_RESOLUTION=0
 
 BUILD_SCRIPT_ROOT="/opt/buildscripts"
 LOCAL_SOURCE_DIRECTORY="/opt/local_source"
 
 PACKAGE_PURL_PARSED=$(python /opt/toolshed/parse_purl.py "${PURL}")
+PACKAGE_PURL_VERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_VERSION:" | cut -d: -f2-)
 PACKAGE_PURL_TYPE=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_TYPE:" | cut -d: -f2-)
 PACKAGE_PURL_NAME=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAME:" | cut -d: -f2-)
 PACKAGE_PURL_NAME_ENCODED=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAME_ENCODED:" | cut -d: -f2-)
 PACKAGE_PURL_NAMESPACE_NAME=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAMESPACE_NAME:" | cut -d: -f2-)
 PACKAGE_PURL_NAMESPACE_NAME_ENCODED=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAMESPACE_NAME_ENCODED:" | cut -d: -f2-)
-PACKAGE_PURL_VERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_VERSION:" | cut -d: -f2-)
 PACKAGE_PURL_OVERRIDE_URL=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_QUALIFIER_URL:" | cut -d: -f2-)
 PACKAGE_PURL=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_PURL:" | cut -d: -f2-)
 PACKAGE_DIR=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR:" | cut -d: -f2-)
@@ -156,7 +157,6 @@ if [ ! -d "$EXPORT_DIR" ]; then
     exit 1
 fi
 
-
 if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
     if [ ! -d "${LOCAL_SOURCE_DIRECTORY}" ]; then
         printf "${BG_RED}${WHITE}Unable to find local source directory: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
@@ -168,11 +168,6 @@ if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
     fi
 fi
 
-# Fix the OSSGadget Package URL when we have scoped namespaces
-PACKAGE_PURL_OSSGADGET="${PURL}"
-if [[ "$PACKAGE_PURL_NAMESPACE_NAME" == @* ]]; then
-    PACKAGE_PURL_OSSGADGET="pkg:${PACKAGE_PURL_TYPE}/${PACKAGE_PURL_NAMESPACE_NAME_ENCODED}@${PACKAGE_PURL_VERSION}"
-fi
 
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
@@ -203,13 +198,27 @@ printf " ${DARKGRAY}/ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL_VERSION}"
 printf "${BLUE}...${NC}\n"
 
+# attempts to dynamically resolve the version of the pkg
+if [ "${PACKAGE_PURL_VERSION,,}" == "latest" ]; then
+    OPTION_DYNAMIC_VERSION_RESOLUTION=1
+    PACKAGE_PURL_VERSION=$(get_previous_version)
+    PURL=$(echo $PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
+    PACKAGE_VERSION_ENCODED=$(echo $PACKAGE_VERSION_ENCODED | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
+    PACKAGE_PURL=$(echo $PACKAGE_PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
+    PACKAGE_DIR=$(echo $PACKAGE_DIR | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
+fi
+
+# Fix the OSSGadget Package URL when we have scoped namespaces
+PACKAGE_PURL_OSSGADGET="${PURL}"
+if [[ "$PACKAGE_PURL_NAMESPACE_NAME" == @* ]]; then
+    PACKAGE_PURL_OSSGADGET="pkg:${PACKAGE_PURL_TYPE}/${PACKAGE_PURL_NAMESPACE_NAME_ENCODED}@${PACKAGE_PURL_VERSION}"
+fi
+
+[ $OPTION_DYNAMIC_VERSION_RESOLUTION ] && printf "${BLUE}Latest version found: ${YELLOW}${PACKAGE_PURL_VERSION}\n"
+
 if [[ "$PACKAGE_PURL_LOCAL_SOURCE" == true ]]; then
     printf "${BLUE}Using local source from: ${YELLOW}${LOCAL_SOURCE_DIRECTORY}${DARKGRAY}.${NC}\n"
 fi
-
-TOP_ROOT="/opt/src/${PACKAGE_DIR_NOVERSION}"
-CUR_ROOT="/opt/src/${PACKAGE_DIR}"
-mkdir -p /opt/result "$TOP_ROOT" "$CUR_ROOT" "$CUR_ROOT/reference-binaries" "$CUR_ROOT/src" "$CUR_ROOT/installed"
 
 PREVIOUS_VERSIONS=""
 if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
@@ -220,6 +229,10 @@ elif [ -z "$PACKAGE_PURL_OVERRIDE_URL" ]; then
         printf "${GREEN}Found previous versions: ${PREVIOUS_VERSIONS//$'\n'/}${NC}\n"
     fi
 fi
+
+TOP_ROOT="/opt/src/${PACKAGE_DIR_NOVERSION}"
+CUR_ROOT="/opt/src/${PACKAGE_DIR}"
+mkdir -p /opt/result "$TOP_ROOT" "$CUR_ROOT" "$CUR_ROOT/reference-binaries" "$CUR_ROOT/src" "$CUR_ROOT/installed"
 
 # OSS Gadget - Download binaries, store away for safekeeping
 printf "${RED}Downloading binaries...${NC}\n"
