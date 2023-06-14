@@ -144,31 +144,6 @@ PACKAGE_DIR=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR:" | cut -d: -f2-
 PACKAGE_DIR_NOVERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR_NOVERSION:" | cut -d: -f2-)
 PACKAGE_PURL_LOCAL_SOURCE=$(echo "${PACKAGE_PURL_PARSED}" | grep -qi "PACKAGE_QUALIFIER_LOCAL_SOURCE:true" && echo true || echo false)
 
-# if destination dir specified in env, take that instead of /opt/export
-if ([ -n "${DESTINATION_DIR}" ] && [ -d "${DESTINATION_DIR}" ]); then
-    EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
-else
-    DESTINATION_DIR="/opt/export"
-    EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
-fi
-mkdir -p "$EXPORT_DIR"
-if [ ! -d "$EXPORT_DIR" ]; then
-    printf "${BG_RED}${WHITE}Unable to create export directory: ${EXPORT_DIR}${NC}\n"
-    exit 1
-fi
-
-if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
-    if [ ! -d "${LOCAL_SOURCE_DIRECTORY}" ]; then
-        printf "${BG_RED}${WHITE}Unable to find local source directory: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
-        exit 1
-    fi
-    if [ -z "$(ls -A ${LOCAL_SOURCE_DIRECTORY})" ]; then
-        printf "${BG_RED}${WHITE}Local source directory is empty: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
-        exit 1
-    fi
-fi
-
-
 PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
 
 ANALYZER_VERSION="0.8.6"
@@ -206,6 +181,30 @@ if [ "${PACKAGE_PURL_VERSION,,}" == "latest" ]; then
     PACKAGE_VERSION_ENCODED=$(echo $PACKAGE_VERSION_ENCODED | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
     PACKAGE_PURL=$(echo $PACKAGE_PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
     PACKAGE_DIR=$(echo $PACKAGE_DIR | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
+fi
+
+# if destination dir specified in env, take that instead of /opt/export
+if ([ -n "${DESTINATION_DIR}" ] && [ -d "${DESTINATION_DIR}" ]); then
+    EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
+else
+    DESTINATION_DIR="/opt/export"
+    EXPORT_DIR="${DESTINATION_DIR}/${PACKAGE_DIR}"
+fi
+mkdir -p "$EXPORT_DIR"
+if [ ! -d "$EXPORT_DIR" ]; then
+    printf "${BG_RED}${WHITE}Unable to create export directory: ${EXPORT_DIR}${NC}\n"
+    exit 1
+fi
+
+if [[ "${PACKAGE_PURL_LOCAL_SOURCE}" == true ]]; then
+    if [ ! -d "${LOCAL_SOURCE_DIRECTORY}" ]; then
+        printf "${BG_RED}${WHITE}Unable to find local source directory: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
+        exit 1
+    fi
+    if [ -z "$(ls -A ${LOCAL_SOURCE_DIRECTORY})" ]; then
+        printf "${BG_RED}${WHITE}Local source directory is empty: ${LOCAL_SOURCE_DIRECTORY}${NC}\n"
+        exit 1
+    fi
 fi
 
 # Fix the OSSGadget Package URL when we have scoped namespaces
