@@ -18,19 +18,21 @@ exit 0
 }
 
 function main {
-    { # try
-	version=$(grep -E '^LABEL version.*' Dockerfile | cut -d= -f2 | tr -d '"')
+    _version=$(grep -E '^LABEL version.*' Dockerfile | cut -d= -f2 | tr -d '"')
+    # error handling on whether or not it can parse the version number
+    [ -n "$_version" ] && version=_version || echo "err: version number could not be found!"
 
-	if [ $OPT_FORCE ]; then
-	    docker build -t openssf/omega-toolshed:$version . -f Dockerfile --build-arg CACHEBUST=$(date '+%FT%T.%N%:z')
-	else
-	    docker build -t openssf/omega-toolshed:$version . -f Dockerfile
-	fi
-	docker tag openssf/omega-toolshed:$version openssf/omega-toolshed:latest
-	
-    } || { #catch
-	echo "Error running build."
-    }
+    if [ $OPT_FORCE ]; then
+	docker build -t openssf/omega-toolshed:$version . -f Dockerfile --build-arg CACHEBUST=$(date '+%FT%T.%N%:z')
+	[ $? -eq 1 ] && echo "err: could not force build docker container"
+    else
+	docker build -t openssf/omega-toolshed:$version . -f Dockerfile
+	[ $? -eq 1 ] && echo "err: could not build docker container"
+    fi
+    
+    docker tag openssf/omega-toolshed:$version openssf/omega-toolshed:latest
+    [ $? -eq 1 ] && echo "err: unsuccessful in tagging container"
+
 }
 
 while getopts 'hf' opt; do
