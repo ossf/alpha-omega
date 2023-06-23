@@ -49,6 +49,9 @@ OPTIONS (OPTS):
 	-h : Help
 	   Shows Usage of the script
 
+	-a : Run scan with assertion
+	   Show the results of the scan with the assertion
+
 	-... more       
 
 OUTPUT:
@@ -89,12 +92,14 @@ function get_previous_version()
     fi
 }
 
-while getopts 'h' opt; do
+OPTS_INSERT_ASSERTION=
+
+while getopts 'ha' opt; do
     case "$opt" in
 	h) usage;;
+	a) OPTS_INSERT_ASSERTION=1;;
     esac
 done
-
 
 # Start the Script!
 
@@ -233,6 +238,7 @@ TOP_ROOT="/opt/src/${PACKAGE_DIR_NOVERSION}"
 CUR_ROOT="/opt/src/${PACKAGE_DIR}"
 mkdir -p /opt/result "$TOP_ROOT" "$CUR_ROOT" "$CUR_ROOT/reference-binaries" "$CUR_ROOT/src" "$CUR_ROOT/installed"
 
+
 # OSS Gadget - Download binaries, store away for safekeeping
 printf "${RED}Downloading binaries...${NC}\n"
 event start download-binaries
@@ -247,6 +253,8 @@ fi
 event stop download-binaries
 if [ -z "$(ls -A "$CUR_ROOT"/reference-binaries 2>/dev/null)" ]; then
     printf "${BG_RED}${WHITE}Package could not be found, nothing to do.${NC}\n"
+    PKG_MANAGER="$(echo ${PACKAGE_DIR} | cut -d'/' -f1)"
+    rm -rf "/opt/export/${PKG_MANAGER}"
     exit 1
 fi
 cd "$CUR_ROOT"
@@ -332,6 +340,15 @@ for PREVIOUS_VERSION in $PREVIOUS_VERSIONS; do
     find "$TOP_ROOT/$PREVIOUS_VERSION/" -type f | xargs -I{} grep -Eoa '\w+(\w\.)*\w+' {} | tr '[:upper:]' '[:lower:]' | sort | uniq > "/opt/result/tool-strings.$PREVIOUS_VERSION.txt"
     comm -23 "/opt/result/tool-strings.$PACKAGE_PURL_VERSION.txt" "/opt/result/tool-strings.$PREVIOUS_VERSION.txt" >"/opt/result/tool-strings-diff.$PACKAGE_PURL_VERSION-$PREVIOUS_VERSION.txt"
 done
+
+# Assurance Assertion - Get assertion from assurance assertion endpoint
+if [ -v "$OPTS_INSERT_ASSERTION" ]; then
+    ASSERTION_BASE_ENDP="https://oafdev1.westus2.cloudapp.azure.com"
+    printf "${RED}Get assertion from package...${NC}\n"
+    event start assurance-assertion
+    curl -L -s "${ASSERTION_BASE_ENDP}/api/1/assertion/get?subject_identifier=${PURL}" > /opt/result/tool-assurance-assertion-results.sarif
+    event stop assurance-assertion
+fi
 
 # Binary Attributes - via Radare2
 printf "${RED}Extracting binary attributes via Radare2...${NC}\n"
@@ -442,7 +459,6 @@ chmod -x /opt/result/tool-secretscanner.json
 event stop tool-secretscanner
 
 # Binary to Source Validation
-
 if [ "$PACKAGE_PURL_TYPE" == "npm" ]; then
     printf "${RED}Validating reproducibility - tbv...${NC}\n"
     event start tool-tbv
@@ -708,6 +724,7 @@ else
     event stop tool-snyk-code
 fi
 
+# This area is responsible for the aggregation of sarif files that results in the top-level summary
 printf "${BLUE}Post-processing...${NC}\n"
 event start post-process
 python /opt/toolshed/postprocess.py "$PACKAGE_PURL" /opt/result/
