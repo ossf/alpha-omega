@@ -20,7 +20,7 @@ exit 0
 function main {
     _version=$(grep -E '^LABEL version.*' Dockerfile | cut -d= -f2 | tr -d '"')
     # error handling on whether or not it can parse the version number
-    [ -n "$_version" ] && version=_version || echo "err: version number could not be found!"
+    [ -n "$_version" ] && version=$_version || echo "err: version number could not be found!"
 
     if [ $OPT_FORCE ]; then
 	docker build -t openssf/omega-toolshed:$version . -f Dockerfile --build-arg CACHEBUST=$(date '+%FT%T.%N%:z')
