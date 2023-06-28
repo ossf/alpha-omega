@@ -24,7 +24,7 @@ We have active engagements with the following projects:
 * [Eclipse Foundation](/alpha/engagements/2022/eclipse)
 * [Rust Foundation](/alpha/engagements/2022/rust)
 * [jQuery](/alpha/engagements/2022/jquery)
-* [Python Software Foundation](/alpha/engagements/2022/psf)
+* [Python Software Foundation](/alpha/engagements/2023/psf)
 
 For more information on Alpha, see [alpha/README.md](alpha/README.md).
 
