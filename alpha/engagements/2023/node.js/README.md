@@ -20,7 +20,7 @@ This engagement started in Jan 2023 and is expected to continue through at least
 ### Primary Contacts
 
 * Robin Ginn - OpenJS
-* Rafael Gonzaga (@rafaelgss) - Nearform
+* Rafael Gonzaga (@rafaelgss) - Nearform / Node.js TSC
 * Michael Dawson (@mhdawson) - Node.js TSC
 
 ### Announcement / News
