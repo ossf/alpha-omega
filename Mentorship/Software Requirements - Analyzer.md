@@ -92,7 +92,7 @@ stateDiagram-v2
   - [ ] Remediation: Checksum validation
 - [ ] Manipulation on package name / version number
   - Package and Version Validation
-- :heady_check_mark: Erroneous data mitgiation
+- :heavy_check_mark: Erroneous data mitgiation
   - One [x] package per container
 
 
@@ -116,12 +116,12 @@ stateDiagram-v2
 ## Testing
 | Test No | Description | Files  | Steps 
 | :---- | :---- | :---- | :---- 
-| 1 | Analyzer Build Script           |
-| 2 | Analyzer Build Script with Flag | 
-| 3 | Version Resolution              |
-| 4 | Analyzer do assertion           | 
-| 5 | Failure on Errorenous Version   |
-| 6 | Failure on invalid input format |
+| 1 | Analyzer Build Script           | | [Steps](#1)
+| 2 | Analyzer Build Script with Flag | | [Steps](#2)
+| 3 | Version Resolution              | | [Steps](#3)
+| 4 | Analyzer do assertion           | | [Steps](#4)
+| 5 | Failure on Errorenous Version   | | [Steps](#5)
+| 6 | Failure on invalid input format | | [Steps](#6)
 | 7 | ....
 
 
