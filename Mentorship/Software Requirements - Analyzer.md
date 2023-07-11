@@ -123,8 +123,8 @@ stateDiagram-v2
 | 7 | ....
 
 
-<details>
-<summary>Analyzer Build Script</summary>
+
+
 
 ### 1
 | Steps | Linux Steps | Current Directory 
@@ -134,10 +134,6 @@ stateDiagram-v2
 | Build Container (using build script) | `./build.sh` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 
-</details>
-
-<details>
-<summary>Analyzer Build Script with Force Option Enabled</summary>
 
 ### 2
 | Steps | Linux Steps | Current Directory 
@@ -147,10 +143,6 @@ stateDiagram-v2
 | Build Container (using build script with force flag) | `./build.sh -f` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 
-</details>
-
-<details>
-<summary>Version Resolution</summary>
 
 ### 3
 | Steps | Linux Steps | Current Directory 
@@ -161,10 +153,6 @@ stateDiagram-v2
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 | Verify that @latest resolves to a version (i.e returns an output directory | --- | ./alpha-omega/omega/analyzer
 
-</details>
-
-<details>
-<summary>Analyzer do assertion</summary>
 
 ### 4
 | Steps | Linux Steps | Current Directory 
@@ -178,10 +166,6 @@ stateDiagram-v2
 
 - -v .:/opt/export is used to mount to get content from the container to local machine
 
-</details>
-
-<details>
-<summary>Failure on Errorenous Version</summary>
 
 ### 5
 | Steps | Linux Steps | Current Directory 
@@ -192,11 +176,6 @@ stateDiagram-v2
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 | Verify that container fails (outputs could not find package: Package could not be found, nothing to do) | --- | ./alpha-omega/omega/analyzer
 
-</details>
-
-<details>
-<summary>Failure on not following input format</summary>
-
 ### 6 
 | Steps | Linux Steps | Current Directory 
 | :----- | :----: | :----
@@ -205,4 +184,4 @@ stateDiagram-v2
 | Build Container (using build script) | `./build.sh` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libraries io creds> openssf/omega-toolshed npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 | Verify that container fails execution (Unable to parse Package Url) | ---- | ./alpha-omega/omega/analyzer
-</details>
+
