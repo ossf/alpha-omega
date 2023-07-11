@@ -76,15 +76,13 @@ stateDiagram-v2
 - [ ] Scanning 10 pypis a week
   - [ ] Record failures and status of results
   - [x] Record time to scan 
-  - [ ] Rxcord summary-results.sarif file size
+  - [ ] Record summary-results.sarif file size
   - [ ] Record date of scan
 
 ## Bug fixes and additional functionalities implemented
-- ./runtools.sh argument and options parsing 
-  - https://github.com/ossf/alpha-omega/pull/162 
+- [./runtools.sh argument and options parsing](https://github.com/ossf/alpha-omega/pull/162)
 
-- ./runtools.sh dynamic version resolution
-  - https://github.com/ossf/alpha-omega/pull/162 
+- [./runtools.sh dynamic version resolution](https://github.com/ossf/alpha-omega/pull/162)
 
 
 ## Security Requirements
@@ -93,7 +91,7 @@ stateDiagram-v2
 - [ ] Manipulation on package name / version number
   - Package and Version Validation
 - :heavy_check_mark: Erroneous data mitgiation
-  - One [x] package per container
+  -  [x] One package per container
 
 
 ## Acceptance Criteria
@@ -102,7 +100,7 @@ stateDiagram-v2
   - Environment Variables or as an argument
 - [ ] The analyzer should have support for JavaScript [npm], Java [maven], and Python [PyPi]
 - [ ] The analyzer has exception handling for the SARIF file upload
-- [ ] Txe analyzer is able to create a SARIF file with only the Scan results
+- [ ] The analyzer is able to create a SARIF file with only the Scan results
 - [ ] The analyzer is able to create a SARIF file to include both the scan results and the assertion report
 - [ ] The analyzer has been tested with the Omega Top 10k list despite success of the scan.
 - [ ] Tested Omega top 10k list has been documented based on its success and failure
@@ -125,6 +123,9 @@ stateDiagram-v2
 | 7 | ....
 
 
+<details>
+<summary>Analyzer Build Script</summary>
+
 ### 1
 | Steps | Linux Steps | Current Directory 
 | :----- | :----: | :----
@@ -132,6 +133,11 @@ stateDiagram-v2
 | Change Directory to omega/analyzer | `cd omega/analyzer` | ./alpha-omega/omega/analyzer 
 | Build Container (using build script) | `./build.sh` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
+
+</details>
+
+<details>
+<summary>Analyzer Build Script with Force Option Enabled</summary>
 
 ### 2
 | Steps | Linux Steps | Current Directory 
@@ -141,6 +147,11 @@ stateDiagram-v2
 | Build Container (using build script with force flag) | `./build.sh -f` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 
+</details>
+
+<details>
+<summary>Version Resolution</summary>
+
 ### 3
 | Steps | Linux Steps | Current Directory 
 | :----- | :----: | :----
@@ -149,6 +160,11 @@ stateDiagram-v2
 | Build Container (using build script) | `./build.sh` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 | Verify that @latest resolves to a version (i.e returns an output directory | --- | ./alpha-omega/omega/analyzer
+
+</details>
+
+<details>
+<summary>Analyzer do assertion</summary>
 
 ### 4
 | Steps | Linux Steps | Current Directory 
@@ -162,6 +178,11 @@ stateDiagram-v2
 
 - -v .:/opt/export is used to mount to get content from the container to local machine
 
+</details>
+
+<details>
+<summary>Failure on Errorenous Version</summary>
+
 ### 5
 | Steps | Linux Steps | Current Directory 
 | :----- | :----: | :----
@@ -170,3 +191,18 @@ stateDiagram-v2
 | Build Container (using build script) | `./build.sh` | ./alpha-omega/omega/analyzer
 | Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libaries io creds> openssf/omega-toolshed pkg:npm/left-pad@latest` | ./alpha-omega/omega/analyzer
 | Verify that container fails (outputs could not find package: Package could not be found, nothing to do) | --- | ./alpha-omega/omega/analyzer
+
+</details>
+
+<details>
+<summary>Failure on not following input format</summary>
+
+### 6 
+| Steps | Linux Steps | Current Directory 
+| :----- | :----: | :----
+| Clone Alpha-Omega Repository | `git clone git@github.com:ossf/alpha-omega.git` | .
+| Change Directory to omega/analyzer | `cd omega/analyzer` | ./alpha-omega/omega/analyzer 
+| Build Container (using build script) | `./build.sh` | ./alpha-omega/omega/analyzer
+| Run toolshed container using format | `docker run --rm -it --env-file <.env containing the libraries io creds> openssf/omega-toolshed npm/left-pad@latest` | ./alpha-omega/omega/analyzer
+| Verify that container fails execution (Unable to parse Package Url) | ---- | ./alpha-omega/omega/analyzer
+</details>
