@@ -1,0 +1,109 @@
+{% load static %}
+{% load i18n %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="icon" href="{% static "oaffe/images/alpha-omega-logo-icon-color.png" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/bootstrap/dist/css/bootstrap.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "oaffe/resources/@fortawesome/fontawesome-free/css/all.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "oaffe/oaffe.css" %}" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap" rel="stylesheet">
+
+    {% block style_include %}
+    {% endblock style_include %}
+
+    {% block header %}
+    {% endblock header %}
+
+    <style type="text/css">
+    {% block style %}
+    {% endblock style %}
+    </style>
+
+    <title>OpenSSF Omega {% block title %}{% endblock title %}</title>
+
+  </head>
+  <body>
+    <div id="lf-header">
+      <a href="https://www.linuxfoundation.org/projects" target="_blank" rel="openener noreferrer"><img src="{% static "oaffe/images/logo_lf_projects_horizontal_2018.png" %}" /></a>
+    </div>
+
+    {% block full_body %}
+    <nav class="navbar navbar-expand-md navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img src="{% static "oaffe/images/alpha-omega-logo-icon-color.png" %}" />
+          Assurance Assertions
+        </a>
+        <button class="navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/policy' or request.path == '/policy/detail' %}active{% endif %}" href="/policy">Policies</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/help/api' %}active{% endif %}" href="/help/api">API</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/package_request' %}active{% endif %}" href="/package_request">Request a Package</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle {% if request.path == '/help/about' or request.path == '/help/privacy' %}active{% endif %}" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">About</a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/help/about">About Us</a></li>
+                <li><a class="dropdown-item" href="https://www.linuxfoundation.org/legal/privacy-policy" target="_blank" rel="openener noreferrer">Privacy</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="https://github.com/ossf/alpha-omega" target="_blank" rel="openener noreferrer"><i class="fa-brands fa-github"></i> GitHub</a></li>
+                <li><a class="dropdown-item" href="https://slack.openssf.org" target="_blank" rel="openener noreferrer"><i class="fa-brands fa-slack"></i> Slack</a></li>
+              </ul>
+            </li>
+          </ul>
+          <form class="d-flex" role="search" method="get" action="/assertions">
+            <div class="input-group">
+              <input type="text" name="q" class="form-control form-control-sm" name="search" placeholder="Search..." />
+              <button type="submit" class="btn btn-primary rounded-end"><i class="fas fa-search"></i></button>
+            <div>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <div class="alert alert-warning text-center poc-alert" role="alert">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      This is a proof-of-concept application. Content may change at any time or become inaccessible.
+    </div>
+
+    <main class="container-lg">
+      {% block body %}
+      {% endblock body %}
+    </main>
+
+    {% endblock full_body %}
+
+    {% block footer %}
+    {% endblock footer %}
+
+    <script type="text/javascript" src="{% static "oaffe/resources/jquery/dist/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "oaffe/resources/@popperjs/core/dist/umd/popper.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "oaffe/resources/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "oaffe/oaffe.js" %}"></script>
+    <script type="text/javascript">
+      {% block javascript %}
+      {% endblock javascript %}
+    </script>
+    {% block javascript_include %}
+    {% endblock javascript_include %}
+  </body>
+</html>

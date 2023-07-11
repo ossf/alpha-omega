@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% load translate %}
+{% load static %}
+
+{% block body %}
+
+<div class="d-flex mb-3" style="border-bottom: 2px solid rgba(10, 59, 97, 100)">
+    <div>
+        <h2>
+            {% if "pkg:npm/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_npm.png" %}"/>
+            {% elif "pkg:pypi/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
+            {% elif "pkg:nuget/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_nuget.png" %}"/>
+            {% elif "pkg:gem/" in subject.identifier %}
+                <img class="package-icon" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
+            {% endif %}
+            <span class="ms-2">{{ subject|format_subject:"full_name"}}</span>
+            <span class="text-muted">@</span>
+            {% if related_subjects|length == 1 %}
+                {{ subject|format_subject:"version"|shorten_version }}
+            {% else %}
+                <div class="dropdown d-inline">
+                    <a class="btn btn-outline-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.85em">
+                        {{ subject|format_subject:"version"|shorten_version }}
+                    </a>
+                    <ul class="dropdown-menu">
+                    {% for related_subject in related_subjects|dictsort:"identifier" %}
+                        {% if related_subject.uuid != subject.uuid %}
+                            <li><a class="dropdown-item" href="/assertions/show?subject_uuid={{ related_subject.uuid }}">{{ related_subject|format_subject:"full_name" }}@{{ related_subject|format_subject:"version"|shorten_version }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Not implemented yet
+                <a class="btn btn-outline-secondary" href="/assertions/generate-report?subject_uuid={{ subject.uuid }}" onclick="javascript:alert('Not implemented');return false"><i class="fa-solid fa-download"></i></a>
+            -->
+        </h2>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<nav class="view-nav">
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-policy-tab" data-bs-toggle="tab" data-bs-target="#nav-policy" type="button" role="tab" aria-controls="nav-policy" aria-selected="true">Policies</button>
+        {% if dep_pers.direct or dep_pers.indirect %}
+            <button class="nav-link" id="nav-dependency-tab" data-bs-toggle="tab" data-bs-target="#nav-dependency" type="button" role="tab" aria-controls="nav-dependency" aria-selected="false">Dependencies</button>
+        {% else %}
+            <button class="nav-link disabled" id="nav-dependency-tab" data-bs-toggle="tab" data-bs-target="#nav-dependency" type="button" role="tab" aria-controls="nav-dependency" aria-selected="false">Dependencies</button>
+        {% endif %}
+        <button class="nav-link" id="nav-assertion-tab" data-bs-toggle="tab" data-bs-target="#nav-assertion" type="button" role="tab" aria-controls="nav-assertion" aria-selected="false">Assertions</button>
+    </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane show active" id="nav-policy" role="tabpanel" aria-labelledby="nav-policy-tab">
+        <div class="float-end">
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="policySetMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                -- Policy Set --
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="policySetMenuButton">
+                    <li><a class="dropdown-item {% if not policy_group_uuid %}active{% endif %}" href="/assertions/show?subject_uuid={{ subject.uuid }}">All Policies</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% for policy_group in policy_groups %}
+                    <li><a class="dropdown-item {% if policy_group.uuid|stringformat:"s" == policy_group_uuid %}active{% endif %}" href="/assertions/show?subject_uuid={{ subject.uuid }}&policy_group_uuid={{ policy_group.uuid }}">{{ policy_group.name }}</a></li>
+                {% endfor %}
+                </ul>
+                {% if policy_group_uuid %}
+                    <a class="btn btn-sm btn-outline-secondary" href="/api/1/policy_evaluation_result/get?subject_uuid={{ subject.uuid }}&policy_group_uuid={{ policy_group_uuid }}" title="API to retrieve policy evaluation results"><i class="fa-solid fa-code"></i></a>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-secondary" href="/api/1/policy_evaluation_result/get?subject_uuid={{ subject.uuid }}" title="API to retrieve policy evaluation results"><i class="fa-solid fa-code"></i></a>
+                {% endif %}
+            </div>
+        </div>
+
+        <h4>Policies</h4>
+        <div style="width:100%">
+            <table class="table table-sm table-hover policy-evaluation-result-table">
+                <thead>
+                    <tr>
+                        <th>Policy</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Evaluated By</th>
+                        <th class="text-center">Last Executed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for policy_evaluation_result in policy_evaluation_results %}
+                        {% if policy_evaluation_result.status == "FA" %}
+                            <tr class="bg-warning" data-policy-uuid="{{ policy_evaluation_result.policy.uuid }}" data-policy-evaluation-result-uuid="{{ policy_evaluation_result.uuid }}">
+                        {% else %}
+                            <tr data-policy-uuid="{{ policy_evaluation_result.policy.uuid }}" data-policy-evaluation-result-uuid="{{ policy_evaluation_result.uuid }}">
+                        {% endif %}
+
+                        <td title="{{ policy_evaluation_result.policy.identifier }}">
+                            {% if policy_evaluation_result.policy.name %}
+                                {{ policy_evaluation_result.policy.name }}
+                            {% else %}
+                                {{ policy_evaluation_result.policy.identifier|translate }}
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            {% if policy_evaluation_result.status == "PA" %}
+                                <span class="badge text-bg-success">Passed</span>
+                            {% elif policy_evaluation_result.status == "IN" %}
+                                <span class="badge text-bg-success">Indeterminate</span>
+                            {% elif policy_evaluation_result.status == "UK" %}
+                                <span class="badge text-bg-success">Unknown</span>
+                            {% elif policy_evaluation_result.status == "FA" %}
+                                <span class="badge text-bg-dark">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center text-nowrap" title="{{ policy_evaluation_result.evaluated_by }}">
+                            {{ policy_evaluation_result.evaluated_by|translate|default:"-" }}
+                        </td>
+                        <td class="text-center text-nowrap" title="{{ policy_evaluation_result.evaluation_date }}">
+                            {{ policy_evaluation_result.evaluation_date|date:"SHORT_DATETIME_FORMAT" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="nav-dependency" role="tabpanel" aria-labelledby="nav-dependency-tab">
+        <h4 class="mt-3">Dependencies</h4>
+        <div class="mb-3" style="width:100%">
+        <table class="table table-sm table-hover dependency-table">
+            <thead>
+                <tr>
+                    <th>Projects</th>
+                    {% for policy in dep_pers.policies %}
+                        <th style="max-width: 30px" class="text-center" title="{% if policy.name %}{{ policy.name }}{% else %}{{ policy.identifier|translate }}{% endif %}">
+                            {% if policy.icon_class %}
+                                <i class="{{ policy.icon_class }}"></i>
+                            {% else %}
+                                {{ policy|abbrev}}
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <th class="section-header pt-2 pb-2" colspan="{{ dep_pers.policies|length|add:1 }}">Direct Dependencies</th>
+                {% include "part_dependency_table.html" with obj=dep_pers.direct %}
+
+                <th class="section-header pt-2 pb-2" colspan="{{ dep_pers.policies|length|add:1 }}">Indirect Dependencies</th>
+                {% include "part_dependency_table.html" with obj=dep_pers.indirect %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="nav-assertion" role="tabpanel" aria-labelledby="nav-assertion-tab">
+        <div class="float-end">
+            <a class="btn btn-sm btn-outline-secondary" href="/assertions/download-all?subject_uuid={{subject.uuid}}" title="Download all assertions as a .zip file."><i class="fa-solid fa-file-zipper"></i></a>
+            <a class="btn btn-sm btn-outline-secondary" href="/api/1/assertion/get?subject_uuid={{ subject.uuid }}" title="API to retrieve assertions"><i class="fa-solid fa-code"></i></a>
+        </div>
+        <h4>Assertions</h4>
+        <div style="width:100%">
+            <table class="table table-sm table-hover assertion-table">
+                <thead>
+                    <tr>
+                        <th>Assertion</th>
+                        <th class="text-center">Generated Date</th>
+                        <th class="text-center">Asserted By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assertion in assertions %}
+                    <tr data-assertion-uuid="{{ assertion.uuid }}" data-assertion-generator-uuid="{{ assertion.generator.uuid }}">
+                        <td title="{{ assertion.generator.name }}">{{ assertion.generator.name_readable|default:assertion.generator.name }}</td>
+                        <td class="text-center">{{ assertion.created_date|date:"SHORT_DATETIME_FORMAT" }}</td>
+                        <td class="text-center">OpenSSF / Alpha-Omega
+                            <small><i class="fas fa-check-circle" style="color:green"></i></small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Assertion Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-secondary assertion-download" href="#"><i class="fa-solid fa-download"></i>&nbsp;Download</a>
+            <button type="button" class="btn btn-secondary assertion-more-info"><i class="fa-regular fa-circle-question"></i>&nbsp;More Information</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+    $(document).ready(() => {
+        // Apply row styling for rows that have at least one x-mark
+        $('tr.dependency-table-row td i.fa-circle-xmark').closest('tr').addClass('table-danger');
+    })
+{% endblock %}

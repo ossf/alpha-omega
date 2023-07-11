@@ -13,7 +13,7 @@ from ..evidence import RedactedEvidence, Reproducibility, FileEvidence
 from ..sarif import SarifHelper
 from ..subject import BaseSubject
 from .base import BaseAssertion
-
+from ..utils import strtobool
 
 class SecurityToolFinding(BaseAssertion):
     """
@@ -35,7 +35,7 @@ class SecurityToolFinding(BaseAssertion):
         self.data = None  # type: typing.Optional[dict]
         self.filtered_results = []  # type: typing.Generator[dict, None, None]
         self.severity_map = {}  # type: dict[str, int]
-        self.include_evidence = kwargs.get("include_evidence", True)
+        self.include_evidence = strtobool(kwargs.get("include_evidence", True))
         self.filter = kwargs.get("filter", None)
         if self.filter:
             if self.filter.startswith('lambda '):

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+
+<h4>About</h4>
+<p>
+    The Alpha-Omega Assurance Assertions project is an attempt to provide an important
+    missing piece of the open source security puzzle: a way to communicate about the
+    security posture of open source software. It supplements other efforts, including
+    <a href="https://securityscorecards.dev">OpenSSF Scorecards</a>, static analysis
+    using tools like <a href="https://codeql.github.com/">CodeQL</a> and
+    <a href="https://snyk.io/product/snyk-code/">Snyk Code</a>, dependency analysis
+    leveraging <a href="https://github.com/advisories">GitHub Security Advisories</a>, and
+    direct security reviews.
+</p>
+<p>
+    Assurance Assertions provides consumers (developers, compliance teams, security
+    assurance, etc.) a way to measure the security quality of a project and evaluate
+    policies to understand whether those projects meet their expectations.
+</p>
+<p>
+    Imagine being able to describe a policy like, "The only projects that implement
+    cryptography should be OpenSSL, BoringSSL, or LibreSSL". Assurance Assertions
+    can enable exactly this.
+</p>
+<p>
+    The best part: Assurance Assertions is open source. You use the public instance
+    (this web-site you're reading right now) or you can run your own instance privately.
+    You can generate assertions (or create your own), evaluate policies (or create
+    your own), and use the results to make decisions within the confines of your
+    own organization. Of course, we'd greatly appreciate you contributing back to
+    help make the project more successful.
+</p>
+<p>
+    Assurance Assertions is part of the <a href="https://openssf.org">OpenSSF</a>
+    <a href="https://openssf.org/community/alpha-omega/">Alpha-Omega</a> project.
+</p>
+
+{% endblock %}

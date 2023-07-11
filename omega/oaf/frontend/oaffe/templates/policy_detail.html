@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% load translate %}
+{% load static %}
+
+{% block title %}Policy Mapping{% endblock %}
+
+{% block body %}
+
+{{ policy }}
+
+<h4>{{ policy.name }}</h4>
+<div>
+    {{ policy.description }}
+</div>
+
+{{ subjects }}
+
+<div class="float-end">
+    <div class="dropdown">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="policySetMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        -- Filter --
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="policySetMenuButton">
+            <li><a class="dropdown-item {% if not policy_filter %}active{% endif %}" href="/policy/detail?policy_identifier={{ policy.identifier }}">All Policies</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item {% if policy_filter == "PA" %}active{% endif %}" href="/policy/detail?policy_identifier={{ policy.identifier }}&policy_filter=PA">Passed</a></li>
+            <li><a class="dropdown-item {% if policy_filter == "FA" %}active{% endif %}" href="/policy/detail?policy_identifier={{ policy.identifier }}&policy_filter=FA">Failed</a></li>
+        </ul>
+    </div>
+</div>
+<table class="table table-sm table-hover">
+<thead>
+    <tr>
+        <th>Subject Name</th>
+        <th class="text-center">Evaluation Result</th>
+        <th class="text-center">Evaluated By</th>
+        <th class="text-center">Date</th>
+    </tr>
+</thead>
+<tbody>
+    {% for evaluation in evaluation_results %}
+        <tr>
+            <td>
+                {% if "pkg:npm/" in evaluation.subject.identifier %}
+                    <img class="package-icon-sm" src="{% static "oaffe/images/icon_npm.png" %}"/>
+                {% elif "pkg:pypi/" in evaluation.subject.identifier %}
+                    <img class="package-icon-sm" src="{% static "oaffe/images/icon_pypi.svg" %}"/>
+                {% elif "pkg:nuget/" in evaluation.subject.identifier %}
+                    <img class="package-icon-sm" src="{% static "oaffe/images/icon_nuget.png" %}"/>
+                {% elif "pkg:gem/" in evaluation.subject.identifier %}
+                    <img class="package-icon-sm" src="{% static "oaffe/images/icon_rubygems.png" %}"/>
+                {% endif %}
+                <span class="ms-2">
+                    <a href="/assertions/show?subject_uuid={{ evaluation.subject.uuid }}">
+                        {{ evaluation.subject|format_subject:"full_name"}}
+                        @
+                        {{ evaluation.subject|format_subject:"version"}}
+                    </a>
+                </span>
+            </td>
+            <td class="text-center">{{ evaluation.get_status_display }}</td>
+            <td class="text-center">{{ evaluation.evaluated_by|translate|default:"-" }}</td>
+            <td class="text-center">{{ evaluation.evaluation_date|date:"SHORT_DATETIME_FORMAT" }}</td>
+        </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endblock %}

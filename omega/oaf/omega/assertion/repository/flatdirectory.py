@@ -51,17 +51,15 @@ class FlatDirectoryRepository(BaseRepository):
             for file in files:
                 if not file.endswith(".json"):
                     continue
-
                 try:
                     with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                         content = f.read()
                         js = json.loads(content)
 
-                        if js["subject"] == subject.to_dict():
+                        if str(js["subject"]["purl"]) == str(subject):
                             assertions.append(content)
                         else:
                             logging.debug("Subject mismatch: %s != %s", js["subject"], subject.to_dict())
                 except:
                     logging.exception("Error reading assertion file %s", file)
-
         return assertions

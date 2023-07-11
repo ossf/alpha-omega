@@ -11,7 +11,6 @@ from ..utils import get_complex, is_command_available, strtobool
 from .base import BasePolicy
 from .result import ExecutionResult, ResultState
 
-
 class RegoPolicy(BasePolicy):
     """A policy that uses Rego to evaluate assertions."""
 
@@ -51,9 +50,13 @@ class RegoPolicy(BasePolicy):
         if isinstance(assertions, str):
             assertions = [assertions]
 
-        assertions = filter(lambda s: s, assertions)
+        if self.metadata is None:
+            logging.warning("Policy metadata is not set.")
+            return
 
+        assertions = filter(lambda s: s, assertions)
         policy_name = self.metadata.get("name")
+        identifier = self.metadata.get("identifier")
         logging.debug("Processing policy: %s", policy_name)
 
         eval_assertions = []
@@ -84,7 +87,6 @@ class RegoPolicy(BasePolicy):
 
             cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.applies"]
             logging.debug("Executing: [%s]", " ".join(cmd))
-
             res = subprocess.run(  # nosec B603
                 cmd, check=False, capture_output=True, text=True, input=assertion_str
             )
@@ -94,7 +96,11 @@ class RegoPolicy(BasePolicy):
             logging.debug("Error: [%s]", res.stderr.strip() if res.stderr else "")
 
             if res.returncode != 0:
-                raise ValueError("Rego policy failed to execute.")
+                logging.warning("Error executing policy [%s] against assertion [%s]", policy_name, assertion_str)
+                with open(policy_filename, 'r') as f:
+                    logging.warning(f.read())
+
+                raise ValueError("Rego policy failed to execute [%d]", res.returncode)
 
             if res.stdout is not None and res.stdout.strip().lower() != "true":
                 logging.debug("Policy [%s] did not apply to assertion.", policy_name)
@@ -110,6 +116,10 @@ class RegoPolicy(BasePolicy):
         # Now execute the policy
         cmd = cmd_template + [f"data.openssf.omega.policy.{policy_name}.pass"]
         logging.debug("Executing: [%s]", " ".join(cmd))
+
+        with open('a', 'w') as f:
+            f.write(json.dumps(eval_assertions, indent=2))
+
         res = subprocess.run(  # nosec B603
             cmd, check=False, text=True, capture_output=True, input=json.dumps(eval_assertions)
         )
@@ -131,7 +141,7 @@ class RegoPolicy(BasePolicy):
             )
             return None
 
-        return ExecutionResult(policy_name, result_state, f"{stdout}\n{stderr}".strip())
+        return ExecutionResult(policy_name, identifier, result_state, f"{stdout}\n{stderr}".strip())
 
     def get_policy_metadata(self) -> dict | None:
         """Returns the metadata from a policy file."""
@@ -139,6 +149,8 @@ class RegoPolicy(BasePolicy):
         yaml_lines = []
         for _line in self.policy.splitlines():
             line = _line.strip()
+            if line.startswith('package '):
+                identifier = line.split(' ')[1]
 
             if not line.startswith("#"):
                 continue
@@ -152,13 +164,22 @@ class RegoPolicy(BasePolicy):
 
         if yaml_lines:
             try:
-                return yaml.safe_load("\n".join(yaml_lines))
+                results = yaml.safe_load("\n".join(yaml_lines))
+                results['identifier'] = identifier
+                return results
             except Exception as msg:
                 logging.debug("Failed to parse metadata: %s", msg)
+                logging.debug("YAML data: [%s]", yaml_lines)
                 return None
 
         logging.debug("No metadata found.")
         return None
 
     def __str__(self):
-        return self.metadata.get('name', 'unknown')
+        s = self.metadata.get('name')
+        if s: return s
+
+        s = self.metadata.get('identifier')
+        if s: return s
+
+        return 'unknown'

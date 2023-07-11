@@ -5,6 +5,7 @@ LABEL schema-version="1.0"
 LABEL name="toolshed"
 LABEL maintainer="Open Source Security Foundation - Omega"
 LABEL vendor="OpenSSF"
+
 LABEL build-date="2023-05-31T00:00:00.00Z"
 LABEL version="0.8.6"
 

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+
+<h3>Request Analysis</h3>
+<p>
+    Use this form to request additional packages be added to our analysis. Please
+    use Package URLs whenever possible. If you aren't sure, don't worry, just submit
+    what you have. We will do our best to figure it out, but can't guarantee that the
+    packages will be added.
+</p>
+{% if complete %}
+<div class="alert alert-success" role="alert">
+  Your request has been submitted. We will do our best to get to it as soon as possible.
+</div>
+{% endif %}
+
+<div class="mb-3">
+  <form action="/package_request" method="post">
+    {% csrf_token %}
+    <label for="packagesRequested" class="form-label">Packages Requested</label>
+    <textarea class="form-control" id="packagesRequested" rows="8" placeholder="pkg:npm/left-pad@1.3.0" name="package_list" required></textarea>
+    <div id="packagesRequestedHelp" class="form-text">One package per line, please.</div>
+    <div class="invalid-feedback">
+      Please provide a list of packages.
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-top: 10px">Send Request</button>
+  </form>
+</div>
+{% endblock %}

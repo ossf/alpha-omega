@@ -7,8 +7,9 @@ import logging
 import subprocess  # nosec: B404
 import typing
 from urllib.parse import urlparse
-
+from urllib3 import Retry
 import requests
+from requests.adapters import HTTPAdapter
 from dateutil.parser import ParserError
 from dateutil.parser import parse as _parse_date
 from packageurl import PackageURL
@@ -17,20 +18,22 @@ from packageurl.contrib.purl2url import purl2url
 
 # From https://github.com/python/cpython/blob/main/Lib/distutils/util.py
 # This will be removed in Python 3.12, so we'll keep a copy of it.
-def strtobool(val):
+# Slightly modified to be more reasonable.
+def strtobool(val: any, default_value: bool = False) -> bool:
     """Convert a string representation of truth to true (1) or false (0).
     True values are 'y', 'yes', 't', 'true', 'on', and '1'; false values
     are 'n', 'no', 'f', 'false', 'off', and '0'.  Raises ValueError if
     'val' is anything else.
     """
-    val = val.lower()
+    if isinstance(val, bool):
+        return val
+    val = str(val).strip().lower()
     if val in ("y", "yes", "t", "true", "on", "1"):
-        return 1
+        return True
     elif val in ("n", "no", "f", "false", "off", "0"):
-        return 0
+        return False
     else:
-        raise ValueError("invalid truth value %r" % (val,))
-
+        return default_value
 
 def get_complex(obj: dict, key: str | list, default_value: typing.Any = ""):
     """Get a value from the dictionary d by nested.key.value.
@@ -126,8 +129,31 @@ def get_package_url_with_version(package_url: PackageURL | str) -> PackageURL:
             logging.debug("Latest version is %s", version)
             purl = PackageURL(**new_purl)
             return purl
-    raise ValueError("Could not get latest version")
 
+    # Try using the libraries.io API
+    # HACK: Libraries.io knows RubyGems as "pkg:rubygems", nor "pkg:gem", so we need
+    #       to convert it to the correct format.
+    if purl.type == "gem":
+        mod_purl = PackageURL(type="rubygems", name=purl.name, version=purl.version)
+
+    res = subprocess.run([
+        "oss-metadata",
+        "-s",
+        "libraries.io",
+        str(mod_purl)
+    ], capture_output=True, timeout=10, check=False)  # nosec B603
+
+    if res.returncode == 0:
+        data = json.loads(res.stdout)
+        latest_version = data.get('latest_release_number')
+        if latest_version:
+            new_purl = purl.to_dict()
+            new_purl["version"] = latest_version
+            logging.debug("Latest version is %s", latest_version)
+            purl = PackageURL(**new_purl)
+            return purl
+
+    raise ValueError("Could not get latest version")
 
 # Source: https://stackoverflow.com/questions/3232943
 #         /update-value-of-a-nested-dictionary-of-varying-depth/3233356#3233356
@@ -169,6 +195,17 @@ def encode_path_safe(directory: str) -> str:
             result.append(char)
     return "".join(result)
 
+def get_requests_session() -> requests.Session:
+    """Returns a requests session with a user agent."""
+    retry_strategy = Retry(
+        total=3,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["HEAD", "GET", "OPTIONS", "POST"]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
+    session.mount("https://", adapter)
+    return session
 
 class ComplexJSONEncoder(json.JSONEncoder):
     """Handles encoding of complex objects into JSON."""

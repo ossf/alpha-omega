@@ -1,5 +1,6 @@
 """Base Signer."""
 import os
+import logging
 
 from ..assertion.base import BaseAssertion
 
@@ -28,8 +29,14 @@ class BaseSigner:
         if not signer:
             return NoSignatureSigner()
 
-        if os.path.isfile(signer) and any(signer.endswith(e) for e in [".pem", ".key"]):
-            password = kwargs.get("password")
-            return KeyPairSigner(signer, password=password)
+        if signer.startswith('sigstore:'):
+            from .sigstore import SigstoreSigner
+            print(kwargs)
+            return SigstoreSigner(signer[9:], **kwargs)
 
+        if signer.startswith("key:"):
+            password = kwargs.get("password")
+            return KeyPairSigner(signer[4:], password=password)
+
+        logging.warning("Unrecognized signer [%s]", signer)
         return NoSignatureSigner()

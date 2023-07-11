@@ -127,7 +127,7 @@ class CommandPolicy(BasePolicy):
                 "Unexpected return code [%d] from policy [%s].", res.returncode, policy_name
             )
 
-        return ExecutionResult(policy_name, result_state, f"{stdout}\n{stderr}".strip())
+        return ExecutionResult(policy_name, identifier, result_state, f"{stdout}\n{stderr}".strip())
 
     def __str__(self):
         return self.policy.get("name", "unknown")

@@ -1,0 +1,66 @@
+body { background-color: #fcfdfe; font-family: 'Inter', sans-serif; }
+main { margin-top: 30px; }
+
+@media(min-width: 768px) {
+  #lf-header { padding-left: 8px; padding-top: 2px; background: #252525; width: 100%;}
+  #lf-header img { max-width: 270px; }
+  img.package-icon { height: 64px; }
+  img.package-icon-sm { height: 16px; }
+}
+@media(max-width: 767px) {
+  #lf-header { display: none; }
+  .poc-alert { display: none; }
+  a.navbar-brand { font-size: 22px !important; }
+  img.package-icon { height: 18px; }
+  img.package-icon-sm { height: 12px; }
+}
+code {
+  font-family: 'Inconsolata', monospace;
+  font-size: 1.2rem;
+  background-color: rgba(10, 59, 97, 100);
+  color: #fff;
+  user-select: all;
+}
+nav.navbar {
+  background-color: rgba(10, 59, 97, 100);
+}
+nav.view-nav .nav-link.active {
+  font-weight: bold;
+}
+table th.section-header {
+  background-color: rgba(10, 59, 97, 100);
+  color: #fff;
+  font-weight: bold;
+}
+table th.section-header:hover {
+  background-color: rgba(10, 59, 97, 100);
+  color: #fff;
+  font-weight: bold;
+}
+
+a.navbar-brand img { height: 50px; margin-top: -8px; margin-bottom: -8px }
+a.navbar-brand { font-size: 28px; font-weight: bold; margin-left: 12px; padding-top: 0}
+
+.monospace {
+  white-space: pre;
+  font-family: 'Inconsolata', monospace;
+  overflow:auto
+}
+h4 {
+    color:rgba(10, 59, 97, 100)
+}
+button.navbar-toggler { margin-left: 8px }
+li.nav-item { margin-left: 12px }
+a { color: #0f0f8a; text-decoration: none }
+a:hover { color: #5C5CD7 }
+
+table.assertion-table tbody tr,
+table.dependency-table tbody tr,
+table.policy-evaluation-result-table tbody tr {
+  cursor: pointer
+}
+
+table.dependency-table thead tr th {
+  color:rgba(10, 59, 97, 100)
+}
+

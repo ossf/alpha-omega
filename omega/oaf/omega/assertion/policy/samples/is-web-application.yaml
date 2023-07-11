@@ -1,4 +1,5 @@
 schema: https://github.com/ossf/alpha-omega/policy/command/v1
+identifier: omega.oaf.policy.sample.is-web-application
 name: Mike's policy
 command: python
 args:
