@@ -33,9 +33,6 @@ For more information on Alpha, see [alpha/README.md](alpha/README.md).
 Through Omega, we identify security issues in the top 10,000 (or more) most-critical open source
 projects. We do this through engineering and expert analysis.
 
-**We're currently hiring!** If you're interested in joining our team, please see our job posting
-for a [Security Researcher](https://jobs.smartrecruiters.com/LinuxFoundation/743999827424684-security-researcher/analyst,-project-alpha-omega).
-
 The Omega project is still getting started, stay tuned for more information, or learn more
 at [omega/README.md](omega/README.md).
 
@@ -45,11 +42,6 @@ at [omega/README.md](omega/README.md).
 
 We usually meet on the first Wednesday of each month at 1:00pm PT. You can find the meeting
 invite link on the [OpenSSF Community Calendar](https://calendar.google.com/calendar?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ).
-
-#### Governance
-
-The [CHARTER.md](https://github.com/ossf/alpha-omega/blob/main/CHARTER.md) outlines the
-scope and governance of this project's activities.
 
 #### Core Team
 
@@ -61,12 +53,8 @@ The Alpha-Omega core team members include:
 * [Jonathan Leitschuh](https://www.linkedin.com/in/jonathan-leitschuh-94553661/) (Alpha-Omega)
 * [Annapurna Veeramachaneni](https://www.linkedin.com/in/annapurna-veeramachaneni-2907a615b/) (Citi)
 * [Brian Behlendorf](https://www.linkedin.com/in/brianbehlendorf) (OpenSSF)
-
-We're grateful to the Linux Foundation and OpenSSF for providing additional support, including:
-* [David A. Wheeler](https://www.linkedin.com/in/david-a-wheeler-27798688/)
-* Michelle Martineau
-* Jennifer Bly
-* Khahil White
+* [Michelle Martineau](https://www.linkedin.com/in/michelle-martineau/)(The Linux Foundation)
+* [Naomi Washington](https://www.linkedin.com/in/naomiwashington/)(The Linux Foundation)
 
 #### Core Components
 
