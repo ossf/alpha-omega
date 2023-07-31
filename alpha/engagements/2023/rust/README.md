@@ -23,6 +23,7 @@ This engagement started in September 2022 and is expected to continue through at
 
 ## Monthly Updates
 
+* [August 2023](update-2023-08.md)
 * [July 2023](update-2023-07.md)
 * [June 2023](update-2023-06.md)
 * [May 2023](update-2023-05.md)
@@ -45,3 +46,4 @@ This engagement started in September 2022 and is expected to continue through at
 * [Announcing Software Engineer](https://foundation.rust-lang.org/news/welcoming-software-engineer-adam-harvey-to-the-rust-foundation-team/)
 * [Rewarding Resilience: Rust & the U.S. National Cybersecurity Strategy](https://foundation.rust-lang.org/news/rewarding-resilience-rust-the-u-s-national-cybersecurity-strategy/)
 * [Rust added to NIST list of safer languages](https://foundation.rust-lang.org/news/rust-identified-as-safer-coding-tool-by-nist/)
+* [Rust Foundation Security Initiative public report - July 2023](https://foundation.rust-lang.org/news/new-rust-foundation-report-details-security-initiative-progress/)
