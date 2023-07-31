@@ -15,6 +15,7 @@ This engagement started in November 2022.
 
 ### Monthly Updates
 
+* [July 2023](update-2023-07.md)
 * [June 2023](update-2023-06.md)
 * [May 2023](update-2023-05.md)
 * [April 2023](update-2023-04.md)
