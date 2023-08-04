@@ -61,6 +61,17 @@ Establish functionality that will support the upload of a single SARIF file via 
   - https://github.com/ossf/omega-triage-portal/pull/77
 - Upload button not working because OSS Gadget could not download the package. Changed to the latest version of the OSS Gadget (Pull request # 77)
   - https://github.com/ossf/omega-triage-portal/pull/77
+- Patched the requirements file due to updates from dependabot (Pull request # 79)
+    - https://github.com/ossf/omega-triage-portal/pull/79
+- Fixed other package compatibility issues and added to the tool defect to save the user that the finding had been assigned to(Pull request # 89)
+  - https://github.com/ossf/omega-triage-portal/pull/89
+- Pull request # 103 https://github.com/ossf/omega-triage-portal/pull/103
+  - Fixed redis connection error
+  - Implemented the API endpoint for the triage portal upload functionality using GraphQL.
+  - UI notification implementation for status of uploading SARIF file when a file was successful or not.
+  - Added logic for the upload status when uploading files.
+- Changed azure-core package version for compatibility purposes when doing the build, added description to a field in the schema, fixed formatting of other files (Pull request # 107)
+  - https://github.com/ossf/omega-triage-portal/pull/107
 
 ***Security Requirements***
 
@@ -87,5 +98,6 @@ Establish functionality that will support the upload of a single SARIF file via 
 - Password management and policy.
 - Apply appropriate security measures to protect sensitive data transmitted via the API.
 - Validate input received by the API to prevent potential attacks.
-
+- When the portal implements personas a permissions decorator should be added to the mutation of uploading a file, so that only users with certain permissions can make the upload of the file to the portal.
+  - https://django-graphql-jwt.domake.io/decorators.html#permission-required
 
