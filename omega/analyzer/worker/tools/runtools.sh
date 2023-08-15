@@ -105,49 +105,6 @@ function get_previous_version()
     fi
 }
 
-# function get_previous_version()
-# {
-#     if [ -z "$LIBRARIES_IO_API_KEY" ]; then
-# 	[ ! -n "$PACKAGE_OVERRIDE_PREVIOUS_VERSION" ] && printf "${BG_RED}${WHITE}Missing LIBRARIES_IO_API_KEY. Unable to identify previous version.${NC}\n" 1>&2 
-	
-#         # if [ -n "$PACKAGE_OVERRIDE_PREVIOUS_VERSION" ]; then
-#         #     echo "DEBUG: what $PACKAGE_OVERRIDE_PREVIOUS_VERSION" # BUG <------
-#         # else
-#         #     printf "${BG_RED}${WHITE}Missing LIBRARIES_IO_API_KEY. Unable to identify previous version.${NC}\n" 1>&2
-#         # fi
-#         return
-#     fi
-#     METADATA=$(curl -L -s "https://libraries.io/api/$PACKAGE_PURL_TYPE/$PACKAGE_PURL_NAMESPACE_NAME_ENCODED?api_key=$LIBRARIES_IO_API_KEY" | jq .)
-#     if [ -n "$METADATA" ]; then
-#         CUR_VERSION_EXISTS=$(echo "$METADATA" | jq '[.versions[] | {"version": .number, "published_at": .published_at}]' | grep -F -B4 "\"$PACKAGE_PURL_VERSION\"")
-# 	# echo ">>get_ $CUR_VERSION_EXISTS"
-# 	echo "$CUR_VERSION_EXISTS"	
-#         # Libraries.io doesn't always have the latest package -- if so, then just take the maximum as the "previous".
-#         if [ -z "$CUR_VERSION_EXISTS" ]; then
-#             PREV_VERSION_BY_DATE=$(echo "$METADATA" | jq '[.versions[] | {"version": .number, "published_at": .published_at}]' | jq 'sort_by(.published_at)' | grep \"version\" | tail -1 | cut -d\" -f4)
-#             PREV_VERSION_BY_NUMBER="$PREV_VERSION_BY_DATE"
-# 	    # echo "DEBUG: g> ${PREV_VERSION_BY_NUMBER}"
-# 	    echo "${PREV_VERSION_BY_NUMBER}"	    
-#         else
-#             PREV_VERSION_BY_DATE=$(echo "$METADATA" | jq '[.versions[] | {"version": .number, "published_at": .published_at}]' | jq 'sort_by(.published_at)' | grep -F -B4 "\"$PACKAGE_PURL_VERSION\"" | head -1 | cut -d\" -f4)
-# 	    >&2 echo "DEBUG: nn ${PREV_VERSION_BY_DATE}"
-#             PREV_VERSION_BY_NUMBER=$(echo "$METADATA" | jq '.versions[] | .number' | sed 's/\"//g' | sort -V | grep -Fx -B1 "$PACKAGE_PURL_VERSION" | head -1)
-# 	    echo "${PREV_VERSION_BY_NUMBER}"
-# 	    # echo "DEBUG: nsn ${PREV_VERSION_BY_NUMBER}"	    
-# 	    # echo "DEBUG >>: $(echo "$METADATA" | jq '.versions[] | .number')"
-#         fi
-#         if [ "$PREV_VERSION_BY_DATE" != "[" ]; then
-	    
-#             # echo "DEBUG: g>> $PREV_VERSION_BY_DATE"
-#             echo "$PREV_VERSION_BY_DATE" 	    
-#         fi
-#         if [ "$PREV_VERSION_BY_DATE" != "$PREV_VERSION_BY_NUMBER" ] && [ "$PREV_VERSION_BY_NUMBER" != "[" ] && [ "$PREV_VERSION_BY_NUMBER" != "$PACKAGE_PURL_VERSION" ]; then
-#             # echo "DEBUG: g>>> $PREV_VERSION_BY_NUMBER"
-#             echo "$PREV_VERSION_BY_NUMBER"	    
-#         fi
-#     fi
-# }
-
 OPTS_INSERT_ASSERTION=
 OPTS_TRIAGE_USERNAME=
 OPTS_TRIAGE_PASSWORD=
@@ -199,9 +156,7 @@ BUILD_SCRIPT_ROOT="/opt/buildscripts"
 LOCAL_SOURCE_DIRECTORY="/opt/local_source"
 
 PACKAGE_PURL_PARSED=$(python /opt/toolshed/parse_purl.py "${PURL}")
-echo "DEBUG: b [PACKAGE_PURL_PARSED: $PACKAGE_PURL_PARSED]"
 PACKAGE_PURL_VERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_VERSION:" | cut -d: -f2-)
-echo "DEBUG: a [PACKAGE_PURL_VERSION: $PACKAGE_PURL_VERSION]"
 PACKAGE_PURL_TYPE=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_TYPE:" | cut -d: -f2-)
 PACKAGE_PURL_NAME=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAME:" | cut -d: -f2-)
 PACKAGE_PURL_NAME_ENCODED=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_NAME_ENCODED:" | cut -d: -f2-)
@@ -213,7 +168,7 @@ PACKAGE_DIR=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR:" | cut -d: -f2-
 PACKAGE_DIR_NOVERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR_NOVERSION:" | cut -d: -f2-)
 PACKAGE_PURL_LOCAL_SOURCE=$(echo "${PACKAGE_PURL_PARSED}" | grep -qi "PACKAGE_QUALIFIER_LOCAL_SOURCE:true" && echo true || echo false)
 
-#PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
+#PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2" # TODO: add this as an argument
 
 ANALYZER_VERSION="0.8.6"
 ANALYSIS_DATE=$(date)
@@ -242,20 +197,13 @@ printf " ${DARKGRAY}/ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL_VERSION}"
 printf "${BLUE}...${NC}\n"
 
-echo "DEBUG: START func"
-get_previous_version
-echo "DEBUG: END func"
 
 # attempts to dynamically resolve the version of the pkg
 if [ "${PACKAGE_PURL_VERSION,,}" == "latest" ]; then
-    echo "DEBUG: yes: ${PACKAGE_PURL_VERSION}"
     OPTION_DYNAMIC_VERSION_RESOLUTION=1
     PACKAGE_PURL_VERSION=$(get_previous_version)
-    #get_previous_version
-    echo "DEBUG: >>> ${PACKAGE_PURL_VERSION}"
-    echo "DEBUG: pp  ${PURL}"
+    # #get_previous_version
     PURL=$(echo $PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
-    echo "DEBUG: ppAft  ${PURL}"
     PACKAGE_VERSION_ENCODED=$(echo $PACKAGE_VERSION_ENCODED | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
     PACKAGE_PURL=$(echo $PACKAGE_PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
     PACKAGE_DIR=$(echo $PACKAGE_DIR | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
@@ -291,7 +239,6 @@ if [[ "$PACKAGE_PURL_NAMESPACE_NAME" == @* ]]; then
     PACKAGE_PURL_OSSGADGET="pkg:${PACKAGE_PURL_TYPE}/${PACKAGE_PURL_NAMESPACE_NAME_ENCODED}@${PACKAGE_PURL_VERSION}"
 fi
 
-echo "DEBUG: ${PACKAGE_PURL_VERSION}"
 [ $OPTION_DYNAMIC_VERSION_RESOLUTION -eq 1 ] && printf "${BLUE}Latest version found: ${YELLOW}${PACKAGE_PURL_VERSION}\n"
 
 if [[ "$PACKAGE_PURL_LOCAL_SOURCE" == true ]]; then
@@ -823,8 +770,6 @@ if [ -f /opt/result/summary-console.txt ]; then
 fi
 printf "${NC}\n\n"
 
-echo "asdfsfd: [$PACKAGE_PURL] [$EXPORT_DIR]"
-
 event start uploadFile
 function uploadFile() {
     user="$1"
@@ -839,10 +784,7 @@ function uploadFile() {
 		--header 'Cookie: csrftoken=' 2>/dev/null | grep -o 'csrftoken=[A-Za-z0-9]*;' | \
 	       rev | cut -c 1 --complement | rev | awk -F'=' '{print $2}')
 
-    # echo "csrf: $csrf"	       
-
     data='{"query":"mutation ($password: String = \"'$pass'\", $username: String = \"'$user'\") { tokenAuth(password: $password, username: $username) {   token }}","variables":{}}'
-    # echo $data
 
     token=$(curl --location "$endpoint" \
 		 --header "X-CSRFToken: $csrf" \
@@ -850,10 +792,8 @@ function uploadFile() {
 		 --header "Cookie: csrftoken=$csrf" \
 		 --data "$data" 2>/dev/null | jq '.data.tokenAuth.token' | sed 's/"//g')
 
-    # echo "token: $token"
 
     operations='{"query": "mutation ($file: Upload!, $checksum: String!, $packageUrl: String!) { uploadFile(file: $file, checksum: $checksum, packageUrl: $packageUrl) { success, errors } }", "variables": { "file": null, "checksum": "'$f_checksum'", "packageUrl": "'$pkg_format'" } }'
-    echo "opsd: $operations"
 
     curl --location "$endpoint" \
 	 --header "X-CSRFToken: $csrf" \
@@ -865,8 +805,6 @@ function uploadFile() {
 }
 
 SUMMARY_UPLOAD_FILE="$(find $EXPORT_DIR -name 'summary-results.sarif' )"
-echo "DEBUG: st ${SUMMARY_UPLOAD_FILE}"
-echo "DEBUG: as [$OPTS_TRIAGE_USERNAME] [$OPTS_TRIAGE_PASSWORD] [$OPTS_TRIAGE_ENDPOINT]"
 
 uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
 event stop uploadFile
