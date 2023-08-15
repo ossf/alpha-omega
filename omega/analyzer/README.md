@@ -98,8 +98,22 @@ docker run --rm --entrypoint /bin/bash --env-file .env openssf/omega-toolshed:la
 -->
 
 ### Local Usage
-There are currently 2 ways of getting 
+There are currently 2 ways of getting the tar file to run the analyzer locally, through libraries.io or github. Here is a working example of one might have to wget to get it on the container. Then you can use the `?local=true` from [./worker/tools/runtools.sh](./worker/tools/runtools.sh) to check for packages. Naturally, as virtue of running it locally, you lose the ability to use `@latest` as the `<version_number>`in the package format (`pkg:npm/left-pad@<version_number>`) and need to explicitly write the verison number
 
+Here's an wget example using `chalk` from `npm` (as of Aug 2023):
+| Source       | (wget) Pattern
+| :----------- | :-------
+| libraries.io | https://registry.npmjs.org/chalk/-/chalk-5.3.0.tgz 
+| Github       | https://github.com/chalk/chalk/archive/refs/tags/v5.3.0.tar.gz
+
+
+
+### Usage with the Omega Triage Portal
+- If you are running it locally:
+```bash
+docker run --env-file <.env file> --net="host" --rm -it openssf/omega-toolsheed -u <username> -p <password> -t <triage portal endpoint> "pkg:<pkg_name>"
+```
+- Need the extra `--net="host"` so that docker can speak to the portal running on the host machine
 
 ## License
 
