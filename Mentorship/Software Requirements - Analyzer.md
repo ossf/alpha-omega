@@ -43,9 +43,9 @@ stateDiagram-v2
 ## Requirements
 - Use Case #1 & #2 should be designed and implemented
 ### Use Case 1
-- [ ] Push 'summary-results.sarif' to the triage-portal
-- [ ] Triage Portal credentials should be supported as environment variable (be sure to change the .env template)
-- [ ] Triage Portal Credentials should be passed as parameters when running the ./runtools.sh command
+- [x] Push 'summary-results.sarif' to the triage-portal
+- [x] Triage Portal credentials should be supported as environment variable (be sure to change the .env template)
+- [x] Triage Portal Credentials should be passed as parameters when running the ./runtools.sh command
 - Exception Handling on the following:
   - [ ] Triage Portal isn't available
 	- [ ] Perform 3 Retry Attempts, then default to stdout
@@ -53,7 +53,7 @@ stateDiagram-v2
   - [ ] User hasn't supplied enough information to connect to triage portal
 - [ ] Error should be returned to the user via stdout with a standard log message and HTTP error code, if necessary. 
   - If error occurs on the triage portal, then user should get the HTTP code plus error message
-- [ ] Should be able to scan all packages (with a Focus on being more or less compatible with JavaScript [npm], Java [maven] and Python [PyPi]) 
+- [x] Should be able to scan all packages (with a Focus on being more or less compatible with JavaScript [npm], Java [maven] and Python [PyPi]) 
 
 
 ### Use Case 2

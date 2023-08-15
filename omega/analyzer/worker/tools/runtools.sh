@@ -52,6 +52,19 @@ OPTIONS (OPTS):
 	-a : Run scan with assertion
 	   Show the results of the scan with the assertion
 
+	-u : Username (Triage Portal)
+	   User for the Triage Portal 
+
+        -p : Password (Triage Portal)
+	   Password for the Triage Portal
+
+	-t : Triage Portal Endpoint
+	   Endpoint
+
+	-T : Triage Portal (Auto)
+	   Runs query again using, -u and -p and -t but from environment varaibles
+	
+
 	-... more       
 
 OUTPUT:
@@ -93,11 +106,17 @@ function get_previous_version()
 }
 
 OPTS_INSERT_ASSERTION=
+OPTS_TRIAGE_USERNAME=
+OPTS_TRIAGE_PASSWORD=
+OPTS_TRIAGE_ENDPOINT=
 
-while getopts 'ha' opt; do
+while getopts 'hau:p:t:' opt; do
     case "$opt" in
 	h) usage;;
 	a) OPTS_INSERT_ASSERTION=1;;
+	u) OPTS_TRIAGE_USERNAME="$OPTARG";;
+	p) OPTS_TRIAGE_PASSWORD="$OPTARG";;
+	t) OPTS_TRIAGE_ENDPOINT="$OPTARG";;
     esac
 done
 
@@ -149,7 +168,7 @@ PACKAGE_DIR=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR:" | cut -d: -f2-
 PACKAGE_DIR_NOVERSION=$(echo "${PACKAGE_PURL_PARSED}" | grep "PACKAGE_DIR_NOVERSION:" | cut -d: -f2-)
 PACKAGE_PURL_LOCAL_SOURCE=$(echo "${PACKAGE_PURL_PARSED}" | grep -qi "PACKAGE_QUALIFIER_LOCAL_SOURCE:true" && echo true || echo false)
 
-PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2"
+#PACKAGE_OVERRIDE_PREVIOUS_VERSION="$2" # TODO: add this as an argument
 
 ANALYZER_VERSION="0.8.6"
 ANALYSIS_DATE=$(date)
@@ -178,10 +197,12 @@ printf " ${DARKGRAY}/ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL_VERSION}"
 printf "${BLUE}...${NC}\n"
 
+
 # attempts to dynamically resolve the version of the pkg
 if [ "${PACKAGE_PURL_VERSION,,}" == "latest" ]; then
     OPTION_DYNAMIC_VERSION_RESOLUTION=1
     PACKAGE_PURL_VERSION=$(get_previous_version)
+    # #get_previous_version
     PURL=$(echo $PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
     PACKAGE_VERSION_ENCODED=$(echo $PACKAGE_VERSION_ENCODED | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
     PACKAGE_PURL=$(echo $PACKAGE_PURL | sed "s/latest/${PACKAGE_PURL_VERSION}/g")
@@ -748,6 +769,45 @@ if [ -f /opt/result/summary-console.txt ]; then
     cat /opt/result/summary-console.txt | sort | uniq
 fi
 printf "${NC}\n\n"
+
+event start uploadFile
+function uploadFile() {
+    user="$1"
+    pass="$2"
+    endpoint="$3"
+    file="$4"
+    pkg_format="$5"
+    f_checksum=$(openssl md5 $file | awk '{print $2}')
+    
+    csrf=$(curl -i --location "$endpoint" \
+		--header 'Content-Type: application/json' \
+		--header 'Cookie: csrftoken=' 2>/dev/null | grep -o 'csrftoken=[A-Za-z0-9]*;' | \
+	       rev | cut -c 1 --complement | rev | awk -F'=' '{print $2}')
+
+    data='{"query":"mutation ($password: String = \"'$pass'\", $username: String = \"'$user'\") { tokenAuth(password: $password, username: $username) {   token }}","variables":{}}'
+
+    token=$(curl --location "$endpoint" \
+		 --header "X-CSRFToken: $csrf" \
+		 --header 'Content-Type: application/json' \
+		 --header "Cookie: csrftoken=$csrf" \
+		 --data "$data" 2>/dev/null | jq '.data.tokenAuth.token' | sed 's/"//g')
+
+
+    operations='{"query": "mutation ($file: Upload!, $checksum: String!, $packageUrl: String!) { uploadFile(file: $file, checksum: $checksum, packageUrl: $packageUrl) { success, errors } }", "variables": { "file": null, "checksum": "'$f_checksum'", "packageUrl": "'$pkg_format'" } }'
+
+    curl --location "$endpoint" \
+	 --header "X-CSRFToken: $csrf" \
+	 --header "Authorization: JWT $token" \
+	 --header "Cookie: csrftoken=$csrf" \
+	 --form operations="$operations"  \
+	 --form 'map="{ \"0\": [\"variables.file\"]}"' \
+	 --form "0=@\"$file\""
+}
+
+SUMMARY_UPLOAD_FILE="$(find $EXPORT_DIR -name 'summary-results.sarif' )"
+
+uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+event stop uploadFile
 
 event stop runtools
 
