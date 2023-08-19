@@ -111,7 +111,7 @@ Here's an wget example using `chalk` from `npm` (as of Aug 2023):
 ### Usage with the Omega Triage Portal
 - If you are running it locally:
 ```bash
-docker run --env-file <.env file> --net="host" --rm -it openssf/omega-toolsheed -u <username> -p <password> -t <triage portal endpoint> "pkg:<pkg_name>"
+docker run --env-file <.env file> --net="host" --rm -it openssf/omega-toolshed -u <username> -p <password> -t <triage portal endpoint> "pkg:<pkg_name>"
 ```
 - Need the extra `--net="host"` so that docker can speak to the portal running on the host machine
 
