@@ -197,6 +197,49 @@ printf " ${DARKGRAY}/ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL_VERSION}"
 printf "${BLUE}...${NC}\n"
 
+function PACKAGE_FORMAT_FIXING()
+{
+    echo "DEBUG: [PPV: ${PACKAGE_PURL_VERSION}] [P: ${PURL}] [PVE: ${PACKAGE_VERSION_ENCODED}] [PP: ${PACKAGE_PURL}] [PD: ${PACKAGE_DIR}]"
+    lower_PURL_TYPE=$(echo "$PACKAGE_PURL_TYPE" | tr '[:upper:]' '[:lower:]')
+
+    # "go" --> fix go from libraries to how oss-download reads go libraries from there area
+    if [ $lower_PURL_TYPE == "go" ]; then
+	t_PURL=$(echo $PURL | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+	t_PACKAGE_PURL=$(echo $PACKAGE_PURL | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+	t_PACKAGE_DIR=$(echo $PACKAGE_DIR | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+	t_PACKAGE_DIR_NOVERSION=$(echo $PACKAGE_DIR_NOVERSION | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+    # "maven" --> 3 types of .jar files are called for
+    elif [ $lower_PURL_TYPE == "maven" ]; then
+	echo "watch out, doesn't work" && exit 1
+	echo "get_previous_version doesn't work on maven but you can regex replace ':' to '/' "
+    fi
+
+    # re-set values TODO: there is a better way of doing this
+    PURL=$(echo "$t_PURL")
+    PACKAGE_PURL=$(echo "$t_PACKAGE_PURL")
+    PACKAGE_DIR=$(echo "$t_PACKAGE_DIR")
+    PACKAGE_DIR_NOVERSION=$(echo "$t_PACKAGE_DIR_NOVERSION")
+
+}
+
+    
+# cat <<EOF
+#     PACKAGE_PURL_VERSION:        $PACKAGE_PURL_VERSION
+#     PACKAGE_PURL_TYPE:           $PACKAGE_PURL_TYPE
+#     PACKAGE_PURL_NAME:           $PACKAGE_PURL_NAME
+#     PACKAGE_PURL_NAME_ENCODED:   $PACKAGE_PURL_NAME_ENCODED
+#     PACKAGE_PURL_NAMESPACE_NAME: $PACKAGE_PURL_NAMESPACE_NAME
+#     PACKAGE_PURL_NAMESPACE_NAME_ENCODED: $PACKAGE_PURL_NAMESPACE_NAME_ENCODED
+#     PACKAGE_PURL_OVERRIDE_URL: $PACKAGE_PURL_OVERRIDE_URL
+#     PACKAGE_PURL:              $PACKAGE_PURL
+#     PACKAGE_DIR:               $PACKAGE_DIR
+#     PACKAGE_DIR_NOVERSION:     $PACKAGE_DIR_NOVERSION
+#     PACKAGE_PURL_LOCAL_SOURCE: $PACKAGE_PURL_LOCAL_SOURCE
+# EOF
+
+
+PACKAGE_FORMAT_FIXING
+
 
 # attempts to dynamically resolve the version of the pkg
 if [ "${PACKAGE_PURL_VERSION,,}" == "latest" ]; then
@@ -771,6 +814,7 @@ fi
 printf "${NC}\n\n"
 
 event start uploadFile
+
 function uploadFile() {
     user="$1"
     pass="$2"
@@ -805,8 +849,26 @@ function uploadFile() {
 }
 
 SUMMARY_UPLOAD_FILE="$(find $EXPORT_DIR -name 'summary-results.sarif' )"
+UPLOAD_ERROR_TEMPLATE() { echo "$1 NOT FOUND. Try adding to .env variable or using corresponding flag (Check out -h) "; }
 
-uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+# error checking on upload file
+# the outer one to check everything is available, else no pushing to triage portal and no curl command tried
+if [ ! -z $OPTS_TRIAGE_USERNAME ] && [ ! -z $OPTS_TRIAGE_PASSWORD ] && [ ! -z $OPTS_TRIAGE_ENDPOINT ]; then
+    if [ ! -z $OPTS_TRIAGE_USERNAME ]; then
+	if [ ! -z $OPTS_TRIAGE_PASSWORD ]; then
+	    if [ ! -z $OPTS_TRIAGE_ENDPOINT ] ; then
+		uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+	    else
+		UPLOAD_ERROR_TEMPLATE "TRIAGE_ENDPOINT"
+	    fi
+	else
+            UPLOAD_ERROR_TEMPLATE "TRIAGE_PASSWORD"
+	fi
+    else
+	UPLOAD_ERROR_TEMPLATE "TRIAGE_USERNAME"
+    fi
+fi
+    
 event stop uploadFile
 
 event stop runtools
