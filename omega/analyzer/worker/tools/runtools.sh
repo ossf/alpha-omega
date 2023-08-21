@@ -35,7 +35,7 @@ t_PURL="$(echo $@ | tr ' ' '\n' | grep -E '^pkg' | head -n 1)"
 # Used to keep duration of individual jobs
 function event()
 {
-    echo "$1,$2,$SECONDS" >> /tmp/events.txt
+    echo "$1,$2,$SECONDS$(date +'.%4N')" >> /tmp/events.txt
 }
 
 # Show how the script can be invoked
