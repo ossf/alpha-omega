@@ -197,6 +197,33 @@ printf " ${DARKGRAY}/ ${YELLOW}"
 printf "%s" "${PACKAGE_PURL_VERSION}"
 printf "${BLUE}...${NC}\n"
 
+function PACKAGE_FORMAT_FIXING()
+{
+    echo "DEBUG: [PPV: ${PACKAGE_PURL_VERSION}] [P: ${PURL}] [PVE: ${PACKAGE_VERSION_ENCODED}] [PP: ${PACKAGE_PURL}] [PD: ${PACKAGE_DIR}]"
+    #if
+    t_PURL=$(echo $PURL | sed -E "s/pkg:()//g")
+    t_PACKAGE_PURL=$(echo $PACKAGE_PURL | sed "s/latest//g")
+    t_PACKAGE_DIR=$(echo $PACKAGE_DIR | sed "s/latest//g")
+
+cat <<EOF
+    $PACKAGE_PURL_VERSION
+    $PACKAGE_PURL_TYPE
+    $PACKAGE_PURL_NAME
+    $PACKAGE_PURL_NAME_ENCODED
+    $PACKAGE_PURL_NAMESPACE_NAME
+    $PACKAGE_PURL_NAMESPACE_NAME_ENCODED
+    $PACKAGE_PURL_OVERRIDE_URL
+    $PACKAGE_PURL
+    $PACKAGE_DIR
+    $PACKAGE_DIR_NOVERSION
+    $PACKAGE_PURL_LOCAL_SOURCE
+
+EOF
+
+}
+
+PACKAGE_FORMAT_FIXING
+
 
 # attempts to dynamically resolve the version of the pkg
 if [ "${PACKAGE_PURL_VERSION,,}" == "latest" ]; then
@@ -771,6 +798,7 @@ fi
 printf "${NC}\n\n"
 
 event start uploadFile
+
 function uploadFile() {
     user="$1"
     pass="$2"
@@ -805,8 +833,22 @@ function uploadFile() {
 }
 
 SUMMARY_UPLOAD_FILE="$(find $EXPORT_DIR -name 'summary-results.sarif' )"
+UPLOAD_ERROR_TEMPLATE() { echo "$1 NOT FOUND. Try adding to .env variable or using corresponding flag (Check out -h) "; }
 
-uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+# error checking on upload file
+if [ ! -z $OPTS_TRIAGE_USERNAME ]; then
+    if [ ! -z $OPTS_TRIAGE_PASSWORD ]; then
+	if [ ! -z $OPTS_TRIAGE_ENDPOINT ] ; then
+	    uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+	else
+	    UPLOAD_ERROR_TEMPLATE "TRIAGE_ENDPOINT"
+	fi
+    else
+        UPLOAD_ERROR_TEMPLATE "TRIAGE_PASSWORD"
+    fi
+else
+    UPLOAD_ERROR_TEMPLATE "TRIAGE_USERNAME"
+fi 
 event stop uploadFile
 
 event stop runtools
