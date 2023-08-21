@@ -200,11 +200,28 @@ printf "${BLUE}...${NC}\n"
 function PACKAGE_FORMAT_FIXING()
 {
     echo "DEBUG: [PPV: ${PACKAGE_PURL_VERSION}] [P: ${PURL}] [PVE: ${PACKAGE_VERSION_ENCODED}] [PP: ${PACKAGE_PURL}] [PD: ${PACKAGE_DIR}]"
-    #if
-    t_PURL=$(echo $PURL | sed -E "s/pkg:()//g")
-    t_PACKAGE_PURL=$(echo $PACKAGE_PURL | sed "s/latest//g")
-    t_PACKAGE_DIR=$(echo $PACKAGE_DIR | sed "s/latest//g")
+    lower_PURL_TYPE=$(echo "$PACKAGE_PURL_TYPE" | tr '[:upper:]' '[:lower:]')
 
+    # "go" --> fix go from libraries to how oss-download reads go libraries from there area
+    if [ $lower_PURL_TYPE == "go" ]; then
+	t_PURL=$(echo $PURL | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+	t_PACKAGE_PURL=$(echo $PACKAGE_PURL | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+	t_PACKAGE_DIR=$(echo $PACKAGE_DIR | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+	t_PACKAGE_DIR_NOVERSION=$(echo $PACKAGE_DIR_NOVERSION | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+    # "maven" --> 3 types of .jar files are called for
+    elif [ $lower_PURL_TYPE == "maven" ]; then
+	     echo "watch out"
+    fi
+
+    # re-set values TODO: there is a better way of doing this
+    PURL=$(echo "$t_PURL")
+    PACKAGE_PURL=$(echo "$t_PACKAGE_PURL")
+    PACKAGE_DIR=$(echo "$t_PACKAGE_DIR")
+    PACKAGE_DIR_NOVERSION=$(echo "$t_PACKAGE_DIR_NOVERSION")
+
+}
+
+    
 cat <<EOF
     $PACKAGE_PURL_VERSION
     $PACKAGE_PURL_TYPE
@@ -220,7 +237,6 @@ cat <<EOF
 
 EOF
 
-}
 
 PACKAGE_FORMAT_FIXING
 
