@@ -210,7 +210,8 @@ function PACKAGE_FORMAT_FIXING()
 	t_PACKAGE_DIR_NOVERSION=$(echo $PACKAGE_DIR_NOVERSION | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
     # "maven" --> 3 types of .jar files are called for
     elif [ $lower_PURL_TYPE == "maven" ]; then
-	     echo "watch out, doesn't work" && exit 1
+	echo "watch out, doesn't work" && exit 1
+	echo "get_previous_version doesn't work on maven but you can regex replace ':' to '/' "
     fi
 
     # re-set values TODO: there is a better way of doing this
@@ -851,19 +852,25 @@ SUMMARY_UPLOAD_FILE="$(find $EXPORT_DIR -name 'summary-results.sarif' )"
 UPLOAD_ERROR_TEMPLATE() { echo "$1 NOT FOUND. Try adding to .env variable or using corresponding flag (Check out -h) "; }
 
 # error checking on upload file
-if [ ! -z $OPTS_TRIAGE_USERNAME ]; then
-    if [ ! -z $OPTS_TRIAGE_PASSWORD ]; then
-	if [ ! -z $OPTS_TRIAGE_ENDPOINT ] ; then
-	    uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+
+if [ ! -z $OPTS_TRIAGE_USERNAME ] && [ ! -z $OPTS_TRIAGE_PASSWORD ] && [ ! -z $OPTS_TRIAGE_ENDPOINT ]; then
+
+    # 
+    if [ ! -z $OPTS_TRIAGE_USERNAME ]; then
+	if [ ! -z $OPTS_TRIAGE_PASSWORD ]; then
+	    if [ ! -z $OPTS_TRIAGE_ENDPOINT ] ; then
+		uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+	    else
+		UPLOAD_ERROR_TEMPLATE "TRIAGE_ENDPOINT"
+	    fi
 	else
-	    UPLOAD_ERROR_TEMPLATE "TRIAGE_ENDPOINT"
+            UPLOAD_ERROR_TEMPLATE "TRIAGE_PASSWORD"
 	fi
     else
-        UPLOAD_ERROR_TEMPLATE "TRIAGE_PASSWORD"
+	UPLOAD_ERROR_TEMPLATE "TRIAGE_USERNAME"
     fi
-else
-    UPLOAD_ERROR_TEMPLATE "TRIAGE_USERNAME"
-fi 
+fi
+    
 event stop uploadFile
 
 event stop runtools
