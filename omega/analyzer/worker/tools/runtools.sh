@@ -852,10 +852,8 @@ SUMMARY_UPLOAD_FILE="$(find $EXPORT_DIR -name 'summary-results.sarif' )"
 UPLOAD_ERROR_TEMPLATE() { echo "$1 NOT FOUND. Try adding to .env variable or using corresponding flag (Check out -h) "; }
 
 # error checking on upload file
-
+# the outer one to check everything is available, else no pushing to triage portal and no curl command tried
 if [ ! -z $OPTS_TRIAGE_USERNAME ] && [ ! -z $OPTS_TRIAGE_PASSWORD ] && [ ! -z $OPTS_TRIAGE_ENDPOINT ]; then
-
-    # 
     if [ ! -z $OPTS_TRIAGE_USERNAME ]; then
 	if [ ! -z $OPTS_TRIAGE_PASSWORD ]; then
 	    if [ ! -z $OPTS_TRIAGE_ENDPOINT ] ; then
