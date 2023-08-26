@@ -71,42 +71,47 @@ stateDiagram-v2
 - TBD
 
 ### Use Case 4 - No test cases needed
-- [ ] Keep results in Google Drive (until prod triage portal)
-- [ ] Top-level stats on Google Drive
-- [ ] Scanning 10 pypis a week
-  - [ ] Record failures and status of results
+- [x] Keep results in Google Drive (until prod triage portal)
+- [x] Top-level stats on Google Drive
+- [x] Scanning 10 pypis a week
+  - [x] Record failures and status of results
   - [x] Record time to scan 
-  - [ ] Record summary-results.sarif file size
-  - [ ] Record date of scan
+  - [x] Record summary-results.sarif file size
+  - [x] Record date of scan
 
 ## Bug fixes and additional functionalities implemented
 - [./runtools.sh argument and options parsing](https://github.com/ossf/alpha-omega/pull/162)
 
 - [./runtools.sh dynamic version resolution](https://github.com/ossf/alpha-omega/pull/162)
 
+- Add Golang Support <!-- TODO: Add PR number-->
+
+- MD5 Collision Hash Pentesting <!-- TODO: Add report of the pentest -->
+
+- Analytics on a typical pypi package and time to 
 
 ## Security Requirements
-- [ ] Threat: Maniupulation of Binaries / Files
-  - [ ] Remediation: Checksum validation
-- [ ] Manipulation on package name / version number
+- [x] Threat: Maniupulation of Binaries / Files
+  - [x] Remediation: Checksum validation
+- [x] Manipulation on package name / version number
   - Package and Version Validation
 - :heavy_check_mark: Erroneous data mitgiation
   -  [x] One package per container
 
 
 ## Acceptance Criteria
-- [ ] The Analyzer pushse the final SARIF file to the Triage Portal's Endpoint
+- [x] The Analyzer pushse the final SARIF file to the Triage Portal's Endpoint
 - [ ] The Analyzer has multiple methods to pass the credentials to establish a connection to the Triage Portal
   - Environment Variables or as an argument
-- [ ] The analyzer should have support for JavaScript [npm], Java [maven], and Python [PyPi]
+- [x] The analyzer should have support for JavaScript [npm], and Python [PyPi]
 - [ ] The analyzer has exception handling for the SARIF file upload
-- [ ] The analyzer is able to create a SARIF file with only the Scan results
+- [x] The analyzer is able to create a SARIF file with only the Scan results
 - [ ] The analyzer is able to create a SARIF file to include both the scan results and the assertion report
-- [ ] The analyzer has been tested with the Omega Top 10k list despite success of the scan.
+- [x] The analyzer has been tested with the Omega Top 10k list despite success of the scan.
 - [ ] Tested Omega top 10k list has been documented based on its success and failure
-- [ ] The anayzer is used every week to scan 10 pypi project from the Omega Top 10k list
-- [ ] The results from the scanned pypi projects are recorded to include scan dureation and success
-- [ ] Send a checksum from the analyzer side
+- [x] The anayzer is used every week to scan 10 pypi project from the Omega Top 10k list
+- [x] The results from the scanned pypi projects are recorded to include scan dureation and success
+- [x] Send a checksum from the analyzer side
   - Simple Hashing --> Digital Signatures (GPG / PGP)
 
 ## Future Improvements
