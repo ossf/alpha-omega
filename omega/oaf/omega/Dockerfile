@@ -40,6 +40,7 @@ RUN apt-get update && \
             python3-dev \
             python3-wheel \
             python-is-python3 \
+	    python3-venv \
 	    file \
 	    unzip \
 	    gcc \
@@ -65,6 +66,13 @@ RUN apt-get update && \
 #     apt update && \
 #     apt-get install -y dotnet-sdk-${DOTNET_VERSION}
 
+# Install Go
+# License: https://github.com/golang/go/blob/master/LICENSE
+RUN cd /opt && \
+    wget https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz && \
+    rm go$GO_VERSION.linux-amd64.tar.gz
+
 # Install OSS Gadget
 # License: MIT
 RUN cd /opt && \
@@ -84,3 +92,17 @@ RUN cd /opt && \
     cd ApplicationInspector && \
     chmod a+x ./ApplicationInspector.CLI
 
+RUN mkdir -p /opt/oaf
+
+# Set up the path
+RUN echo "export PATH=/root/go/bin:/opt/OSSGadget:/opt/ApplicationInspector:/usr/local/go/bin:/opt/oaf:$PATH" >> /root/.bashrc
+ENV PATH="/root/go/bin:/opt/OSSGadget:/opt/ApplicationInspector:/usr/local/go/bin:/opt/oaf:${PATH}"
+
+ADD __init__.py /opt/oaf/
+ADD oaf.py /opt/oaf/
+COPY assertion/ /opt/oaf/assertion/
+ADD requirements.txt /opt/oaf
+
+WORKDIR /opt/oaf/
+
+# ENTRYPOINT ["python /opt/oaf/oaf.py"]
