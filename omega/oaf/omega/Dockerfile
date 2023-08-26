@@ -1,5 +1,5 @@
 # TODO: Fix latest to a specific number
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 LABEL name="oaf"
 LABEL maintainer="Open Source Security Foundation - Omega"
@@ -41,28 +41,29 @@ RUN apt-get update && \
             python3-wheel \
             python-is-python3 \
 	    file \
+	    unzip \
 	    gcc \
 	    sed \
 	    sudo \
 	    libssl-dev \
-	    less
+	    less \
+	    dotnet-sdk-${DOTNET_VERSION}
 
 # Install .NET Core and PowerShell
 # License: https://github.com/dotnet/core/blob/main/LICENSE.TXT
 # License: https://github.com/PowerShell/PowerShell/blob/master/LICENSE.txt
 # Workaround with /etc/apt/preferences based on https://github.com/dotnet/core/issues/7699
-RUN cd /tmp
-RUN wget -q -a -O https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/packages-microsoft
--prod.deb && \
-    dpkg -i packages-microsoft-prod.deb && \
-    rm packages-microsoft-prod.deb && \
-    touch /etc/apt/preferences && \
-    echo "Package: *" >> /etc/apt/preferences && \
-    echo "Pin: origin \"packages.microsoft.com\"" >> /etc/apt/preferences && \
-    echo "Pin-Priority: 1001" >> /etc/apt/preferences && \
-    add-apt-repository universe && \
-    apt update && \
-    apt-get install -y dotnet-sdk-${DOTNET_VERSION}
+# RUN cd /tmp
+# RUN wget -q -a -O https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/packages-microsoft-prod.deb && \
+#     dpkg -i packages-microsoft-prod.deb && \
+#     rm packages-microsoft-prod.deb && \
+#     touch /etc/apt/preferences && \
+#     echo "Package: *" >> /etc/apt/preferences && \
+#     echo "Pin: origin \"packages.microsoft.com\"" >> /etc/apt/preferences && \
+#     echo "Pin-Priority: 1001" >> /etc/apt/preferences && \
+#     add-apt-repository universe && \
+#     apt update && \
+#     apt-get install -y dotnet-sdk-${DOTNET_VERSION}
 
 # Install OSS Gadget
 # License: MIT
@@ -82,3 +83,4 @@ RUN cd /opt && \
     mv ApplicationInspector_linux_${APPLICATION_INSPECTOR_VERSION} ApplicationInspector && \
     cd ApplicationInspector && \
     chmod a+x ./ApplicationInspector.CLI
+
