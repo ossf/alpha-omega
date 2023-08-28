@@ -103,6 +103,9 @@ ADD oaf.py /opt/oaf/
 COPY assertion/ /opt/oaf/assertion/
 ADD requirements.txt /opt/oaf
 
+RUN pip install -r /opt/oaf/requirements.txt
+
 WORKDIR /opt/oaf/
 
-# ENTRYPOINT ["python /opt/oaf/oaf.py"]
+ENTRYPOINT ["python","/opt/oaf/oaf.py"]
+
