@@ -208,17 +208,20 @@ function PACKAGE_FORMAT_FIXING()
 	t_PACKAGE_PURL=$(echo $PACKAGE_PURL | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
 	t_PACKAGE_DIR=$(echo $PACKAGE_DIR | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
 	t_PACKAGE_DIR_NOVERSION=$(echo $PACKAGE_DIR_NOVERSION | sed -E 's/(pkg\:)go(\/.*)/\1golang\2/g' )
+
+	# re-set values TODO: there is a better way of doing this
+	PURL=$(echo "$t_PURL")
+	PACKAGE_PURL=$(echo "$t_PACKAGE_PURL")
+	PACKAGE_DIR=$(echo "$t_PACKAGE_DIR")
+	PACKAGE_DIR_NOVERSION=$(echo "$t_PACKAGE_DIR_NOVERSION")
+
+	
     # "maven" --> 3 types of .jar files are called for
     elif [ $lower_PURL_TYPE == "maven" ]; then
 	echo "watch out, doesn't work" && exit 1
 	echo "get_previous_version doesn't work on maven but you can regex replace ':' to '/' "
     fi
 
-    # re-set values TODO: there is a better way of doing this
-    PURL=$(echo "$t_PURL")
-    PACKAGE_PURL=$(echo "$t_PACKAGE_PURL")
-    PACKAGE_DIR=$(echo "$t_PACKAGE_DIR")
-    PACKAGE_DIR_NOVERSION=$(echo "$t_PACKAGE_DIR_NOVERSION")
 
 }
 
