@@ -30,10 +30,9 @@ Establish functionality that will support the upload of a single SARIF file via 
 - Limit the size of the SARIF file (to be determined in the design)
   - Document size limitation in readme
 - API should leverage Triage Portal functionality to parse the scan results.
-- Functionality to parse the assertion report will be required (limit code redundant and try to reuse the scan parser)
+- Functionality to parse the assertion report will be required (limit code redundant and try to reuse the scan parser).
 - Check if assertion data is available before parsing.
-- Asynchronously parse out the scan and the assertion data
-- Asynchronously store the parsed data into their appropriate database
+- Instead of parsing all the data from the assertion file, only the package name, uuid, total assertions found within the package, and a URL that point to the assurance assertion webpage that shows the assertions of that specific package with even more detail is stored. That way we are prioritizing meaningful and non-repetitive data presentation to researchers.
 - If either parse or storage failures, do not prevent the other from completing, but send an appropriate log/error message to stdout.
   - Send a successful HTTP code with an error message notifying “partial success with x failed to store.”
 - On the UI, add a notification that the SARIF file has been uploaded.
@@ -72,6 +71,18 @@ Establish functionality that will support the upload of a single SARIF file via 
   - Added logic for the upload status when uploading files.
 - Changed azure-core package version for compatibility purposes when doing the build, added description to a field in the schema, fixed formatting of other files (Pull request # 107)
   - https://github.com/ossf/omega-triage-portal/pull/107
+- Pull request # 116 https://github.com/ossf/omega-triage-portal/pull/116
+  - Created Assertion model
+  - Added migration file
+  - Some small changes to schema
+  - Inside sarif importer added checking for assertion_data key
+  - Inside sarif importer implemented the adding to assertion details to database or update the fields if the assertion already exists
+- Pull request # 118 https://github.com/ossf/omega-triage-portal/pull/118
+  - Updated the link needed to put credentials of local environment in README file
+  - Added a section about the API documentation in README file
+  - Created a new directory called "docs" to store new and future documentation
+  - Added database mapping of triage portal database
+  - Added documentation of how I did the mapping
 
 ***Security Requirements***
 
@@ -100,4 +111,6 @@ Establish functionality that will support the upload of a single SARIF file via 
 - Validate input received by the API to prevent potential attacks.
 - When the portal implements personas a permissions decorator should be added to the mutation of uploading a file, so that only users with certain permissions can make the upload of the file to the portal.
   - https://django-graphql-jwt.domake.io/decorators.html#permission-required
+- Make the package version model connect with the assertion model.
+- Have assertions based on project versions be displayed to the user in UI.
 
