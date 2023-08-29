@@ -88,7 +88,9 @@ stateDiagram-v2
 
 - MD5 Collision Hash Pentesting <!-- TODO: Add report of the pentest -->
 
-- Analytics on a typical pypi package and time to 
+- Analytics on a typical pypi package and cost to run  <!-- TODO: whitepaper -->
+
+- Containerized oaf (Omega Assertion Framework)  <!-- TODO: Add PR-->
 
 ## Security Requirements
 - [x] Threat: Maniupulation of Binaries / Files
