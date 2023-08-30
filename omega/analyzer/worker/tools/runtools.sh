@@ -110,6 +110,8 @@ OPTS_TRIAGE_USERNAME=
 OPTS_TRIAGE_PASSWORD=
 OPTS_TRIAGE_ENDPOINT=
 
+COUNT_SET=3
+
 while getopts 'hau:p:t:' opt; do
     case "$opt" in
 	h) usage;;
@@ -860,7 +862,21 @@ if [ ! -z $OPTS_TRIAGE_USERNAME ] && [ ! -z $OPTS_TRIAGE_PASSWORD ] && [ ! -z $O
     if [ ! -z $OPTS_TRIAGE_USERNAME ]; then
 	if [ ! -z $OPTS_TRIAGE_PASSWORD ]; then
 	    if [ ! -z $OPTS_TRIAGE_ENDPOINT ] ; then
-		uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}"
+		CONNECT_SUCCESS=0
+		while [ $COUNT_SET -gt 0 ]
+		do
+		    pre_check_endp=$(curl -Sl -w "%{http_code}\\n" "$OPTS_TRIAGE_ENDPOINT" -o /dev/null)
+		    if [ $pre_check_endp != "000" ]; then
+			COUNT_SET=0
+			CONNECT_SUCCESS=1
+		    fi
+		    echo "ERROR. Unable to connect to given Triage Endpoint. Retrying..."
+		    ((COUNT_SET--))
+		    sleep 2
+		    echo -e "\n"
+		done
+		
+		[ $CONNECT_SUCCESS -eq 1 ] && uploadFile $OPTS_TRIAGE_USERNAME $OPTS_TRIAGE_PASSWORD $OPTS_TRIAGE_ENDPOINT "${SUMMARY_UPLOAD_FILE}" "${PACKAGE_PURL}" || echo "Unable to connect to Endpoint, will default to writing to standard out on container"
 	    else
 		UPLOAD_ERROR_TEMPLATE "TRIAGE_ENDPOINT"
 	    fi
