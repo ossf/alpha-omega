@@ -48,7 +48,7 @@ stateDiagram-v2
 - [x] Triage Portal Credentials should be passed as parameters when running the ./runtools.sh command
 - Exception Handling on the following:
   - [x] Triage Portal isn't available
-	- [ ] Perform 3 Retry Attempts, then default to stdout
+	- [x] Perform 3 Retry Attempts, then default to stdout
   - [x] User hasn't supplied enough information to connect to triage portal
 - [x] Error should be returned to the user via stdout with a standard log message and HTTP error code, if necessary. 
   - If error occurs on the triage portal, then user should get the HTTP code plus error message
