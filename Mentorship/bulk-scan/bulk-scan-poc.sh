@@ -12,10 +12,11 @@ PKG_MANAGER=
 SKIP_PARTNER=1
 TAIL_COUNT=
 JUST_SHOW=
-RUN_USER="$(id -nu)"
+ENV_FILE=
 SEQUE="1,2"
 
-while getopts "n:p:t:sq:j" opt; do
+
+while getopts "n:p:t:sq:je:" opt; do
     case "${opt}" in
 	n) HEAD_COUNT="${OPTARG}";;
 	p) PKG_MANAGER="${OPTARG}";;
@@ -23,6 +24,7 @@ while getopts "n:p:t:sq:j" opt; do
 	s) SKIP_PARTNER=0;;
 	q) SEQUE="${OPTARG}";;
 	j) JUST_SHOW=1;;
+	e) ENV_FILE="${OPTARG}":
     esac
 done
 
@@ -40,8 +42,6 @@ function resultsGrab() {
 	pkg_man=$(echo $STACK_LOCAL_PATH | cut -d'/' -f1)
 	pkg_nam=$(echo $STACK_LOCAL_PATH | cut -d'/' -f2)	
 	ver_num=$(echo $result | rev | cut -d'/' -f1 --complement | cut -d'/' -f1 | rev)
-
-
 	path=$(echo $result | rev | cut --complement -d'/' -f1 | rev)
 	filename="$pkg_man-$pkg_nam-$ver_num-summary-results.sarif"
 
@@ -59,15 +59,9 @@ function teleGrab() {
 	pkg_man=$(echo $STACK_LOCAL_PATH | cut -d'/' -f1)
 	pkg_nam=$(echo $STACK_LOCAL_PATH | cut -d'/' -f2)	
 	ver_num=$(echo $result | rev | cut -d'/' -f1 --complement | cut -d'/' -f1 | rev)
-
-
-	# pkg_man=$(echo $result | cut -d'/' -f2)
-	# pkg_nam=$(echo $result | cut -d'/' -f3)
-	# ver_num=$(echo $result | cut -d'/' -f4)
 	path=$(echo $result | rev | cut --complement -d'/' -f1 | rev)
 	
 	filename="$pkg_man-$pkg_nam-$ver_num-summary-telemetry-events.txt"
-	# echo "###DEBUG: [$result] --> [$path/$pkg_man-$pkg_nam-$ver_num-summary-telemetry-events.txt]"
 	cpy_path="$path/$pkg_man-$pkg_nam-$ver_num-summary-telemetry-events.txt"
 	save_all="${OUT_DIR}/${filename}"
 
@@ -75,28 +69,21 @@ function teleGrab() {
 	# echo "###DEBUG: teleGrab [cpy_path] --> [$cpy_path]"
 	# echo "###DEBUG: teleGrab [save_all] --> [$save_all]"
 
-	# [ -s $cpy_path ] && echo "[$cpy_path] exists" || echo "[$cpy_path] rip"
-	# [ ! -s $cpy_path ] && echo "$cpy_path lord"
-	# [ ! -s $cpy_path ] && sudo cp $result $cpy_path && sudo chown $RUN_USER $cpy_path
 
 	mkdir -p ${OUT_DIR}
 	[ ! -s "${save_all}" ] && cp $result $save_all	
-	# [ ! -s "$OUT_DIR/$filename" ] && cp $cpy_path $save_all
 
 	# cp $result $cpy_path
     done
 }
 
-if [ $SKIP_PARTNER -eq 1 ]; then
-    #for pkg in `awk -F ',' '{if (match($1,/pypi|maven|npm/,m)) printf "%s/%s\n", $1, $2}' ./omega-top10k.csv | grep -E "^${PKG_MANAGER}" | head -n "${HEAD_COUNT}" | tail -n +"${TAIL_COUNT}"`; do
-    #    for pkg in `awk -F ',' '{if (match($1,/pypi|maven|npm/,m)) printf "%s/%s\n", $1, $2}' ./omega-top10k.csv | grep -E "^${PKG_MANAGER}" | head -n "${HEAD_COUNT}"`; do
-    
+if [ $SKIP_PARTNER -eq 1 ]; then    
     for pkg in `awk -F ',' '{if (match($1,/pypi|maven|npm/,m)) printf "%s/%s\n", $1, $2}' ./omega-top10k.csv | grep -E "^${PKG_MANAGER}" | sed -n "${SEQUE}p"`; do
-    echo "pkg:${pkg}@latest"
-    #echo "yes"
+	echo "pkg:${pkg}@latest"
+
     echo $pkg
         mkdir -p "${LOCAL_SAVE}"
-	docker run --env-file <.ENV LOCATION> -v $LOCAL_SAVE:/opt/export --rm -it openssf/omega-toolshed:latest "pkg:${pkg}@latest"
+	docker run --env-file $ENV_FILE -v $LOCAL_SAVE:/opt/export --rm -it openssf/omega-toolshed:latest "pkg:${pkg}@latest"
 	resultsGrab "${pkg}"
 	teleGrab "${pkg}"
     done
