@@ -69,7 +69,7 @@ OUTPUT:
 	Output is written to /opt/export by default
 
 NOTES:
-- 
+- Options will override environment variables
 
 EOF
 exit 0
