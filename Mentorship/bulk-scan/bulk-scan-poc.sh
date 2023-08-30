@@ -15,8 +15,16 @@ JUST_SHOW=
 ENV_FILE=
 SEQUE="1,2"
 
+function usage() {
+cat <<EOF
+    $0 - Bulk Scan Script for Analyzer
 
-while getopts "n:p:t:sq:je:" opt; do
+- Requires '-e "Location of an environment variable" '
+EOF
+exit 0    $0 
+}
+
+while getopts "n:p:t:sq:je:h" opt; do
     case "${opt}" in
 	n) HEAD_COUNT="${OPTARG}";;
 	p) PKG_MANAGER="${OPTARG}";;
@@ -24,7 +32,8 @@ while getopts "n:p:t:sq:je:" opt; do
 	s) SKIP_PARTNER=0;;
 	q) SEQUE="${OPTARG}";;
 	j) JUST_SHOW=1;;
-	e) ENV_FILE="${OPTARG}":
+	e) ENV_FILE="${OPTARG}";;
+	h) usage && exit 0;;
     esac
 done
 
