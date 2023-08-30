@@ -47,9 +47,8 @@ stateDiagram-v2
 - [x] Triage Portal credentials should be supported as environment variable (be sure to change the .env template)
 - [x] Triage Portal Credentials should be passed as parameters when running the ./runtools.sh command
 - Exception Handling on the following:
-  - [ ] Triage Portal isn't available
+  - [x] Triage Portal isn't available
 	- [ ] Perform 3 Retry Attempts, then default to stdout
-  - [ ] Triage Portal does not support or issue with the formatting
   - [x] User hasn't supplied enough information to connect to triage portal
 - [x] Error should be returned to the user via stdout with a standard log message and HTTP error code, if necessary. 
   - If error occurs on the triage portal, then user should get the HTTP code plus error message
@@ -106,7 +105,7 @@ stateDiagram-v2
 
 ## Acceptance Criteria
 - [x] The Analyzer pushes the final SARIF file to the Triage Portal's Endpoint
-- [ ] The Analyzer has multiple methods to pass the credentials to establish a connection to the Triage Portal
+- [x] The Analyzer has multiple methods to pass the credentials to establish a connection to the Triage Portal
   - Environment Variables or as an argument
 - [x] The analyzer should have support for JavaScript [npm], and Python [PyPi]
 - [x] The analyzer is able to create a SARIF file with only the Scan results
@@ -120,6 +119,8 @@ stateDiagram-v2
 ## Future Improvements (Includes Improvements to the Omega Assertion Framework (oaf))
 - [ ] The analyzer is able to create a SARIF file to include both the scan results and the assertion report
 - [ ] Test Full Omega top 10k list has been documented based on its success and failure
+- Triage Push Exception Handling
+  - [ ] Triage Portal does not support or issue with the formatting
 - [ ] The analyzer has exception handling for the SARIF file upload
   - This can be done by adding `--include` tag to the `curl` command and grepping for successes. 
 - [ ] Migrate to a micro-services architecture, with `Omega Analyzer Toolshed (oat)`, `Omega Assertion Framework (oaf)`, `Omega Fuzzing (ofu)` being separate components that can feed into one place 
