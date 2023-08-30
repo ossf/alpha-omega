@@ -41,7 +41,7 @@ stateDiagram-v2
 
 
 ## Requirements
-- Use Case #1 & #2 should be designed and implemented
+
 ### Use Case 1
 - [x] Push 'summary-results.sarif' to the triage-portal
 - [x] Triage Portal credentials should be supported as environment variable (be sure to change the .env template)
@@ -50,13 +50,13 @@ stateDiagram-v2
   - [ ] Triage Portal isn't available
 	- [ ] Perform 3 Retry Attempts, then default to stdout
   - [ ] Triage Portal does not support or issue with the formatting
-  - [ ] User hasn't supplied enough information to connect to triage portal
-- [ ] Error should be returned to the user via stdout with a standard log message and HTTP error code, if necessary. 
+  - [x] User hasn't supplied enough information to connect to triage portal
+- [x] Error should be returned to the user via stdout with a standard log message and HTTP error code, if necessary. 
   - If error occurs on the triage portal, then user should get the HTTP code plus error message
-- [x] Should be able to scan all packages (with a Focus on being more or less compatible with JavaScript [npm], Java [maven] and Python [PyPi]) 
+- [x] Should be able to scan all packages (with a Focus on being more or less compatible with JavaScript [npm], Go (Golang) [go] and Python [PyPi]) 
 
 
-### Use Case 2
+### Use Case 2 - Goes beyond scope of the analyzer and is regarded as a completely different component
 - [ ] Running assertion on a package should be supported by environment variables
   - [ ] For frequent and/or cadence, support an assertionReport option to always run the assertion report
 - [ ] Running assertion on a package should be supported by passing as an parameter when running the ./runtools.sh command
@@ -67,10 +67,9 @@ stateDiagram-v2
 - [ ] The assertion report scheme should have a key-value pair for the triage portal to easily identify the report data required for parsing
   - ex. "assertion-results"={}
 
-### Use Case 3
-- TBD
+<!-- Where is the missing test case #3 -->
 
-### Use Case 4 - No test cases needed
+### Use Case 4
 - [x] Keep results in Google Drive (until prod triage portal)
 - [x] Top-level stats on Google Drive
 - [x] Scanning 10 pypis a week
@@ -84,13 +83,17 @@ stateDiagram-v2
 
 - [./runtools.sh dynamic version resolution](https://github.com/ossf/alpha-omega/pull/162)
 
-- Add Golang Support <!-- TODO: Add PR number-->
+- [Add Golang Support](https://github.com/ossf/alpha-omega/pull/210)
 
 - MD5 Collision Hash Pentesting <!-- TODO: Add report of the pentest -->
 
 - Analytics on a typical pypi package and cost to run  <!-- TODO: whitepaper -->
 
-- Containerized oaf (Omega Assertion Framework)  <!-- TODO: Add PR-->
+- [Containerized oaf (Omega Assertion Framework)](https://github.com/ossf/alpha-omega/pull/214)
+
+- Bulk Scan POC (Proof-of-concept) <!-- TODO: Add script and do a PR -->
+
+- Bug Fixes!
 
 ## Security Requirements
 - [x] Threat: Maniupulation of Binaries / Files
@@ -102,21 +105,27 @@ stateDiagram-v2
 
 
 ## Acceptance Criteria
-- [x] The Analyzer pushse the final SARIF file to the Triage Portal's Endpoint
+- [x] The Analyzer pushes the final SARIF file to the Triage Portal's Endpoint
 - [ ] The Analyzer has multiple methods to pass the credentials to establish a connection to the Triage Portal
   - Environment Variables or as an argument
 - [x] The analyzer should have support for JavaScript [npm], and Python [PyPi]
-- [ ] The analyzer has exception handling for the SARIF file upload
 - [x] The analyzer is able to create a SARIF file with only the Scan results
-- [ ] The analyzer is able to create a SARIF file to include both the scan results and the assertion report
 - [x] The analyzer has been tested with the Omega Top 10k list despite success of the scan.
-- [ ] Tested Omega top 10k list has been documented based on its success and failure
+- [x] Tested Omega top 10k list has been documented based on its success and failure
+  - Tested on the pypi packages from the Omega top 10k, not the complete 10k
 - [x] The anayzer is used every week to scan 10 pypi project from the Omega Top 10k list
 - [x] The results from the scanned pypi projects are recorded to include scan dureation and success
 - [x] Send a checksum from the analyzer side
-  - Simple Hashing --> Digital Signatures (GPG / PGP)
 
-## Future Improvements
+## Future Improvements (Includes Improvements to the Omega Assertion Framework (oaf))
+- [ ] The analyzer is able to create a SARIF file to include both the scan results and the assertion report
+- [ ] Test Full Omega top 10k list has been documented based on its success and failure
+- [ ] The analyzer has exception handling for the SARIF file upload
+  - This can be done by adding `--include` tag to the `curl` command and grepping for successes. 
+- [ ] Migrate to a micro-services architecture, with `Omega Analyzer Toolshed (oat)`, `Omega Assertion Framework (oaf)`, `Omega Fuzzing (ofu)` being separate components that can feed into one place 
+- [ ] Add Documentation on how to run the `oaf`
+- [ ] Automatic Testing and Insight into which language packages work and don't work on the assertion framework
+
 
 ## Testing
 | Test No | Description | Files  | Steps 
