@@ -83,6 +83,8 @@ Establish functionality that will support the upload of a single SARIF file via 
   - Created a new directory called "docs" to store new and future documentation
   - Added database mapping of triage portal database
   - Added documentation of how I did the mapping
+- Added registration of the AssertionsPerPackage model (Pull request # 119) 
+  - https://github.com/ossf/omega-triage-portal/pull/119
 
 ***Security Requirements***
 
@@ -113,4 +115,5 @@ Establish functionality that will support the upload of a single SARIF file via 
   - https://django-graphql-jwt.domake.io/decorators.html#permission-required
 - Make the package version model connect with the assertion model.
 - Have assertions based on project versions be displayed to the user in UI.
+- History tracking can be added for the model when changes are made outside the admin portal
 
