@@ -38,6 +38,7 @@ function event()
     echo "$1,$2,$SECONDS$(date +'.%4N')" >> /tmp/events.txt
 }
 
+
 # Show how the script can be invoked
 function usage()
 {
@@ -48,9 +49,6 @@ USAGE:
 OPTIONS (OPTS):
 	-h : Help
 	   Shows Usage of the script
-
-	-a : Run scan with assertion
-	   Show the results of the scan with the assertion
 
 	-u : Username (Triage Portal)
 	   User for the Triage Portal 
@@ -69,7 +67,10 @@ OPTIONS (OPTS):
 
 OUTPUT:
 	Output is written to /opt/export by default
- 
+
+NOTES:
+- Options will override environment variables
+
 EOF
 exit 0
 }
@@ -105,10 +106,13 @@ function get_previous_version()
     fi
 }
 
+
+
 OPTS_INSERT_ASSERTION=
-OPTS_TRIAGE_USERNAME=
-OPTS_TRIAGE_PASSWORD=
-OPTS_TRIAGE_ENDPOINT=
+OPTS_TRIAGE_USERNAME=$([ ! -z $OMEGA_TRIAGE_USERNAME ] && echo $OMEGA_TRIAGE_USERNAME)
+OPTS_TRIAGE_PASSWORD=$([ ! -z $OMEGA_TRIAGE_PASSWORD ] && echo $OMEGA_TRIAGE_PASSWORD)
+OPTS_TRIAGE_ENDPOINT=$([ ! -z $OMEGA_TRIAGE_ENDPOINT ] && echo $OMEGA_TRIAGE_ENDPOINT)
+
 
 while getopts 'hau:p:t:' opt; do
     case "$opt" in
@@ -199,7 +203,7 @@ printf "${BLUE}...${NC}\n"
 
 function PACKAGE_FORMAT_FIXING()
 {
-    echo "DEBUG: [PPV: ${PACKAGE_PURL_VERSION}] [P: ${PURL}] [PVE: ${PACKAGE_VERSION_ENCODED}] [PP: ${PACKAGE_PURL}] [PD: ${PACKAGE_DIR}]"
+#    echo "DEBUG: [PPV: ${PACKAGE_PURL_VERSION}] [P: ${PURL}] [PVE: ${PACKAGE_VERSION_ENCODED}] [PP: ${PACKAGE_PURL}] [PD: ${PACKAGE_DIR}]"
     lower_PURL_TYPE=$(echo "$PACKAGE_PURL_TYPE" | tr '[:upper:]' '[:lower:]')
 
     # "go" --> fix go from libraries to how oss-download reads go libraries from there area
