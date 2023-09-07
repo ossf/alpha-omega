@@ -30,6 +30,7 @@ This engagement started in July 2023. The metrics will be reviewed in December 2
 ## Monthly Updates
 
 * [July 2023](update-2023-07.md)
+* [August 2023](update-2023-08.md)
 
 ## Primary Contacts
 

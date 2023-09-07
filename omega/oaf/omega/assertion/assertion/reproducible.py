@@ -25,8 +25,8 @@ class Reproducible(BaseAssertion):
         self.data = None
         self.reproducible = False
 
-        if not is_command_available(["docker", "-help"]):
-            raise EnvironmentError("Docker is not available.")
+        # if not is_command_available(["docker", "-help"]):
+        #     raise EnvironmentError("Docker is not available.")
 
         self.set_generator('reproducible', '0.1.0', True)
 
