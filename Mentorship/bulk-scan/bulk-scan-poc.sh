@@ -68,7 +68,7 @@ done
 [ -s $PKG_MANAGER ] && PKG_MANAGER="pypi" 
 [ -s $SEQUE ] && SEQUE="1,2"
 
-# This 
+# This is responsible for the dry-run functionality
 [ ! -z $JUST_SHOW ] && awk -F ',' '{if (match($1,/pypi|maven|npm/,m)) printf "%s/%s\n", $1, $2}' ./omega-top10k.csv | grep -E "^${PKG_MANAGER}" | sed -n "${SEQUE}p" && exit 0
 
 # This program ($0) relies heavily on librariesIO API to get content
