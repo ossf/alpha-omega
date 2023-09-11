@@ -7,28 +7,25 @@
 
 OUT_DIR=./out
 LOCAL_SAVE=./output
-HEAD_COUNT=
 PKG_MANAGER=
 SKIP_PARTNER=1
-TAIL_COUNT=
 JUST_SHOW=
 ENV_FILE=
 SEQUE="1,2"
 
+# usage: describes usage / help of the $0
 function usage() {
 cat <<EOF
     $0 - Bulk Scan Script for Analyzer
 
 - Requires '-e "Location of an environment variable" '
 EOF
-exit 0    $0 
 }
 
-while getopts "n:p:t:sq:je:h" opt; do
+# handle flags / program arguments
+while getopts "p:sq:je:h" opt; do
     case "${opt}" in
-	n) HEAD_COUNT="${OPTARG}";;
 	p) PKG_MANAGER="${OPTARG}";;
-	t) TAIL_COUNT="${OPTARG}";;
 	s) SKIP_PARTNER=0;;
 	q) SEQUE="${OPTARG}";;
 	j) JUST_SHOW=1;;
@@ -37,13 +34,15 @@ while getopts "n:p:t:sq:je:h" opt; do
     esac
 done
 
-[ -s $HEAD_COUNT ] && HEAD_COUNT=10
-[ -s $TAIL_COUNT ] && TAIL_COUNT=$(( $HEAD_COUNT + 10 ))
-[ -s $PKG_MANAGER ] && PKG_MANAGER="pypi"
+
+# 'Default' Setting
+[ -s $PKG_MANAGER ] && PKG_MANAGER="pypi" # this defaults search to be pypi, if not set
 [ ! -z $JUST_SHOW ] && awk -F ',' '{if (match($1,/pypi|maven|npm/,m)) printf "%s/%s\n", $1, $2}' ./omega-top10k.csv | grep -E "^${PKG_MANAGER}" | sed -n "${SEQUE}p" && exit 0
 
 
+
 function resultsGrab() {
+    
     STACK_LOCAL_PATH="${1,,}"
 
     for result in `find $LOCAL_SAVE/$STACK_LOCAL_PATH -name 'summary-results.sarif'`; do
@@ -74,15 +73,8 @@ function teleGrab() {
 	cpy_path="$path/$pkg_man-$pkg_nam-$ver_num-summary-telemetry-events.txt"
 	save_all="${OUT_DIR}/${filename}"
 
-	# echo "###DEBUG: teleGrab [result]   --> [$result]"
-	# echo "###DEBUG: teleGrab [cpy_path] --> [$cpy_path]"
-	# echo "###DEBUG: teleGrab [save_all] --> [$save_all]"
-
-
 	mkdir -p ${OUT_DIR}
 	[ ! -s "${save_all}" ] && cp $result $save_all	
-
-	# cp $result $cpy_path
     done
 }
 
