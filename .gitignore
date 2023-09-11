@@ -10,3 +10,8 @@
 oss-gadget.log
 /.idea/*
 *~
+
+# Bulk Scan Ignores
+Mentorship/bulk-scan/out
+Mentorship/bulk-scan/output
+
