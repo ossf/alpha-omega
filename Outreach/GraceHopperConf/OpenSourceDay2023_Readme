@@ -1,10 +1,60 @@
-Weclome
+# Welcome Grace Hopper Participants!!
 
-Important Links
+## Important Links
 [Project Presentation Deck](https://docs.google.com/presentation/d/1CQRv8Hw5KEY1HeH5MZLUo0zfqixx6EAsRFt2hx2QzsE/edit#slide=id.p16)
+[Github Pages](https://github.com/ossf/alpha-omega/tree/main/Outreach/Mentorship%20Sum%20'23)
+[Alpha-Omega Project](https://alpha-omega.dev/)
+[GHC OSS Projects]
 
-About the Project
+### Learning Resources:
+[Omega Analyzer Video Demo](https://www.youtube.com/watch?v=XWpPALCqBnk)
+[OpenSSF Specification for Automated Vulnerability Fix Campaign](https://docs.google.com/document/d/1_QwN7yQXWGM2tJaostIRNqyZIhVceVlIyXqCrSdC4E8/edit#heading=h.2rnlkgm56d11)
+[Vulnerability Disclosure Cheatsheet](https://cheatsheetseries.owasp.org/cheatsheets/Vulnerability_Disclosure_Cheat_Sheet.html)
 
-Our Goal
+## About the Project
 
-Technology
+Alpha-Omega is an associated project of the openSSF, established in February 2022, with a mission to protect society by improving the security of open source software through direct maintainer engagement and expert analysis, trying to build a world where critical open source projects are secure and that security vulnerabilities are found and fixed quickly.
+
+Partnering with open source software project maintainers to systematically find new, as-yet-undiscovered vulnerabilities in open source code – and get them fixed – to improve global software supply chain security.
+
+“Alpha” will work with the maintainers of the most critical open source projects to help them identify and fix security vulnerabilities, and improve their security posture.
+
+“Omega” will identify at least 10,000 widely deployed OSS projects where it can apply automated security analysis, scoring, and remediation guidance to their open source maintainer communities.
+
+## Our Goal
+
+### Strategy
+Train workshop participants to better assess the security of their own open source dependencies, from vulnerability discovery through private reporting.
+
+### Tactics
+* Demystify security tools and practices relevant to developers who use open source software.
+* Put this into practice by having them analyze a pre-selected package (one with known direct/indirect vulnerabilities).
+* Build an understanding of the private vulnerability disclosure workflow (introduce disclosure-check, GitHub private vulnerability reporting) and the technical and non-technical challenges around this.
+* Now go out and do it on their own dependencies -- choose one, run our toolchain (or something else), find one bug, decide how to report it, and report it. Repeat if time allows.
+
+### Specifically, we'll need to:
+* Choose a guinea pig project for everyone to analyze.
+* Choose which toolchain we'll focus on -- e.g. Omega Analyzer vs. "just fork and add CodeQL to your fork".
+* Produce a walkthrough document showing which steps they should take, screenshots, etc. to make it easy for anyone to follow along.
+* Come up with a list of projects (from the top 10,000 list) that have private vulnerability reporting enabled -- start with these, since otherwise if anyone finds an issue, they'll have to contend with a reporting cycle far longer than 7 hours.
+* Collect feedback - where were the rough edges in the process?
+
+### What is a participants outcome?
+- write a GitHub PMPVR report for things they find
+- validate before it goes out
+- they own end-to-end
+
+## Responsibilities
+
+### AO Representatives
+- available to help, suggest
+- focus more on the security side
+
+### GHC Mentors
+- focus more on the "does this report jive with the project's way of doing thing, is it likely to be accepted
+
+### GHC Participants
+- handle end to end
+- Escalate any issue
+- Reach out for questions
+
