@@ -10,9 +10,9 @@
 #
 # Usage: runtools.sh PACKAGE_URL [PREVIOUS VERSION]
 #
-# If the PACKAGE_URL contains a qualifier of "local=true", then instead of
+# If the PACKAGE_URL contains a qualifier of "local_source=true", then instead of
 # downloading the package, the script will look for it in /opt/local_source.
-# Example: pkg:generic/foo@1.0.0?local=true
+# Example: pkg:generic/foo@1.0.0?local_source=true
 #
 # Output:
 #  Output is written to /opt/export

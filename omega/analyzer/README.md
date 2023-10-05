@@ -98,7 +98,7 @@ docker run --rm --entrypoint /bin/bash --env-file .env openssf/omega-toolshed:la
 -->
 
 ### Local Usage
-There are currently 2 ways of getting the tar file to run the analyzer locally, through libraries.io or github. Here is a working example of one might have to wget to get it on the container. Then you can use the `?local=true` from [./worker/tools/runtools.sh](./worker/tools/runtools.sh) to check for packages. Naturally, as virtue of running it locally, you lose the ability to use `@latest` as the `<version_number>`in the package format (`pkg:npm/left-pad@<version_number>`) and need to explicitly write the verison number
+There are currently 2 ways of getting the tar file to run the analyzer locally, through libraries.io or github. Here is a working example of one might have to wget to get it on the container. Then you can use the `?local_source=true` from [./worker/tools/runtools.sh](./worker/tools/runtools.sh) to check for packages. Naturally, as virtue of running it locally, you lose the ability to use `@latest` as the `<version_number>`in the package format (`pkg:npm/left-pad@<version_number>`) and need to explicitly write the verison number
 
 Here's an wget example using `chalk` from `npm` (as of Aug 2023):
 | Source       | (wget) Pattern
