@@ -492,7 +492,7 @@ event stop tool-oss-find-source
 # DevSkim
 printf "${RED}Running DevSkim...${NC}\n"
 event start tool-devskim
-devskim analyze -o sarif -O /opt/result/tool-devskim-noformat.sarif -I "$CUR_ROOT" 2>/opt/result/tool-devskim.error
+devskim analyze -o sarif -O /opt/result/tool-devskim-noformat.sarif -I "$CUR_ROOT" &>/opt/result/tool-devskim.error
 cat /opt/result/tool-devskim-noformat.sarif | jq > /opt/result/tool-devskim.sarif
 rm /opt/result/tool-devskim-noformat.sarif
 event stop tool-devskim
