@@ -49,10 +49,7 @@ The Alpha-Omega core team members include:
 
 * [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
 * [Bob Callaway](https://www.linkedin.com/in/bobcallaway) (Google)
-* [Yesenia Yser](https://www.linkedin.com/in/yser/) (Alpha-Omega)
-* [Jonathan Leitschuh](https://www.linkedin.com/in/jonathan-leitschuh-94553661/) (Alpha-Omega)
-* [Annapurna Veeramachaneni](https://www.linkedin.com/in/annapurna-veeramachaneni-2907a615b/) (Citi)
-* [Brian Behlendorf](https://www.linkedin.com/in/brianbehlendorf) (OpenSSF)
+* [Henri Yandell](https://www.linkedin.com/in/flamefew/) (AWS)
 * [Michelle Martineau](https://www.linkedin.com/in/michelle-martineau/)(The Linux Foundation)
 * [Naomi Washington](https://www.linkedin.com/in/naomiwashington/)(The Linux Foundation)
 
