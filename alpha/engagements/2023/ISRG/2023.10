@@ -1,0 +1,68 @@
+# Rustls
+Our goal is to build a safer TLS library that can largely replace OpenSSL over time. The headline features of the new library, Rustls, are performance and memory safety.
+
+We are making great progress. The community is also growing rapidly, with new contributors showing up regularly and largely representing new consumers of Rustls.
+
+  - One of our [major milestones](https://www.memorysafety.org/initiative/rustls/rustls-work-plan/) is enabling support for no\_std, which allows for use of Rustls in more memory-constrained environments ([See RFC](https://github.com/rustls/rustls/pull/1399)). All the ground work for the no\_std libc demo has been completed and some issues regarding
+no_std support were discovered on the webpki-roots and ring crates, fixes for those issues have been
+submitted.
+ 
+ # Rust for Linux
+ 
+Our goal is to make Rust a supported second language for Linux kernel development, and to foster the creation of drivers and modules written in Rust.
+
+The primary maintainer of Rust for Linux, Miguel Ojeda, has been working full time under contract with Prossimo since April of 2021.
+ 
+  - The [Rust v6.7
+PR](https://lore.kernel.org/rust-for-linux/20231027182558.199011-1-ojeda@kernel.org/)
+for Linux has been sent. The workqueue abstractions will likely go
+through the wq tree.
+
+  - Rust will be present virtually in the [netdevconf
+0x17](https://netdevconf.info/0x17/). On Tuesday, October 31st, the team
+will give a [Rust kernel networking
+tutorial](https://netdevconf.info/0x17/sessions/tutorial/rust-for-linux-networking-tutorial.html).
+In it, they will build an example kernel side C server. Then, they will
+migrate it to Rust step-by-step, explaining how the language works at
+a high-level as well as giving practical tips to get started with Rust
+for networking in the kernel. They will also see how Rust prevents some
+of the mistakes that could have been made in the C version, some of
+which could become vulnerabilities. They will discover how much code they
+managed to write in the safe Rust subset for their server, which
+prevents those issues.
+
+  - The initial [ARM 64-bit architecture
+support](https://lore.kernel.org/rust-for-linux/ZTKuxaIeX3QMgdeI@arm.com/)
+has been greenlit by the arm64 maintainers, which is important for
+many use cases, such as the [Rust Android Binder
+driver](https://rust-for-linux.com/android-binder-driver) and the M2
+GPU driver.
+
+  - The [Rust VFS abstractions
+RFC](https://lore.kernel.org/rust-for-linux/20231018122518.128049-1-wedsonaf@gmail.com/)
+has been posted, which will enable to develop filesystems written in
+safe Rust (potentially with no unsafe code at all). This is already
+used by [tarfs](https://lore.kernel.org/rust-for-linux/20231018122518.128049-20-wedsonaf@gmail.com/)
+and [PuzzleFS](https://rust-for-linux.com/puzzlefs-filesystem-driver)
+prototypes in Rust.
+
+  - The netdev maintainers have been increasingly involved in
+discussions and review of the [Rust network PHY
+abstractions](https://lore.kernel.org/rust-for-linux/20231026001050.1720612-1-fujita.tomonori@gmail.com/).
+
+  - There has been significant progress in adding support for
+different security features for x86. Architecture maintainers have
+Ack'd the [IBT](https://lore.kernel.org/rust-for-linux/20231009224347.2076221-1-mmaurer@google.com/)
+patch and other [speculation
+mitigations](https://lore.kernel.org/rust-for-linux/20231023174449.251550-1-ojeda@kernel.org/)
+have been posted. A [PR in
+`rustc`](https://github.com/rust-lang/rust/pull/116892) is getting
+reviewed for adding support for `RETHUNK` kernel builds. Together,
+these all take care of most of the `objtool` warnings left, which will
+allow to enable the tool eventually, in order to validate kernel
+builds with Rust enabled.
+
+  - The team continues to offer other projects to maintain a subpage within
+the Rust for Linux webpage. The [PuzzleFS filesystem
+driver](https://rust-for-linux.com/puzzlefs-filesystem-driver) has
+joined this month.
