@@ -14,6 +14,8 @@ This engagement started in October 2023.
 
 ## Monthly Updates
 
+* [October 2023](./update-2023-10.md)
+
 ## Primary Contacts
 
 * William Woodruff - Trail of Bits
