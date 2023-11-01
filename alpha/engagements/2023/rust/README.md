@@ -23,6 +23,7 @@ This engagement started in September 2022 and is expected to continue through at
 
 ## Monthly Updates
 
+* [November 2023](update-2023-11.md)
 * [October 2023](update-2023-10.md)
 * [September 2023](update-2023-09.md)
 * [August 2023](update-2023-08.md)
@@ -38,6 +39,9 @@ This engagement started in September 2022 and is expected to continue through at
 
 * Joel Marcey - Director of Technology, Rust Foundation
 * Walter Pearce - Security Engineer, Rust Foundation
+* Adam Harvey - Software Engineer, Rust Foundation
+* Tobias Bieniek - Software Engineer, Rust Foundation
+* Jan David Nose - Infrastructure Engineer, Rust Foundation
 
 ## Announcements / News
 
