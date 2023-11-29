@@ -1,0 +1,44 @@
+We published our [Annual Report](https://www.abetterinternet.org/documents/2023-ISRG-Annual-Report.pdf) on November 28th, which includes a summary of work accomplished by the Prossimo for Memory Safety project in 2023. We are grateful for the progress made possible by OpenSSF's support and highlight this in the report. 
+
+# Rustls
+Our goal is to build a safer TLS library that can largely replace OpenSSL over time. The headline features of the new library, Rustls, are performance and memory safety.
+
+We are making great progress. The community is also growing rapidly, with new contributors showing up regularly and largely representing new consumers of Rustls.
+
+  - We accomplished a major goal for the project on November 9th, when the capability for pluggable cryptographic backends was [merged](https://github.com/rustls/rustls/pull/1414). This makes it possible for users of Rustls to select the cryptographic library that suits their use case. It is an important step on the journey toward making Rustls a reasonable alternative to OpenSSL. It also will give users the option to select a FIPS certifified library (we anticipate full FIPS certification for aws-lc-rs will be coming soon). 
+ 
+ # Rust for Linux
+ 
+Our goal is to make Rust a supported second language for Linux kernel development, and to foster the creation of drivers and modules written in Rust.
+
+The primary maintainer of Rust for Linux, Miguel Ojeda, has been working full time under contract with Prossimo since April of 2021.
+
+ - The Rust v6.7 PR and the workqueue abstractions (through the wq tree) where both merged into mainline for the upcoming Linux v6.7.
+
+ - The [Linux Plumbers Conference](https://lpc.events) (the main kernel conference) took place in November:
+    + In the Refereed Track, we gave a status update in our [Rust for Linux talk](https://lpc.events/event/17/contributions/1501/).
+    + Later on, on Wednesday, the [Rust MC](https://lpc.events/event/17/sessions/170/) (microconference) took place, where we got deeper, technical dives on particular projects and topics.
+    + [LWN](https://lwn.net), as usual, has been covering the event, including the Rust MC, and articles have already started to get published (e.g. [the `klint` one](https://lwn.net/Articles/951550/))
+-- see more in their [LPC index](https://lwn.net/Archives/ConferenceByYear/#2023-Linux_Plumbers_Conference).
+    + Overall, our subjective impression from the conference is that
+kernel maintainers are getting more interested in Rust now that the
+first use cases are getting upstreamed and their performance is on par
+with C.
+
+ - The [Linux Kernel Maintainer
+Summit](https://events.linuxfoundation.org/linux-kernel-maintainer-summit/)
+also took place in November (co-located with LPC) and Rust for Linux
+was one of the scheduled topics in the summit ("Committing to Rust for
+kernel code"). LWN covered the [overall
+summit](https://lwn.net/Articles/951847/), including the [Rust
+discussion](https://lwn.net/Articles/952029/) in particular.
+
+- We continue to offer other projects to maintain a subpage within
+the Rust for Linux website. During this month the [Apple AGX GPU
+driver](https://rust-for-linux.com/apple-agx-gpu-driver) (one of the
+major use cases) has joined. In addition, a new category for "Tools"
+(i.e. related tooling projects) has been added (also maintained by
+each project), starting with [Coccinelle for
+Rust](https://rust-for-linux.com/coccinelle-for-rust) and
+[`rustc_codegen_gcc`](https://rust-for-linux.com/rustc_codegen_gcc).
+
