@@ -21,6 +21,8 @@ This engagement started in August 2022.
 * [July 2023](update-2023-07.md)
 * [August 2023](update-2023-08.md)
 * [September 2023](update-2023-09.md)
+* [October 2023](update-2023-10.md)
+* [November 2023](update-2023-11.md)
 
 ### Primary Contacts
 
