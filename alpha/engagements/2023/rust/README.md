@@ -23,6 +23,7 @@ This engagement started in September 2022 and is expected to continue through at
 
 ## Monthly Updates
 
+* [December 2023](update-2023-12.md)
 * [November 2023](update-2023-11.md)
 * [October 2023](update-2023-10.md)
 * [September 2023](update-2023-09.md)
