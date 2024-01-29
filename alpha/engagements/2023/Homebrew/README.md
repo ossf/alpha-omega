@@ -16,6 +16,7 @@ This engagement started in October 2023.
 
 * [October 2023](./update-2023-10.md)
 * [November 2023](./update-2023-11.md)
+* [January 2024](./update-2024-01.md)
 
 ## Primary Contacts
 
