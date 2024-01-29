@@ -15,6 +15,7 @@ This engagement started in November 2022.
 
 ### Monthly Updates
 
+* (December 2023 update was provided as an EOY summary via email)
 * [November 2023](update-2023-11.md)
 * [October 2023](update-2023-10.md)
 * [September 2023](update-2023-09.md)
