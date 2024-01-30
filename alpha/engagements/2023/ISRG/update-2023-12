@@ -1,0 +1,39 @@
+# Rustls
+Our goal is to build a safer TLS library that can largely replace OpenSSL over time. The headline features of the new library, Rustls, are performance and memory safety.
+
+We are making great progress. The community is also growing rapidly, with new contributors showing up regularly and largely representing new consumers of Rustls.
+
+We accomplished a major milestone by releasing the [Platform Verifier](https://github.com/rustls/rustls-platform-verifier#rustls-platform-verifier). 
+
+  - It's a Rust library that verifies the validity of TLS certificates based on the operating system's certificate facilities.   
+  - Portions of the Android and Windows implementation were adapted and referenced from Chromium's previous verifier implementations.
+
+We published a [blog post](https://www.memorysafety.org/blog/rustls-performance/) that outlines the work being done to develop strong performance benchmarking tools, and how the results of that benchmarking have informed better engineering decisions for Rustls. 
+
+#Rust for Linux
+  
+Our goal is to make Rust a supported second language for Linux kernel development, and to foster the creation of drivers and modules written in Rust.
+
+The primary maintainer of Rust for Linux, Miguel Ojeda, has been working full time under contract with Prossimo since April of 2021.
+
+  - Ongoing work for the new build system for the Rust side of the Linux kernel.
+
+  - Preparation for the upcoming Linux kernel 6.8 merge window early January.
+
+  - The PHY reference driver (and its required abstractions) has been
+[queued](https://lore.kernel.org/netdev/170263322444.1975.17234929609368010648.git-patchwork-notify@kernel.org/)
+through the netdev tree for the next merge window, making it the first
+driver written in Rust to land upstream.
+
+  - The [Rust 1.75 version
+upgrade](https://lore.kernel.org/rust-for-linux/20231224172128.271447-1-ojeda@kernel.org/)
+was submitted in advance of the upcoming release of the compiler late
+December.
+
+  - Meeting with KernelCI/Collabora around the new dashboard effort
+and what could be needed for Rust-related use cases for CI.
+
+  - [Rust for Linux is now in space](https://lwn.net/Articles/954974/)
+as part of a satellite just
+[launched](https://bupt-os.github.io/website/news/2023_12_9/satellite_launch/)
+out of China.
