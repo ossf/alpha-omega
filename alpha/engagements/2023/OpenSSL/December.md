@@ -1,0 +1,1 @@
+December was dedicated to making patches and fixes that came out of the security of the audit. We were hoping to have everything wrapped up by the end of December, but due to holiday schedules had to push to January. 
