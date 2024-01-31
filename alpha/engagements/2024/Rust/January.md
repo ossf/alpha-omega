@@ -13,7 +13,9 @@ Here is the progress on the four threat models being developed by the Rust Found
 
 ### Crate Publishing Replay
 
-We are now able to replay crate publishing from the past. This provides a retrospective on what new Typomania and Sandpit checks would have found, and thus find in the future. From this, we can establish a scoring system on potential maliciousness. With that spam assessment, if a crate falls above a given threshold, then we can quarantine the crate and potentially that user. We will continue to improve tools for crates retrospective analysis.
+We are now able to replay crate publishing from the past, allowing us to use historical data to evaluate the efficacy of specific Typomania and Sandpit checks. We intend to use this to establish a scoring system on potential maliciousness, which — if a crate falls above a given threshold — can feed into deciding whether to quarantine the crate and potentially that user pending further review.
+
+We will continue to improve tooling for retrospective crate analysis.
 
 ### Sandpit deploy to production
 
