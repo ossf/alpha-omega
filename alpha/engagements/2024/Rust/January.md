@@ -37,6 +37,8 @@ The first [PR](https://github.com/rust-lang/crates.io/pull/8010) for crates.io t
 
 Adam is nearly finished with a two-part blog post on typosquatting and Typomania, going into technical details as they relate to crates.io, etc. One blog post will be posted on the [Foundation website](https://rustfoundation.org). The other blog post will posted on the [Rust Insider website](https://blog.rust-lang.org/inside-rust/).
 
+Adam is also documenting the process to be followed when handling malicious crates, which allows other crates.io team members to handle malicious crates in a way that ensures we preserve the malware and all the metadata needed to facilitate future analysis and reporting to upstream(s) and/or law enforcement, as appropriate.
+
 Adam and Walter have submitted talks for consideration at [Open Source Summit North America](https://events.linuxfoundation.org/open-source-summit-north-america/program/cfp/#overview) and the accompanying [SOSS Community Day](https://openssf.org/blog/2024/01/11/submit-to-speak-at-soss-community-day-north-america-2024/).
 
 Walter and JD have talks scheduled at [Rust Nation UK](https://www.rustnationuk.com/schedule) in March.
