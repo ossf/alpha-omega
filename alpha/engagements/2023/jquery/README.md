@@ -22,6 +22,14 @@ This engagement started in December 2022 and is expected to continue through at 
 * [May 2023](update-2023-05.md)
 * [June 2023](update-2023-06.md)
 * [July 2023](update-2023-07.md)
+* [August 2023](update-2023-08.md)
+* [September 2023](update-2023-09.md)
+* [October 2023](update-2023-10.md)
+* [November 2023](update-2023-11.md)
+
+### Annual Report
+
+[The OpenSSF Annual Report](https://openssf.org/download-the-2023-openssf-annual-report/) includes a summary of the year's activities and accomplishments for all projects, including jQuery. The monthly update for December 2023 has been rolled into the annual report.
 
 ### Primary Contacts
 
