@@ -5,7 +5,7 @@ charset-normalizer==3.1.0
 cryptography==41.0.3
 fetchcode==0.2.0
 idna==3.4
-Jinja2==3.1.2
+Jinja2==3.1.3
 MarkupSafe==2.1.3
 packageurl-python==0.11.1
 pycparser==2.21
