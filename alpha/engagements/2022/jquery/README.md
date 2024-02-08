@@ -5,8 +5,8 @@ in key areas, including:
 
 * Secure the consumer web
 * Reduce potential security incidents for jQuery by modernizing its consumers and its code
-* Conduct an ecosystem sercurity risk audit
-* Modernize Infrastructure
+* Conduct an ecosystem security risk audit
+* Modernize infrastructure
 * Web Modernization Campaign
 
 
