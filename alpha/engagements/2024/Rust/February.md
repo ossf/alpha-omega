@@ -13,7 +13,7 @@ The four threat models being developed by the Rust Foundation are now complete:
 
 ### PKI RFC
 
-The Public Key Infrastructure (PKI) RFC has been [published](LINK TO RFC). This covers only having a base PKI and CA for the project, and the initial model for storing and accessing said keys utilizing a quorum model for ownership. This is a stepping stone towards moving to actual crate signing, mirroring, etc.
+The Public Key Infrastructure (PKI) RFC has been [published](https://github.com/rust-lang/rfcs/pull/3579). This is a big milestone and is a result of coordination between members of the Project and the Foundation. This covers only having a base PKI and CA for the project, and the initial model for storing and accessing said keys utilizing a quorum model for ownership. This is a stepping stone towards moving to actual crate signing, mirroring, etc.
 
 ### CDN Downloads for crates.io
 
