@@ -1,5 +1,5 @@
 asgiref==3.7.1
-black==23.3.0
+black==24.3.0
 cbor2==5.4.6
 certifi==2023.7.22
 cffi==1.15.1

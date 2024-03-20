@@ -2,7 +2,7 @@ astroid==2.15.5
 azure-core==1.26.4
 azure-storage-blob==12.16.0
 bandit==1.7.5
-black==23.3.0
+black==24.3.0
 cbor2==5.4.6
 certifi==2023.7.22
 cffi==1.15.1
