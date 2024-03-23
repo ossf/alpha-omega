@@ -1,9 +1,9 @@
 header:
   schema-version: '1.0.0'
-  expiration-date: '2023-12-31T00:00:00.000Z'
-  last-updated: '2022-11-23'
-  last-reviewed: '2022-11-23'
-  commit-hash: be183da1cf28e2ed6941077c99c52542ace7ec99
+  expiration-date: '2025-03-11T00:00:00.000Z'
+  last-updated: '2024-03-11'
+  last-reviewed: '2024-03-11'
+  commit-hash: c4defb4503bc63bca517d58118d88d82deb80068
   project-url: https://github.com/ossf/alpha-omega
 project-lifecycle:
   stage: active
@@ -18,7 +18,7 @@ security-artifacts:
     threat-model-created: false
 security-contacts:
 - type: email
-  value: michael.scovetta@openssf.org
+  value: staff@alpha-omega.dev
 vulnerability-reporting:
   accepts-vulnerability-reports: true
 dependencies:
