@@ -12,6 +12,7 @@ This engagement started in February 2024.
 ### Monthly Updates
 
 * [February 2024](update-2024-02.md)
+* [March 2024](update-2024-03.md)
 
 ### Primary Contacts
 
@@ -20,4 +21,5 @@ This engagement started in February 2024.
 
 ### Announcement / News
 
-* Announcement blog post in progress.
+* [Alpha-Omega Announcement](https://alpha-omega.dev/blog/alpha-omega-announces-first-four-grants-of-2024-and-our-2024-okrs/)
+* [Ruby Central Announcement](https://rubycentral.org/news/ruby-central-receives-alpha-omega-grant/)
