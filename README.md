@@ -1,38 +1,34 @@
 # Alpha-Omega
 
-Welcome!
+Alpha-Omega's mission is to catalyze sustainable security improvements to critical open source projects and ecosystems. 
+We accomplish this in various ways, such as funding security staff at organizations like the Rust Foundation and the
+Eclipse Foundation, security improvements to projects like Homebrew, security audits of projects like OpenSSL, and
+security features in projects like Rustls. We also sponsor work to identify serious vulnerabilities across a large
+set of open source projects, such as our work through OpenRefactory. 
 
-Through Alpha-Omega, we aim to meaningfully improve the security of the open source software
-projects that we all depend so deeply upon.
-
-**Alpha** will work with the maintainers of the most critical open source projects to help them
-identify and fix security vulnerabilities, and improve their security posture.
-
-**Omega** will identify at least 10,000 widely deployed OSS projects where it can apply automated
-security analysis, scoring, and remediation guidance to their open source maintainer communities.
-
-To learn more, view the [Alpha-Omega home page](https://alpha-omega.dev) or
-watch our kickoff webinar video below:
-
-[![Alpha-Omega Webinar Video](https://img.youtube.com/vi/dRrFDylU7kg/0.jpg)](https://www.youtube.com/watch?v=dRrFDylU7kg)
+Since 2022, Alpha-Omega has been working hard, "turning money into security". Learn more at [alpha-omega.dev](https://alpha-omega.dev)
+or read our latest [Annual Report](https://alpha-omega.dev/wp-content/uploads/sites/22/2024/02/Alpha-Omega-Annual-Report-2023.pdf).
 
 ## Alpha
 
 We have active engagements with the following projects:
 
-* [Node.js](/alpha/engagements/2022/node.js)
-* [Eclipse Foundation](/alpha/engagements/2022/eclipse)
-* [Rust Foundation](/alpha/engagements/2022/rust)
-* [jQuery](/alpha/engagements/2022/jquery)
-* [Python Software Foundation](/alpha/engagements/2023/psf)
+* [Eclipse Foundation](/alpha/engagements/2024/Eclipse%20Foundation)
+* [Homebrew](/alpha/engagements/2024/Homebrew)
+* [Node.js](/alpha/engagements/2024/NodeJS)
+* [OpenSSL](/alpha/engagements/2024/OpenSSL)
+* [OpenRefactory](/alpha/engagements/2024/OpenRefactory)
+* [Prossimo](/alpha/engagements/2024/Prossimo)
+* [Python Software Foundation](/alpha/engagements/2024/Python%20Software%20Foundation)
+* [Rust Foundation](/alpha/engagements/2024/Rust%20Foundation)
 
-For more information on Alpha, see [alpha/README.md](alpha/README.md).
+[Learn more about Alpha](alpha/README.md).
 
 ## Project Information
 
 #### Meeting times
 
-We usually meet on the first Wednesday of each month at 1:00pm PT. You can find the meeting
+We usually meet on the first Wednesday of each month at 9:00am PT. You can find the meeting
 invite link on the [OpenSSF Community Calendar](https://calendar.google.com/calendar?cid=czYzdm9lZmhwNWk5cGZsdGI1cTY3bmdwZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ).
 
 #### Core Team
@@ -43,8 +39,8 @@ The Alpha-Omega core team members include:
 * [Bob Callaway](https://www.linkedin.com/in/bobcallaway) (Google)
 * [Henri Yandell](https://www.linkedin.com/in/flamefew/) (AWS)
 * [Michael Winser](https://www.linkedin.com/in/michaelw/) (Technical Strategist)
-* [Michelle Martineau](https://www.linkedin.com/in/michelle-martineau/)(Linux Foundation)
-* [Naomi Washington](https://www.linkedin.com/in/naomiwashington/)(Linux Foundation)
+* [Michelle Martineau](https://www.linkedin.com/in/michelle-martineau/) (Linux Foundation)
+* [Naomi Washington](https://www.linkedin.com/in/naomiwashington/) (Linux Foundation)
 
 #### Get Involved
 
