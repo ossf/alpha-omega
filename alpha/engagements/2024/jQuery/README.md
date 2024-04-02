@@ -11,7 +11,7 @@ in key areas, including:
 
 ### Timeline
 
-This engagement started in December 2022.
+This engagement started in December 2022. Work in 2024 is being done with carryover funds from 2023.
 
 ### Monthly Updates
 
