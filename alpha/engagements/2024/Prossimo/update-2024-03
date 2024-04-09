@@ -1,0 +1,47 @@
+# Rustls
+Our goal is to build a safer TLS library that can largely replace OpenSSL over time. The headline features of the new library, Rustls, are performance and memory safety.
+
+We are making great progress. The community is also growing rapidly, with new contributors showing up regularly and largely representing new consumers of Rustls.
+
+  - We landed support for [Post-Quantum Key Exchange](https://www.abetterinternet.org/sponsors/). This will protect users of Rustls from adversaries who are looking to intercept encryption keys used in a TLS connection.
+ 
+ # Rust for Linux
+ 
+Our goal is to make Rust a supported second language for Linux kernel development, and to foster the creation of drivers and modules written in Rust.
+
+The primary maintainer of Rust for Linux, Miguel Ojeda, has been working full time under contract with Prossimo since April of 2021.
+
+  - Linux v6.9-rc1 got released, containing the [latest Rust pull
+request](https://lore.kernel.org/lkml/20240309133817.335439-1-ojeda@kernel.org/):
+Rust 1.76.0, `container_of!`, the beginning of the `time` module,
+`CondVar::{notify_sync, wait_interruptible_timeout}()`,
+`ForeignOwnable::try_from_foreign()`... This cycle also received,
+through other trees, the merge of the Rust support for the arm64
+architecture, the introduction of the first Rust kselftest and
+improvements for the PHY Rust reference driver.
+
+  - The kernel website now hosts the generated Rust code documentation
+at [rust.docs.kernel.org](https://rust.docs.kernel.org/kernel/). It
+will be officially announced soon, and it will include the all tagged
+releases (i.e. from [v6.1](https://rust.docs.kernel.org/6.1/kernel/)
+up to [v6.8](https://rust.docs.kernel.org/6.8/kernel/) at the time of
+writing), as well as the latest next and rc tags (i.e. rolling docs).
+This has been an often requested feature. The generation is handled
+automatically in a periodic CI.
+
+  - The [Nova](https://lore.kernel.org/rust-for-linux/Zfsj0_tb-0-tNrJy@cassiopeiae/)
+project from Red Hat was announced, as well as work-in-progress Rust
+bindings for [KMS +
+RVKMS](https://lore.kernel.org/rust-for-linux/20240322221305.1403600-1-lyude@redhat.com/).
+
+  - The project gained two more ["topic
+branches"](https://rust-for-linux.com/branches#topic-branches):
+`staging/rust-device` and `staging/dev` (an integration branch).
+
+  - It seems likely we will be able to [drop the `alloc`
+fork](https://lore.kernel.org/rust-for-linux/20240328013603.206764-1-wedsonaf@gmail.com/)
+from the kernel source tree, greatly reducing the chances that a new
+compiler release requires changes to the kernel. In turn, this will
+get us closer to starting to support several compiler versions (and,
+meanwhile, will make it easier to perform the upgrades of the
+toolchain).
