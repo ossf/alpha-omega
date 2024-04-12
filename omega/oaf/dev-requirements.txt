@@ -9,7 +9,7 @@ cryptography==41.0.3
 dill==0.3.6
 gitdb==4.0.9
 GitPython==3.1.35
-idna==3.4
+idna==3.7
 isort==5.10.1
 lazy-object-proxy==1.8.0
 mccabe==0.7.0
