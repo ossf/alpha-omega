@@ -1,0 +1,38 @@
+# Rustls
+Our goal is to build a safer TLS library that can largely replace OpenSSL over time. The headline features of the new library, Rustls, are performance and memory safety.
+
+We are making great progress. The community is also growing rapidly, with new contributors showing up regularly and largely representing new consumers of Rustls.
+
+  - This month's efforts were focused on landing the first version of an [OpenSSL compatibility layer for NGINX.](https://github.com/rustls/rustls-openssl-compat/releases) This will make it possible for NGINX users to switch from OpenSSL to Rustls within a few minutes, without needing to recompile. This was an important effort for Rustls because it creates a path to adoption that involves less effort. 
+
+
+
+
+#Rust for Linux
+  
+Our goal is to make Rust a supported second language for Linux kernel development, and to foster the creation of drivers and modules written in Rust.
+
+The primary maintainer of Rust for Linux, Miguel Ojeda, has been working full time under contract with Prossimo since April of 2021.
+
+  - A ["fixes PR"](https://lore.kernel.org/rust-for-linux/20240427171549.934651-1-ojeda@kernel.org/)
+was sent to Linus and merged for the incoming 6.9 release in May, with
+most of the patches getting backported into stable kernel releases
+too. Work is ongoing to prepare for 6.10 merge window.
+
+  - The [Rust Microconference](https://lpc.events/event/18/contributions/1662/)
+has been accepted for [Linux Plumbers Conference
+2024](https://lpc.events). This will be the third year in a row the
+Rust MC takes place in LPC. As usual, it is intended to cover both
+Rust for Linux and other Rust topics.
+
+  - The Nova project from Red Hat has now a [dedicated
+page](https://rust-for-linux.com/nova-gpu-driver) in the Rust for
+Linux website, maintained by the project's authors, like for the rest
+of similar subpages.
+
+  - Ready-to-be-used toolchains will be soon published at kernel.org
+to help developers build Rust-enabled kernels with matching LLVM
+versions, thanks to the ClangBuiltLinux project, which already [builds
+optimized LLVM toolchains](https://mirrors.edge.kernel.org/pub/tools/llvm/).
+The included Rust binaries are, for the moment, the usual official
+Rust-provided ones.
