@@ -1,0 +1,15 @@
+#AV1
+  
+Media decoders have historically been fertile ground for memory safety vulnerabilities. This is because they are complex, heavily used, and commonly processing untrusted data from networks.
+
+AV1 is set to become one of the most important media formats on the Internet. Prossimo is building a high-performance and memory safe AV1 decoder, called [Rav1d](https://github.com/memorysafety/rav1d). 
+
+In May, the team focused primarily on:
+ 
+- Cleanup of the remaining unsafe code in the project
+- Addressing remaining unsafety in the core decoding logic
+- Making the Rust fallback versions of assembly routines safer 
+
+The task queue has been cleaned up to use atomics and safe indices, addressing the last bit of unsafety in the threading system. We’ve also reworked the picture data allocation API to support safely accessing the picture data from Rust code. This was tricky due to picture allocation being a part of the C API, and the need to support negative strides, but we’ve built an abstraction that allows us to perform safe indexing into picture data from Rust code while passing strided pointers to the assembly routines. We’ve also addressed an outstanding issue where we weren’t correctly handling negative strides in the picture data, and have added testing for this to CI to avoid further regressions.
+
+We’ve been diving deep into the performance of rav1d and started work on bringing performance up to match the C version. A major regression has been addressed and profiling shows more opportunities for optimization.
