@@ -38,9 +38,9 @@ The Alpha-Omega core team members include:
 * [Michael Scovetta](https://linkedin.com/in/scovetta) (Microsoft)
 * [Bob Callaway](https://www.linkedin.com/in/bobcallaway) (Google)
 * [Henri Yandell](https://www.linkedin.com/in/flamefew/) (AWS)
+* [Miaolai Zhou](https://www.linkedin.com/in/miaolaizhou) (AWS)
 * [Michael Winser](https://www.linkedin.com/in/michaelw/) (Technical Strategist)
 * [Michelle Martineau](https://www.linkedin.com/in/michelle-martineau/) (Linux Foundation)
-* [Naomi Washington](https://www.linkedin.com/in/naomiwashington/) (Linux Foundation)
 
 #### Get Involved
 
