@@ -1,0 +1,15 @@
+#AV1
+  
+Media decoders have historically been fertile ground for memory safety vulnerabilities. This is because they are complex, heavily used, and commonly processing untrusted data from networks.
+
+AV1 is set to become one of the most important media formats on the Internet. Prossimo is building a high-performance and memory safe AV1 decoder, called [Rav1d](https://github.com/memorysafety/rav1d). 
+
+At this point in the project, the Rust code is functionally equivalent to the original C code. In June, the team focused primarily on:
+ 
+- Performance profiling and optimization
+- Integration and polish
+
+
+Performance work has focused on identifying regressions and addressing them. Optimizations included profiling and improving runtime performance in the latest safe code. In addition, the team worked on improving the memory overhead by porting upstream dav1d (the C AV1 decoder from which rav1d was transpiled) changes.
+
+The team is currently seeking to close the ~11% performance delta between the original C code and the transpiled Rust code. ISRG has made outside advisors available to consult on this issue. 
