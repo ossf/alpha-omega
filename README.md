@@ -14,6 +14,7 @@ or read our latest [Annual Report](https://alpha-omega.dev/wp-content/uploads/si
 We have active engagements with the following projects:
 
 * [Eclipse Foundation](/alpha/engagements/2024/Eclipse%20Foundation)
+* [FreeBSD Foundation](/alpha/engagements/2024/FreeBSD)
 * [Homebrew](/alpha/engagements/2024/Homebrew)
 * [Node.js](/alpha/engagements/2024/NodeJS)
 * [OpenSSL](/alpha/engagements/2024/OpenSSL)
