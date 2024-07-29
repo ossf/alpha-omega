@@ -29,5 +29,4 @@ This engagement started in December 2022. Work in 2024 is being done with carryo
 ### Announcement / News
 
 * <https://openssf.org/blog/2022/10/24/openssf-project-alpha-omega-invests-in-the-openjs-foundation-and-jquery-to-help-secure-the-consumer-web/>
-* <https://openjsf.org/category/jquery/>
 
