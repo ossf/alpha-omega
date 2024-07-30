@@ -35,6 +35,7 @@ This engagement started in July 2023. Reports for 2023 are available here: https
 * [April 2024](update-2024-04.md)
 * [May 2024](update-2024-05.md)
 * [June 2024](update-2024-06.md)
+* [July 2024](update-2024-07.md)
 
 ## Primary Contacts
 
