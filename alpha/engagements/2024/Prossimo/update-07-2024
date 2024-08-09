@@ -1,0 +1,42 @@
+#Rust for Linux
+  
+Our goal [Rust for Linux](https://rust-for-linux.com) is to add support for the Rust language to the Linux kernel in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. This will likely be achieved by merging the first Rust production drivers into the Linux kernel, though the timeline for doing so will be determined by the community and its contributions. 
+
+
+**July Highlights**
+
+Thirteen patches for establishing the support for handling multiple Rust toolchain versions were sent to the Linux kernel mailing list by the project's lead developer, Miguel Ojeda, whose work is supported by Prossimo thanks to a grant from Alpha-Omega. These patches have been merged into mainline. This work will pave the path for supporting several Rust toolchain versions, and thus establish a minimum Rust compiler and bindgen version. The impact of this change is intended to lead to better Rust-based drivers.
+
+To provide additional detail on this update, here is a portion of the text from the v6.11 tag message written by Miguel Ojeda:
+
+
+	The highlight is the establishment of a minimum version for the Rust
+    toolchain, including 'rustc' (and bundled tools) and 'bindgen'.
+
+    The initial minimum will be the pinned version we currently have, i.e.
+    we are just widening the allowed versions. That covers 3 stable Rust
+    releases: 1.78.0, 1.79.0, 1.80.0 (getting released tomorrow), plus beta,
+    plus nightly.
+
+    This should already be enough for kernel developers in distributions
+    that provide recent Rust compiler versions routinely, such as Arch
+    Linux, Debian Unstable (outside the freeze period), Fedora Linux,
+    Gentoo Linux (especially the testing channel), Nix (unstable) and
+    openSUSE Slowroll and Tumbleweed.
+
+    In addition, the kernel is now being built-tested by Rust's pre-merge
+    CI. That is, every change that is attempting to land into the Rust
+    compiler is tested against the kernel, and it is merged only if it
+    passes. Similarly, the bindgen tool has agreed to build the kernel in
+    their CI too.
+
+    Thus, with the pre-merge CI in place, both projects hope to avoid
+    unintentional changes to Rust that break the kernel. This means that,
+    in general, apart from intentional changes on their side (that we
+    will need to workaround conditionally on our side), the upcoming Rust
+    compiler versions should generally work.
+
+    In addition, the Rust project has proposed getting the kernel into
+    stable Rust (at least solving the main blockers) as one of its three
+    flagship goals for 2024H2 [1].
+
