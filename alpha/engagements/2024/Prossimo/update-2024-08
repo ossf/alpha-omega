@@ -1,0 +1,44 @@
+#Rust for Linux
+  
+Our goal [Rust for Linux](https://rust-for-linux.com) is to add support for the Rust language to the Linux kernel in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. This will likely be achieved by merging the first Rust production drivers into the Linux kernel, though the timeline for doing so will be determined by the community and its contributions. 
+
+
+**August Highlights**
+
+
+  - Preparation for the Linux v6.12 upcoming merge window, i.e. the
+`rust-next` branch already contains a few major developments for the
+cycle, such as the CPU mitigations work, the split of the helpers file
+to help avoid conflicts for developers and the linked list
+abstractions series, with more to be added.
+
+  - The `rust-fixes` PR for v6.11 was sent to Linus and it got merged.
+A second `rust-fixes` PR is in the works with some more fixes queued
+for this cycle.
+ 
+ 
+  - Announced https://rust.docs.kernel.org. The domain contains the generated Rust code documentation. It is
+intended to help kernel developers (as well as other people) to follow
+along with the project and explore the Rust abstractions and their
+source code available in mainline and linux-next. It is ultimately a
+tool for the kernel community to work with Rust, and thus it should
+help us achieve the long term goal of getting Rust production drivers
+merged into the Linux kernel.
+
+  - Submitted patches, including the `RUSTC_VERSION` and
+reconfig/rebuild support series as well as the `arch_static_branch`
+Kbuild prototype, which are prerequisites of a couple of other series.
+
+  - Final details for the organization of Kangrejos have been handled
+throughout August. Same for the LPC Rust MC.
+
+  - Published and maintained a list of LWN Rust for Linux articles for
+use by the community in Zulip.
+
+  - Coordinated with the Rust Foundation on potential fellowships
+related to Rust for Linux.
+
+  - Plus many other minor maintenance tasks and activities, such as
+the usual meetings (weekly, core, Rust project...), handling lists and
+issues, stable maintenance, liaison/discussions with related projects,
+etc.
