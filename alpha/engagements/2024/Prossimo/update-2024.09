@@ -1,0 +1,51 @@
+#Rust for Linux
+  
+Our goal [Rust for Linux](https://rust-for-linux.com) is to add support for the Rust language to the Linux kernel in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. This will likely be achieved by merging the first Rust production drivers into the Linux kernel, though the timeline for doing so will be determined by the community and its contributions. 
+
+
+**September Highlights**
+
+We continued adding the necessary support into the mainline kernel, which will help make it possible for Rust drivers to make progress toward being production-ready. 
+
+  - Prepared and sent the [Linux v6.11
+`rust-fixes`](https://lore.kernel.org/rust-for-linux/20240905213425.253828-1-ojeda@kernel.org/)
+PR (second round).
+
+  - Prepared and sent the [Linux v6.12
+`rust-next`](https://lore.kernel.org/rust-for-linux/20240924221023.197610-1-ojeda@kernel.org/)
+PR, which will likely be the next LTS kernel.
+
+  - Submitted patches, including the lints/`#[expect]` series,
+`RUSTC_VERSION` v2 series...
+
+We completed community-building activities. These are important because they help build common understanding and goals amongst interested parties and with projects related to Rust for Linux.
+
+  - Gave [keynote](https://rustconf.com/programs/#keynotes) at RustConf 2024.
+
+
+We have continued to demonstrate openness to collaboration and progress within the Linux community.
+ 
+  - Organized and ran the [Rust
+MC](https://lpc.events/event/18/sessions/186/) in LPC 2024 (Linux
+Plumbers Conference).
+
+  
+  -   Co-organized and ran [Kangrejos](https://kangrejos.com) 2024 (the
+Rust for Linux conference).
+
+  - Gave [talk](https://lpc.events/event/18/contributions/1912/) at
+the [Kernel Summit](https://lpc.events/event/18/sessions/177/) in LPC
+2024 (Linux Plumbers Conference, the main kernel event every year).
+
+  - Spoke at the invitation-only [Maintainers
+Summit](https://lwn.net/Articles/990740/) about [committing to Rust in
+the kernel](https://lwn.net/SubscriberLink/991062/b0df468b40b21f5d/).
+
+  - Linus Torvalds may soon start including Rust in his test-builds
+between PR merges.
+
+Plus many other minor maintenance tasks and activities, such as
+the usual meetings (weekly, core, Rust project...),
+reviewing/acking/testing patches, handling lists and issues, creating
+"good first issues", stable maintenance, liaison/discussions with
+related projects, etc.
