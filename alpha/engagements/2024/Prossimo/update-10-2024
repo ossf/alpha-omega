@@ -1,0 +1,30 @@
+#Rust for Linux
+  
+Our goal [Rust for Linux](https://rust-for-linux.com) is to add support for the Rust language to the Linux kernel in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. This will likely be achieved by merging the first Rust production drivers into the Linux kernel, though the timeline for doing so will be determined by the community and its contributions. 
+
+
+**October Highlights**
+
+
+  - Prepared and sent the Linux v6.12 `rust-fixes` PRs:
+[first](https://lore.kernel.org/rust-for-linux/20241004000349.675431-1-ojeda@kernel.org/)
+and second](https://lore.kernel.org/rust-for-linux/20241018225329.235175-1-ojeda@kernel.org/)
+(and likely a third one within October too). Some of these fixes are
+important for the first major users of Rust in the kernel,
+particularly Android Binder.
+
+  - Early preparation of the Linux v6.13 `rust-next` PR -- it is
+shaping up to be a release with a few major changes, such as the
+custom `alloc` series, the lints series and an assortment of other
+improvements. Some of these features are key to some of the first
+major use cases of Rust in the kernel as well, such as the Nova GPU
+driver.
+
+  - The usual meetings took place (weekly meetings, core meetings,
+Rust project meetings...).
+
+  - Plus many other minor maintenance tasks and activities, such as
+the usual meetings (weekly, core, Rust project...),
+reviewing/acking/testing patches, handling lists and issues, creating
+"good first issues", stable maintenance, liaison/discussions with
+related projects, etc.
