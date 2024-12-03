@@ -1,0 +1,42 @@
+#Rust for Linux
+  
+Our goal [Rust for Linux](https://rust-for-linux.com) is to add support for the Rust language to the Linux kernel in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. This will likely be achieved by merging the first Rust production drivers into the Linux kernel, though the timeline for doing so will be determined by the community and its contributions. 
+
+
+**November Highlights**
+
+- The [Linux v6.13 Rust
+PR](https://lore.kernel.org/all/20241126022500.718070-1-ojeda@kernel.org/)
+has been prepared and submitted, containing the work from a multitude
+of developers and companies, to support the first Rust users that have
+already landed in Linux (Asix PHY driver, AMCC QT2025 PHY driver, Null
+Block driver, DRM panic screen QR code generator).
+
+- Other PRs targeting v6.13 are also landing through their
+respective subsystems (such as vfs file, vfs pid_namespace,
+tracepoints, netdev...): an increasing number of kernel
+subsystems/maintainers are getting involved with Rust.
+
+- A third [`rust-fixes` PR for
+v6.12](https://lore.kernel.org/rust-for-linux/20241101202258.233057-1-ojeda@kernel.org/)
+was submitted and landed.
+
+- The resolution of a [libclang/bindgen
+double-issue](https://lore.kernel.org/rust-for-linux/20241111201607.653149-1-ojeda@kernel.org/)
+that the kernel was hitting showcased the ongoing collaboration
+between key distributions such as Debian and Fedora and Rust for
+Linux.
+
+- Prepared and discussed with upstream Rust the list of [unstable
+features](https://rust-for-linux.com/unstable-features) to be
+discussed/proposed for 2025H1 Rust project goals. While the particular
+items are not decided yet, it is likely that upstream Rust will have
+the Linux kernel as part of their project goals again, which is key to
+eventually get the kernel into stable Rust.
+
+- Plus many other minor maintenance tasks and activities, such as
+the usual meetings (weekly, core, Rust project, Linux Technical
+Advisory Board...), reviewing/acking/testing patches, submitting
+fixes/cleanups, handling lists and issues, stable/LTS kernels
+maintenance, liaison/discussions with related projects, maintaining
+the website, creating "good first issues", etc.
