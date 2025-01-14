@@ -24,3 +24,4 @@ In addition to the monthly reports here in GitHub, the Rust Foundation provides 
 * Tobias Bieniek - Software Engineer, Rust Foundation
 * Jan David Nose - Infrastructure Engineer Lead, Rust Foundation
 * Marco Ieni - Infrastructure Engineer, Rust Foundation
+* Jon Bauman - Interop Software Engineer Lead, Rust Foundation

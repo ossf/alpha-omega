@@ -20,7 +20,9 @@ This engagement started in September 2024.
 
 ## Monthly updates
 
-* [Semptember 2024](./update-2023-09.md)
+* [Semptember 2024](./update-2024-09.md)
+* [October 2024](./update-2024-10.md)
+* [November 2024](./update-2024-11.md)
 
 ## Primary Contacts
 
