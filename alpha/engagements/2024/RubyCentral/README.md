@@ -21,6 +21,7 @@ This engagement started in February 2024.
 * [September 2024](update-2024-09.md)
 * [October 2024](update-2024-10.md)
 * [November 2024](update-2024-11.md)
+* [December 2024](update-2024-12.md)
 
 ### Primary Contacts
 
