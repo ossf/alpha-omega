@@ -1,0 +1,28 @@
+# Rust for Linux
+
+Please find below our January 2025 update for Internet Security Research Group (ISRG)’s Prossimo “Rust for Linux” project.
+
+**About the project:**
+Our goal for the [Rust for Linux](https://rust-for-linux.com/) project is to add support for the memory safe Rust language to the Linux kernel, in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. Rust was merged into the open source Linux kernel in late 2022, which was a key milestone towards that goal. Thanks to support from Alpha-Omega, ISRG is working with the primary maintainer of Rust for Linux, Miguel Ojeda, to continue to improve the support for Rust in the Linux kernel so that the first major Rust production drivers can be merged upstream.
+
+**January 2025 Highlights:**
+In January, we undertook maintenance of the development branch by preparing the regular [Rust PR](https://lore.kernel.org/rust-for-linux/20250119224352.365202-1-ojeda@kernel.org/) for the Linux v6.14 kernel cycle, which was sent to Linus Torvalds and merged. The regular Rust PRs sent each kernel cycle (as well as other PRs), represent the combined work from a multitude of developers and several major companies that adds and maintains the required features (such as Rust abstractions for kernel C APIs) that the first major Rust production drivers need.
+
+Related to Rust for Linux core team management, the Rust for Linux core team gained a [new member](https://lore.kernel.org/rust-for-linux/20250129215948.135486-1-ojeda@kernel.org/) this month, Danilo Krummrich, who primarily works for Red Hat on one of the major Rust for Linux users: Nova, a Rust-based GSP-only driver for Nvidia GPUs. The Rust for Linux core team maintains the growing Rust support in the kernel. All Rust code in the kernel, including the first major Rust production drivers eventually merged, rely on that core support. Thus it is important to grow and maintain a healthy team as needed.
+
+We also made progress toward building community this month by preparing a [Rust for Linux keynote](https://fosdem.org/2025/schedule/event/fosdem-2025-6507-rust-for-linux/) for the upcoming FOSDEM conference. FOSDEM is one of the biggest technical conferences in Europe (~8000 attendees). A keynote in such a conference is a great opportunity for the Rust for Linux project to gain visibility and thus eventually support from new contributors and companies.
+
+**January 2025 Additional Work Undertaken:**
+Beyond the work highlighted above, we continued work toward the below, all aimed at improving the support for Rust in the Linux kernel so that the first major Rust production drivers can be merged upstream.
+
+  - We continued maintenance of the development branch by applying/reviewing/testing patches, solving conflicts with other subsystems, reproducing issues, and maintaining the CIs. 
+
+  - As part of our work maintaining Rust support in the stable kernels, we backported Rust fixes when required and tested the branches with Rust enabled.
+
+  - We maintained other subsystem maintenance, including reporting issues to other projects (e.g. the Rust compiler and `bindgen`) and maintaining the ["live lists"](https://github.com/Rust-for-Linux/linux/issues/2), which track bugfixes, wanted features, and unstable features from other projects.
+
+  - We furthered technical development of Rust in the Linux kernel via continued development of the new build system.
+
+  - We performed Rust for Linux core team management via maintenance of the internal spreadsheets of the team (that track the status of all patch series, PRs, versioning, etc.), onboarding new team members, organizing and leading the core team weekly meetings, and keeping track of news relevant for the team.
+
+  - We supported building the Rust Community by meeting with interested parties (including companies and kernel maintainers), maintaining relationships with other projects, such as the Rust project, `rustc_codegen_gcc`, `bindgen`, GCC Rust, guiding new contributors, and spent time organizing the Rust for Linux [Kangrejos](https://kangrejos.com) conference, as well as writing new content and keeping the [Rust for Linux webpage](https://rust-for-linux.com) up to date.
