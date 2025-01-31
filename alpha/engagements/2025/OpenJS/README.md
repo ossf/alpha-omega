@@ -13,7 +13,8 @@ The 2025 OpenJS Foundation Alpha-Omega Grant funds Security Engineering Champion
 
 ## The Work
 
-Links to Github issues and Project Tracking Board are TBD.
+* https://github.com/openjs-foundation/security-collab-space
+* https://github.com/openjs-foundation/security-collab-space/issues
 
 
 
