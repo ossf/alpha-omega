@@ -5,9 +5,10 @@ The purpose of the Rust Foundation’s engagement with Alpha-Omega engagement is
 
 In addition to the monthly reports here in GitHub, the Rust Foundation provides regular updates of its progress and plans on its security initiative, either in standalone reports or as a combined report with other Foundation-supported initiatives:
 
-* [September 2024](https://foundation.rust-lang.org/news/latest-rust-foundation-report-details-technical-accomplishments/)
-* [February 2024](https://foundation.rust-lang.org/news/second-security-initiative-report-details-rust-security-advancements/)
-* [July 2023](https://foundation.rust-lang.org/news/new-rust-foundation-report-details-security-initiative-progress/)
+* [Rust Foundation Annual Report - January 2025](https://rustfoundation.org/media/download-the-2024-rust-foundation-annual-report/)
+* [Rust Foundation Technical Report - September 2024](https://foundation.rust-lang.org/news/latest-rust-foundation-report-details-technical-accomplishments/)
+* [Security Initiative Report - February 2024](https://foundation.rust-lang.org/news/second-security-initiative-report-details-rust-security-advancements/)
+* [Security Initiative Report - July 2023](https://foundation.rust-lang.org/news/new-rust-foundation-report-details-security-initiative-progress/)
 
 ## Threat Modeling
 
