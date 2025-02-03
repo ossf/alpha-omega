@@ -1,7 +1,6 @@
-Update December 2024-January 2025
+# Update December 2024-January 2025
 
 This report summarizes the accomplishments made during December 2024 and January 2025 within the Node.js project, spanning security initiatives, automation, community engagements, and release processes.
-
 
 ## Node.js
 
@@ -124,3 +123,14 @@ A [new website](https://openpathfinder.com/docs/getting-started) provides access
 In this [blog post](https://openpathfinder.com/blog/welcome/), you’ll find a 10-minute demo showcasing the current capabilities of VisionBoard and FortSphere. 
 
 For VisionBoard’s future roadmap, check [this issue](https://github.com/OpenPathfinder/visionBoard/issues/30).
+
+### Security Compliance Guide v1.1 Improvements
+
+* Began early work to iterate to [v1.1 of the Compliance Guide](https://docs.google.com/spreadsheets/d/1GwIsAudAn89xv9DAbr1HUaY4KEVBsYfg--_1cW0uIB0/edit?pli=1&gid=1617559049#gid=1617559049) based on feedback from maintainers. Expect an in-depth update in February.
+
+### OpenJS CVE Numbering Authority (CNA) Launch
+
+- Scheduled 6 virtual townhalls for OpenJS maintainers to review the CNA's launch and operations plans, answer questions, and hear requests and feedback.
+- Distributed the [OpenJS CNA Guide for OpenJS Maintainers](https://docs.google.com/document/d/1AID4IacA-58UzJYe2FC76knEuABWZ37L-a4KiYJ_bm4/edit?usp=sharing) (which will transition to GitHub after updates from the townhalls.
+- Updated the [OpenJS CVD Guide](https://github.com/openjs-foundation/security-collab-space/tree/main/CVD_Guide) based on feedback from the OpenJS Security Collab Space. Expect more updates in February.
+- Initial design for a new [OpenJS Security page](https://github.com/openjs-foundation/security-collab-space/issues/266) in addition to the CNA page to highlight resources for project consumers and maintainers.
