@@ -13,6 +13,7 @@ Marty's staffing expansion started in December 2024. Samuel's staffing is a cont
 
 * [December 2024](../../2024/RubyCentral/update-2024-12.md)
 * [January 2025](update-2025-01.md)
+* [February 2025](update-2025-02.md)
 
 
 
