@@ -39,3 +39,21 @@ One step more closer to a fully automated security release process. This time, t
 as part of the official process https://github.com/nodejs/node/pull/56907.
 
 The Node.js team has taken another step toward a fully automated security release process. This time, the team has automated the creation of vulnerability pull requests, streamlining the reporting and patching workflow. The recent implementation of this automation can be seen in nodejs/security-wg#1437, further reducing manual intervention in the security disclosure pipeline.
+
+### Q1'25 Security Compliance Guide v1.1 Improvements
+
+* Continued work iterate to [v1.1 of the Compliance Guide](https://docs.google.com/spreadsheets/d/1xOWeLCutk5qIRJpfJZ6vsjX1M2DVsJlB5DgDOgygbaE/edit?gid=304502805#gid=304502805):
+- Added more guidelines for npm; exploring including other package managers
+- Deprecated Priority Group organization
+- Separated out items more clearly identify which items apply for different maintainer group sizes
+- Updated phrasing of a number of entries for clarity
+
+### H1'25 Secure Release Guide Update
+
+* Kicked off initial discussions and alignment regarding our approach for the new secure release guide. We are [evaluating OpenSSF's npm Best Practices](https://docs.google.com/document/d/1fek97rVlUXO41pQUOkW6aZE2Jwx9m1PlvNSnEVtmU0M/edit?tab=t.0#heading=h.xla7di9m1yob) as a foundational place to work from.
+
+### OpenJS CVE Numbering Authority (CNA) Launch
+
+* Held 6 virtual townhalls for OpenJS maintainers to review the CNA's launch and operations plans, answer questions, and hear requests and feedback.
+* RedHat's CNA announced the day before our meeting with them that they are pausing onboarding of new CNAs without an estimated date. We've reached out to MITRE to move the CNA process along.
+* Built new OpenJS Security landing page that goes beyond the original CNA website to include resources for project maintainers and consumers.
