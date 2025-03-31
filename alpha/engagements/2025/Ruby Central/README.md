@@ -14,6 +14,7 @@ Marty's staffing expansion started in December 2024. Samuel's staffing is a cont
 * [December 2024](../../2024/RubyCentral/update-2024-12.md)
 * [January 2025](update-2025-01.md)
 * [February 2025](update-2025-02.md)
+* [March 2025](update-2025-03.md)
 
 
 
@@ -25,3 +26,5 @@ Marty's staffing expansion started in December 2024. Samuel's staffing is a cont
 ### Announcement / News
 
 * [Ruby Central Announcement](https://rubycentral.org/news/alpha-omega-supports-ruby-centrals-expansion-of-open-source-leadership-security/)
+* [Dealing with Sham Packages](https://blog.rubygems.org/2025/02/20/dealing-with-sham-packages.html)
+* [RubyGems New Policies Announcement](https://rubycentral.org/news/introducing-new-policies-to-support-the-growth-of-rubygems/)
