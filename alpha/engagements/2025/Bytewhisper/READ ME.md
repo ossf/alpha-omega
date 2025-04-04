@@ -1,1 +1,4 @@
 
+The Linux Foundation (Alpha-Omega) has engaged Bytewhisper Security to submit a proposal for ongoing efforts to enhance the security of key AI and software libraries through the introduction of remediations and forward-looking mitigation strategies. The proposed services are designed to help targeted projects address security risks inherent in AI ecosystems and improve a consumer’s ability to protect critical projects from vulnerabilities that could be exploited. 
+
+This engagement will involve collaboration with key contributors on securing the supply chain, building effective continuous integration/continuous deployment (CI/CD) workflows, and fixing key vulnerabilities in open-source AI libraries. Our goal is to help Alpha-Omega and their partner projects identify and mitigate common attack vectors, while experimenting with strategies such as sandboxing, branch protection, and whitelist enforcement to enhance overall security hygiene.
