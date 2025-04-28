@@ -1,0 +1,46 @@
+# Rust for Linux
+
+Please find below our March 2025 update for Internet Security Research Group (ISRG)’s Prossimo “Rust for Linux” project.
+
+**About the project:**
+
+Our goal for the [Rust for Linux](https://rust-for-linux.com/) project is to add support for the memory safe Rust language to the Linux kernel, in order to improve the security and reliability of billions of devices and computer systems that use the Linux kernel around the world. Rust was merged into the open source Linux kernel in late 2022, which was a key milestone towards that goal. Thanks to support from Alpha-Omega, ISRG is working with the primary maintainer of Rust for Linux, Miguel Ojeda, to continue to improve the support for Rust in the Linux kernel so that the first major Rust production drivers can be merged upstream.
+
+**March 2025 Highlights:**
+
+The regular Rust PR for the Linux v6.15 kernel cycle was prepared, and is about to be sent to Linus Torvalds. For the Linux v6.14 kernel cycle, a third Rust fixes PR [1] was prepared, sent and merged. 
+
+The regular Rust PRs sent each kernel cycle (as well as the “fixes” PRs), represent the combined work from a multitude of developers and several major companies that adds and maintains the required features (such as Rust abstractions for kernel C APIs) that the first major Rust production drivers need.
+
+The Rust “subsystem” has started to receive PRs from sub-maintainers [2]. 
+
+This means now there will be maintainers taking explicit responsibility for particular subsets/folders of the Rust subsystem, applying patches themselves and sending them as PRs, to then be aggregated and sent to Linus as a single unit. The Rust “subsystem” and the Rust for Linux mailing list are growing and receiving an increasing number of contributions per unit of time. Since the beginning of the Rust for Linux project, we have tried to get kernel maintainers involved, since otherwise the work would not scale. However, even then, there is a lot of work that needs to be done within the Rust “subsystem”, especially given the recent discussions around the Rust kernel policy. Therefore, by having sub-maintainers that can take responsibility for certain subsets, it means the work within our own subsystem can scale as well. It is also a good way for team members to grow and get experience being maintainers themselves.
+
+The DMA abstractions that triggered the Rust kernel policy document and its related widespread discussions in February have been applied [3]. 
+
+The DMA abstractions finally landing upstream mean their users will be unblocked, including the first major Rust production drivers continuing their upstream process. In addition, the abstractions represent a way forward for other cases where there may be contention on merging abstractions upstream. This also reduces the risk for other potential users and companies to start investing in Rust in the kernel, since now there is a path forward even in the event an upstream maintainer may not agree with Rust in the kernel.
+
+The `alloc`, `#[expect]` and “Custom FFI” support has been backported [4] to the Linux 6.12 LTS kernel. 
+
+Linux 6.12 LTS is the kernel into which some Android kernels are based on, and thus having the `alloc`, `#[expect]` and “Custom FFI” support in that stable kernel branch means easier development for its engineers (since e.g. there is less divergence), as well as easier backports from mainline. In turn, that helps Android to use Rust for Linux in their kernel.
+
+[1] https://lore.kernel.org/rust-for-linux/20250315212232.2360641-1-ojeda@kernel.org/
+[2] https://lore.kernel.org/rust-for-linux/87pliljcvy.fsf@kernel.org/
+[3] https://lore.kernel.org/rust-for-linux/CANiq72kAK84N-2ZzB1tKPQ-gwiYzE=QginDc1Fw4g7FBLDn4yw@mail.gmail.com/
+[4] https://lore.kernel.org/stable/20250307225008.779961-1-ojeda@kernel.org/
+
+**March 2025 Additional Work Undertaken:**
+
+  - Beyond what is highlighted above, we continued work toward the below, all aimed at improving the support for Rust in the Linux kernel so that the first major Rust production drivers can be merged upstream.
+
+  - We continued maintenance of the development branch by applying/reviewing/testing patches, solving conflicts with other subsystems, reproducing issues, and maintaining the CIs. 
+
+  - As part of our work maintaining Rust support in the stable kernels, we backported Rust fixes when required and tested the branches with Rust enabled.
+
+  - We performed other subsystem maintenance, including reporting issues to other projects (e.g. the Rust compiler and `bindgen`) and maintaining the ["live lists"](https://github.com/Rust-for-Linux/linux/issues/2), which track bugfixes, wanted features, and unstable features from other projects.
+
+  - We furthered technical development of Rust in the Linux kernel via continued development of the new build system, as well as building the documentation infrastructure.
+
+  - We performed Rust for Linux core team management via maintenance of the internal spreadsheets of the team (that track the status of all patch series, PRs, versioning, etc.), organizing and leading the core team weekly meetings, and keeping track of news relevant for the team.
+
+  - We supported building the Rust Community by writing new content and keeping the [Rust for Linux webpage](https://rust-for-linux.com) up to date, maintaining relationships with other projects, guiding new contributors, and spending time organizing the Rust for Linux [Kangrejos](https://kangrejos.com) conference. 
