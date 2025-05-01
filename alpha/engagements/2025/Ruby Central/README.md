@@ -4,10 +4,13 @@ Our engagement with Alpha-Omega focuses on improving security in the Ruby ecosys
 
 * Samuel Giddins' staffing as our security engineer in residence
 * Marty Haught's expanded role to establish a security culture and operationalize security
+* Infrastructure Security - SSO
 
 ### Timeline
 
 Marty's staffing expansion started in December 2024. Samuel's staffing is a continuation from 2024 under the same role sponsored by AWS.
+
+The first phase of the Infrastructure Security work focused on SSO access is estimated to start in May 2025 once another project wraps up. 
 
 ### Monthly Updates
 
