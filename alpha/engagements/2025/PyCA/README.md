@@ -20,7 +20,9 @@ This engagement started in January 2025.
 * [February 2025](./update-2025-02.md)
 * [March 2025](./update-2025-03.md)
 * [April 2025](./update-2025-04.md)
+* [May 2025](./update-2025-05.md)
+* [June 2025](./update-2025-06.md)
 
 ## Primary Contacts
 
-* William Woodruff - Trail of Bits
+* Facundo Tuesca - Trail of Bits
