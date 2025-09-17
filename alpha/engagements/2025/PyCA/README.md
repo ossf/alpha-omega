@@ -22,6 +22,8 @@ This engagement started in January 2025.
 * [April 2025](./update-2025-04.md)
 * [May 2025](./update-2025-05.md)
 * [June 2025](./update-2025-06.md)
+* [July 2025](./update-2025-07.md)
+* [August 2025](./update-2025-08.md)
 
 ## Primary Contacts
 
