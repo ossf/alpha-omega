@@ -2,7 +2,7 @@
 
 Our engagement with Alpha-Omega focuses on improving security in the Ruby ecosystem.  For 2025, we have the following active grants.
 
-* Samuel Giddins' staffing as our security engineer in residence
+* Security engineer in residence (to be hired)
 * Marty Haught's expanded role to establish a security culture and operationalize security
 * Infrastructure Security - SSO
 
@@ -24,11 +24,11 @@ The first phase of the Infrastructure Security work focused on SSO access is est
 * [July 2025](update-2025-07.md)
 * [August 2025](update-2025-08.md)
 
+* [October 2025](update-2025-10.md)
 
 ### Primary Contacts
 
 * Marty Haught - Director of Open Source
-* Samuel Giddins - Security Engineer-in-Residence
 
 ### Announcement / News
 
