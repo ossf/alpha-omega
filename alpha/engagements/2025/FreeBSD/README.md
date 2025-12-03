@@ -21,6 +21,7 @@ Cleaning project. The deliverables and outcomes are expected as follows:
 * [August 2025](update-2025-08.md)
 * [September 2025](update-2025-09.md)
 * [October 2025](update-2025-10.md)
+* [November 2025](update-2025-11.md)
 
 ## Notes on the FreeBSD Security team and policies
 
