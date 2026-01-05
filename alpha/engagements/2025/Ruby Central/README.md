@@ -25,7 +25,7 @@ The first phase of the Infrastructure Security work focused on SSO access is est
 * [September 2025](update-2025-09.md)
 * [October 2025](update-2025-10.md)
 * [November 2025](update-2025-11.md)
-
+* [December 2025](update-2025-12.md)
 
 ### Primary Contacts
 
