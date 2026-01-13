@@ -10,3 +10,4 @@
 oss-gadget.log
 /.idea/*
 *~
+.vscode/settings.json
