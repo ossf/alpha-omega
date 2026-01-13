@@ -6,19 +6,22 @@ In 2025, the FreeBSD Project has been selected for the Alpha Omega Beach
 Cleaning project. The deliverables and outcomes are expected as follows:
 
 1. Inventory of FreeBSD's dependencies
-1. Observational anecdotal assessment
-1. Develop and share rapid review methodologies
-1. Prioritized list of most obvious risky or needy dependencies
-1. Plan for each risky dependency
-1. Execute on the plan for risky dependency
-1. Work with the respective stakeholders on tooling for automation
-1. Document and formalize community owners for each dependency
+2. Observational anecdotal assessment
+3. Develop and share rapid review methodologies
+4. Prioritized list of most obvious risky or needy dependencies
+5. Plan for each risky dependency
+6. Execute on the plan for risky dependency
+7. Work with the respective stakeholders on tooling for automation
+8. Document and formalize community owners for each dependency
 
 ## Monthly Updates
 
 * [June 2025](update-2025-06.md)
 * [July 2025](update-2025-07.md)
 * [August 2025](update-2025-08.md)
+* [September 2025](update-2025-09.md)
+* [October 2025](update-2025-10.md)
+* [November 2025](update-2025-11.md)
 
 ## Notes on the FreeBSD Security team and policies
 
