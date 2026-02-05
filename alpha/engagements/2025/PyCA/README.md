@@ -12,7 +12,10 @@ PyCA Cryptography's internal use of ASN.1 and DER.
 
 ## Timeline
 
-This engagement started in January 2025.
+This engagement started in January 2025. As of December 2025, the formal
+engagement has finished. However, the upstreaming work continues and its
+progress can be followed in
+[this GitHub issue](https://github.com/pyca/cryptography/issues/12283#issuecomment-3422062527).
 
 ## Monthly updates
 
@@ -25,6 +28,9 @@ This engagement started in January 2025.
 * [July 2025](./update-2025-07.md)
 * [August 2025](./update-2025-08.md)
 * [September 2025](./update-2025-09.md)
+* [October 2025](./update-2025-10.md)
+* [November 2025](./update-2025-11.md)
+* [December 2025](./update-2025-12.md)
 
 ## Primary Contacts
 
