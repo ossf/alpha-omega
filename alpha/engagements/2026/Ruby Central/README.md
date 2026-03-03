@@ -8,6 +8,7 @@ Our engagement with Alpha-Omega focuses on improving security in the Ruby ecosys
 ### Monthly Updates
 
 * [January 2026](update-2026-01.md)
+* [February 2026](update-2026-02.md)
 
 
 ### Primary Contacts
