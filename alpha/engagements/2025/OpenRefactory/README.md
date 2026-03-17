@@ -66,6 +66,7 @@ This engagement started in July 2025. The engagement ended in December 2025.
 * [August 2025](update-2025-08.md)
 * [September 2025](update-2025-09.md)
 * [October 2025](update-2025-10.md)
+* [November 2025](update-2025-11.md)
 
 ## Primary Contacts
 
