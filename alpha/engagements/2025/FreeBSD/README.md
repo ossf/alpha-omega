@@ -14,6 +14,8 @@ Cleaning project. The deliverables and outcomes are expected as follows:
 7. Work with the respective stakeholders on tooling for automation
 8. Document and formalize community owners for each dependency
 
+The project continued into [2026](../../2026/FreeBSD/README.md).
+
 ## Monthly Updates
 
 * [June 2025](update-2025-06.md)
@@ -23,6 +25,8 @@ Cleaning project. The deliverables and outcomes are expected as follows:
 * [October 2025](update-2025-10.md)
 * [November 2025](update-2025-11.md)
 * [December 2025](update-2025-12.md)
+* [January 2026](../../2026/FreeBSD/update-2026-01.md)
+* [February 2026](../../2026/FreeBSD/update-2026-02.md)
 
 ## Notes on the FreeBSD Security team and policies
 

@@ -2,8 +2,9 @@
 
 ## Program Overview
 
-In 2025, the FreeBSD Project has been selected for the Alpha Omega Beach
-Cleaning project. The deliverables and outcomes are expected as follows:
+In [2025](../../2025/FreeBSD/README.md), the FreeBSD Project has been selected
+for the Alpha Omega Beach Cleaning project. The deliverables and outcomes are
+expected as follows:
 
 1. Inventory of FreeBSD's dependencies
 2. Observational anecdotal assessment
@@ -16,14 +17,15 @@ Cleaning project. The deliverables and outcomes are expected as follows:
 
 ## Monthly Updates
 
-* [June 2025](../../2025/update-2025-06.md)
-* [July 2025](../../2025/update-2025-07.md)
-* [August 2025](../../2025/update-2025-08.md)
-* [September 2025](../../2025/update-2025-09.md)
-* [October 2025](../../2025/update-2025-10.md)
-* [November 2025](../../2025/update-2025-11.md)
-* [December 2025](../../2025/update-2025-12.md)
+* [June 2025](../../2025/FreeBSD/update-2025-06.md)
+* [July 2025](../../2025/FreeBSD/update-2025-07.md)
+* [August 2025](../../2025/FreeBSD/update-2025-08.md)
+* [September 2025](../../2025/FreeBSD/update-2025-09.md)
+* [October 2025](../../2025/FreeBSD/update-2025-10.md)
+* [November 2025](../../2025/FreeBSD/update-2025-11.md)
+* [December 2025](../../2025/FreeBSD/update-2025-12.md)
 * [January 2026](update-2026-01.md)
+* [February 2026](update-2026-02.md)
 
 ## Notes on the FreeBSD Security team and policies
 
