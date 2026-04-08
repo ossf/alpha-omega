@@ -28,4 +28,4 @@ execution in January 2026 and remediation through March 2026.
 
 ## Announcement / News
 
-*Announcements will be added when available.*
+* [Hex.pm Blog: Security Audit](https://hex.pm/blog/security-audit)
