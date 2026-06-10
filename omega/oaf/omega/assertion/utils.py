@@ -133,6 +133,7 @@ def get_package_url_with_version(package_url: PackageURL | str) -> PackageURL:
     # Try using the libraries.io API
     # HACK: Libraries.io knows RubyGems as "pkg:rubygems", nor "pkg:gem", so we need
     #       to convert it to the correct format.
+    mod_purl = purl
     if purl.type == "gem":
         mod_purl = PackageURL(type="rubygems", name=purl.name, version=purl.version)
 
