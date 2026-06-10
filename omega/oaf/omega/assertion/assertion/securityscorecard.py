@@ -92,7 +92,7 @@ class SecurityScorecard(BaseAssertion):
 
     def load_input_file(self) -> bool:
         """Loads scorecard data from an input file."""
-        if not self.input_file or os.path.isfile(self.input_file):
+        if not self.input_file or not os.path.isfile(self.input_file):
             return False
 
         logging.debug("Reading input file: %s", self.input_file)
