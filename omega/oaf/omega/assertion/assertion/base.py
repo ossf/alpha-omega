@@ -176,7 +176,7 @@ class BaseAssertion:
             return
 
         if isinstance(value, str):
-            if not str:
+            if not value.strip():
                 self._expiration = None
                 return
 
