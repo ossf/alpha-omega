@@ -22,6 +22,7 @@ execution in January 2026 and remediation through March 2026.
 * [March 2026](update-2026-03.md)
 * [April 2026](update-2026-04.md)
 * [May 2026](update-2026-05.md)
+* [June 2026](update-2026-06.md)
 
 ## Primary Contacts
 
@@ -31,3 +32,4 @@ execution in January 2026 and remediation through March 2026.
 ## Announcement / News
 
 * [Hex.pm Blog: Security Audit](https://hex.pm/blog/security-audit)
+* [Hex.pm Blog: HexDocs Per-Package Subdomains](https://hex.pm/blog/hexdocs-per-package-subdomains)
