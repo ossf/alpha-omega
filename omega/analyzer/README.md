@@ -4,7 +4,7 @@ The Omega Analyzer is a self-contained container image that has a broad set of s
 preinstalled, along with an orchestration script to run those tools against a target and
 aggregate the results.
 
-While it can be used interactively, it's primary purpose is to be run from the host, with
+While it can be used interactively, its primary purpose is to be run from the host, with
 output send to a mapped directory.
 
 ## Building
