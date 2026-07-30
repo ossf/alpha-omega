@@ -27,5 +27,4 @@ In addition to the monthly reports here in GitHub, the Rust Foundation provides 
 * Tobias Bieniek - Software Engineer, Rust Foundation
 * Marco Ieni - Infrastructure Engineer, Rust Foundation
 * Ubiratan Soares - Infrastructure Engineer, Rust Foundation
-* Jon Bauman - Interop Software Engineer Lead, Rust Foundation
 * Joel Marcey - Director of Technology, Rust Foundation
