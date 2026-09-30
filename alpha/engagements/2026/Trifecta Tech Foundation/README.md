@@ -50,4 +50,4 @@ Our projects are organized in three initiatives:
 - Privilege boundary
 - Data compression 
 
-Projects such as zlib-rs (part of Firefox), sudo-rs (default sudo on Ubuntu), and ntpd-rs that runs in the Let's Encrypt infrastructure, are strong examples of how work impacts the digital security of millions of people.
+Projects such as zlib-rs (part of Firefox), sudo-rs (default sudo on Ubuntu), and ntpd-rs that runs in the Let's Encrypt infrastructure, are strong examples of how our work impacts the digital security of millions of people.
