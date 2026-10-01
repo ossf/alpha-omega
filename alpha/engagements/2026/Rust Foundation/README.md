@@ -31,4 +31,3 @@ In addition to the monthly reports here in GitHub, the Rust Foundation provides 
 * Jess Izen - Engineer in Residence, Rust Foundation / AWS
 * Jacob Finkelman - Security Engineer in Residence, Rust Foundation
 * Arlo Siemsen - Distrubtion Engineer, Rust Foundation
-* Jess Izen - Engineer in Residence, Rust Foundation (from AWS)
